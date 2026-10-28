@@ -42,10 +42,17 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
   `planes`), lista de compras consolidada y PDF del plan con marca de agua;
   página `/plan` con regeneración, reemplazo por slot y compras. 147/147
   pruebas.
-- **FASE 10 (identidad, sync y premium): próxima** — ver criterios en
-  `docs/roadmap.md`; incluye comparación de backends y evaluación de amenazas
-  para datos íntimos sincronizados; evaluar derivación de la clave del ciclo
-  con PIN (D19).
+- **FASE 10 ✅** (identidad, sync y premium) — completa: comparativa documentada
+  Cloudflare Workers+D1(+R2) vs Supabase (`docs/comparacion-backend.md`),
+  evaluación de amenazas de datos íntimos (`docs/threat-model-sync.md`) con
+  criptografía Zero-Knowledge con PIN (`src/lib/seguridad/pin-crypto.ts`,
+  PBKDF2 100k + AES-GCM-256), entitlements con regla inviolable de gratuidad
+  para ciclo básico, calculadoras y exportación (`src/lib/premium/entitlements.ts`),
+  validación de permisos en backend, auth local-first (`src/lib/auth/auth.ts`),
+  motor de sincronización LWW (`src/lib/sync/sync-engine.ts`) y UI en `/ajustes`.
+  177/177 pruebas.
+- **FASE 11 (distribución): próxima** — APK firmado con Capacitor + PWA en
+  Cloudflare Pages; pruebas en dispositivos reales.
 
 ## Plan de fases
 Definitivo en `docs/roadmap.md` (FASES 0–12 con criterios de aceptación, matriz de
@@ -102,13 +109,16 @@ dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
   con puerta de consentimiento, registro diario cifrado, calendario, historial
   y control de desactivación con borrado; exportación v5 cifrada (sin clave).
 
+- **FASE 10 completa:** comparativa backend (`docs/comparacion-backend.md`),
+  threat model (`docs/threat-model-sync.md`), cifrado Zero-Knowledge derivado
+  de PIN (`pin-crypto.ts`), entitlements y permisos de servidor (`entitlements.ts`),
+  auth y sesión (`auth.ts`), motor de sync LWW (`sync-engine.ts`) y UI en `/ajustes`.
+
 ## Pendientes inmediatos
-- FASE 10: identidad/sync/premium (comparación Cloudflare Workers+D1 vs
-  Supabase, auth+roles, entitlements, evaluación de amenazas para datos íntimos
-  sincronizados; evaluar PIN para la clave del ciclo — D19).
-- Pendiente menor: code-splitting adicional del main (~611 kB) si hace falta.
-- Pendiente FASE 11: probar guardar/compartir el PDF (receta y plan) en
-  Android y iPhone reales.
+- FASE 11: distribución (APK firmado con Capacitor, PWA desplegada en Cloudflare Pages,
+  instalable en iPhone, pruebas offline en dispositivos reales).
+- Pendiente menor: code-splitting adicional del main (~615 kB) si hace falta.
+- Probar guardar/compartir el PDF (receta y plan) en Android y iPhone reales.
 
 ## Notas de entorno
 - Git repo-local: Everth <ebolivar1000@gmail.com> (Cloudflare sigue siendo caribialabs@gmail.com).

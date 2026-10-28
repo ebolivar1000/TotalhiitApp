@@ -1,5 +1,38 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 11) — FASE 10 cerrada (identidad, sync y premium)
+- **Comparativa de Backend documentada** (`docs/comparacion-backend.md`):
+  análisis exhaustivo Cloudflare Workers+D1(+R2) vs Supabase con límites de plan
+  gratis verificados. Supabase suspende proyectos tras 7 días de inactividad,
+  mientras que Cloudflare D1 ofrece 5 GB de BD sin suspensiones y R2 ofrece 10 GB
+  con $0 por transferencia saliente (egress). Se adoptó Cloudflare aprovechando la
+  cuenta existente (`caribialabs@gmail.com`).
+- **Modelo de amenazas y privacidad de datos íntimos** (`docs/threat-model-sync.md`):
+  análisis STRIDE/OWASP. Regla: el ciclo menstrual permanece solo local por defecto;
+  si se sincroniza, se exige cifrado **Zero-Knowledge con PIN** en cliente
+  (`src/lib/seguridad/pin-crypto.ts`, WebCrypto PBKDF2 100k + AES-GCM-256). El servidor
+  recibe únicamente texto cifrado ininteligible.
+- **Entitlements y validación en servidor** (`src/lib/premium/entitlements.ts`):
+  roles `invitado`, `usuario`, `premium`, `admin`. Regla dura inviolable:
+  el ciclo menstrual básico, las calculadoras y la exportación de datos son **SIEMPRE GRATIS**.
+  La autorización se valida estrictamente en el backend (`validarPermisoServidor`);
+  sin pasarelas de pago hasta decisión del propietario.
+- **Autenticación y sesión local-first** (`src/lib/auth/auth.ts`):
+  esquemas Zod de credenciales con complejidad obligatoria, sesión con persistencia
+  local segura y modo invitado por defecto.
+- **Motor de sincronización Local-First** (`src/lib/sync/sync-engine.ts`):
+  resolución de conflictos Last-Write-Wins (LWW), cola offline con vaciado automático
+  al sincronizar, soporte de lápidas (soft delete) y verificación de seguridad obligatoria
+  que rechaza sincronizar datos íntimos en claro.
+- **UI `/ajustes` actualizada:**
+  sección "Cuenta y Membresía" (estado de invitado/usuario y aviso de gratuidad),
+  sección "Sincronización y Respaldo" con selector de privacidad para el ciclo
+  ("Solo en este dispositivo" vs "Cifrado Zero-Knowledge con PIN").
+- **Verificación:** `tsc -b` ✅ · **vitest 177/177** ✅ (30 pruebas nuevas: 6 de PIN crypto,
+  12 de entitlements y permisos de servidor, 6 de auth y sesión, 6 de sync engine) ·
+  build de producción PWA ✅ (main 615 kB, pdf 426 kB lazy).
+- Docs actualizadas (roadmap FASE 10 tildada, state, next-steps, D21–D24, backend y threat model).
+
 ## 2026-10-28 (sesión 10) — FASE 9 cerrada (menús semanales, compras y PDF del plan)
 - **Modelo + DB v6:** `planSemanalSchema` (semana arranca en lunes, slots únicos
   por día/comida, porciones del plan) y store `planes` con índice

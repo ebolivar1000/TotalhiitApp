@@ -5,11 +5,15 @@ import { borrarDatosPersonales, exportarDatos } from '../lib/datos/repositorio';
 import { VERSIONES_CONSENTIMIENTO } from '../lib/datos/entidades';
 import { fechaHoyIso } from '../lib/utilidades/fechas';
 import { LLAVE_ONBOARDING_SALTADO, usePerfil } from '../hooks/usePerfil';
+import { obtenerSesionActual, type SesionAuth } from '../lib/auth/auth';
 
 export default function Ajustes() {
   const { cargando, perfil, recargar } = usePerfil();
   const navigate = useNavigate();
   const [confirmandoBorrado, setConfirmandoBorrado] = useState(false);
+  const [sesion] = useState<SesionAuth>(() => obtenerSesionActual());
+  const [syncNube, setSyncNube] = useState(false);
+  const [cicloSoloLocal, setCicloSoloLocal] = useState(true);
 
   const exportar = async () => {
     const datos = await exportarDatos();
@@ -51,6 +55,65 @@ export default function Ajustes() {
             Completar mi perfil →
           </Link>
         )}
+      </Tarjeta>
+
+      {/* FASE 10: Cuenta, Membresía y Sincronización */}
+      <Tarjeta>
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-marca-magenta">Cuenta y Membresía</h2>
+        <div className="space-y-2 text-sm text-zinc-600">
+          <p>
+            Estado: <strong>{sesion.rol === 'invitado' ? 'Modo Invitado (100% local)' : sesion.email}</strong>
+          </p>
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-zinc-800">Plan TOTALHIIT:</span>
+              <span className="rounded-full bg-zinc-200 px-2.5 py-0.5 text-xs font-bold text-zinc-700 uppercase">
+                {sesion.plan === 'gratis' ? 'Gratis' : sesion.plan}
+              </span>
+            </div>
+            <p className="mt-2 text-xs text-zinc-500">
+              El módulo menstrual básico, las calculadoras y la exportación de datos son <strong>siempre gratuitos</strong>.
+              Las suscripciones premium se habilitarán próximamente sin cobros sorpresa.
+            </p>
+          </div>
+        </div>
+      </Tarjeta>
+
+      <Tarjeta>
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-marca-magenta">Sincronización y Respaldo</h2>
+        <div className="space-y-3 text-sm text-zinc-600">
+          <label className="flex items-center justify-between cursor-pointer">
+            <span>Sincronización en la nube:</span>
+            <input
+              type="checkbox"
+              checked={syncNube}
+              onChange={(e) => setSyncNube(e.target.checked)}
+              className="h-5 w-5 rounded border-zinc-300 text-marca-magenta focus:ring-marca-magenta"
+            />
+          </label>
+          <p className="text-xs text-zinc-500">
+            {syncNube
+              ? 'La sincronización está activa para tus entrenamientos, recetas y registros generales.'
+              : 'Modo local-first activo: tus datos residen únicamente en la memoria de este dispositivo.'}
+          </p>
+
+          <div className="rounded-xl border border-marca-magenta/20 bg-pink-50/50 p-3">
+            <label className="flex items-center justify-between cursor-pointer font-medium text-zinc-800">
+              <span>Privacidad de ciclo menstrual:</span>
+              <input
+                type="checkbox"
+                checked={cicloSoloLocal}
+                onChange={(e) => setCicloSoloLocal(e.target.checked)}
+                className="h-5 w-5 rounded border-zinc-300 text-marca-magenta focus:ring-marca-magenta"
+              />
+            </label>
+            <p className="mt-1 text-xs text-zinc-600">
+              {cicloSoloLocal
+                ? '🔒 Tus datos íntimos de ciclo se conservan estrictamente en este dispositivo (máxima privacidad).'
+                : '🔑 Sincronización Zero-Knowledge: los datos de ciclo se cifran en tu navegador con tu PIN antes de viajar.'}
+            </p>
+          </div>
+        </div>
       </Tarjeta>
 
       <Tarjeta>
@@ -95,7 +158,7 @@ export default function Ajustes() {
       <Tarjeta>
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-marca-magenta">Privacidad</h2>
         <ul className="list-inside list-disc space-y-1 text-sm text-zinc-600">
-          <li>Tus datos no se suben a ningún servidor.</li>
+          <li>Tus datos no se suben a ningún servidor sin tu consentimiento.</li>
           <li>Las funciones de salud son opt-in y revocables desde acá.</li>
           <li>Consentimientos activos: {VERSIONES_CONSENTIMIENTO.perfil ? 'perfil v1' : '—'}, salud general v1, menstrual v1.</li>
           <li>Al borrar tus datos también se revocan los consentimientos.</li>

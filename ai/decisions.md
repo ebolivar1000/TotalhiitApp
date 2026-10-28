@@ -223,3 +223,40 @@ cuenta de Cloudflare sigue siendo caribialabs@gmail.com). Artefactos
   si hay → regenerar (reescribe slots), toggle compras, PDF, y un Selector por
   comida para reemplazar desde el catálogo filtrado + link "ver →" al detalle.
   Cero dependencias nuevas; pdf-lib sigue en chunk lazy (import dinámico).
+
+## D21 — FASE 10: Comparativa de Backend (Cloudflare vs Supabase) (2026-10-28)
+- Se evaluó Cloudflare Workers + D1 (+ R2) vs Supabase (`docs/comparacion-backend.md`).
+- Hallazgo crítico: Supabase en plan gratuito **pausa bases de datos tras 7 días
+  de inactividad**, introduciendo fallos y latencias de 30s. Cloudflare D1
+  ofrece 5 GB (10x más que Supabase) y **alta disponibilidad continua sin pausas**.
+- R2 ofrece 10 GB y **cero costos de ancho de banda saliente ($0 egress)**,
+  ideal para assets y videos sin facturación imprevista.
+- La cuenta de Cloudflare ya existe (`caribialabs@gmail.com`) y aloja el sitio.
+  Se recomienda y adopta Cloudflare como backend objetivo.
+
+## D22 — FASE 10: Modelo de amenazas y Criptografía Zero-Knowledge con PIN (2026-10-28)
+- Documento `docs/threat-model-sync.md` (STRIDE/OWASP).
+- **Regla de oro de privacidad:** El módulo menstrual por defecto se mantiene
+  **estrictamente local** en el dispositivo. Si la usuaria activa la sincronización,
+  el payload se cifra en el cliente con **WebCrypto PBKDF2 (SHA-256, 100k iteraciones)
+  + AES-GCM-256** derivado de su PIN (`src/lib/seguridad/pin-crypto.ts`).
+- El PIN jamás viaja al servidor; el servidor solo almacena texto cifrado ininteligible
+  (Zero-Knowledge). Verificador seguro implementado sin exponer el PIN ni la clave.
+
+## D23 — FASE 10: Entitlements y Validación en Servidor (2026-10-28)
+- Roles: `'invitado' | 'usuario' | 'premium' | 'admin'`.
+- **Reglas inviolables de gratuidad:** El módulo menstrual básico, las calculadoras
+  de salud, la exportación completa de datos y el borrado son **SIEMPRE GRATIS**
+  para todos los usuarios y planes.
+- Validación de permisos **siempre en el servidor**: la API/worker (`validarPermisoServidor`)
+  verifica claims y expiración de tokens; nunca se confía únicamente en botones
+  ocultos en la UI del cliente. Sin pasarela de pagos hasta decisión del propietario.
+
+## D24 — FASE 10: Motor de Sincronización Local-First (2026-10-28)
+- Motor `MotorSincronizacion` (`src/lib/sync/sync-engine.ts`):
+  - Cola de cambios offline con vaciado automático al sincronizar.
+  - Resolución de conflictos **Last-Write-Wins (LWW)** basada en `updatedAt`.
+  - Propagación de eliminaciones mediante lápidas (soft delete `borrado: true`).
+  - `validarSeguridadRegistro` rechaza sincronizar datos íntimos si no cuentan con
+    el sobre cifrado Zero-Knowledge.
+  - Exportación e importación JSON en Ajustes se conservan intactas como red de rescate.

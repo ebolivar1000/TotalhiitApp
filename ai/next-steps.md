@@ -29,30 +29,25 @@
 - FASE 9 (menús semanales): ✅ completa — planificador determinista sin IA,
   upsert por semana (DB v6), lista de compras consolidada, PDF del plan con
   marca de agua, página `/plan` con reemplazo por slot. 147/147 pruebas.
+- FASE 10 (identidad, sync y premium): ✅ completa — comparativa Cloudflare vs
+  Supabase, modelo de amenazas con cifrado Zero-Knowledge con PIN (PBKDF2 100k
+  + AES-GCM), roles y entitlements con reglas inviolables de gratuidad y
+  validación en servidor, motor de sincronización LWW. 177/177 pruebas.
 
 ## Próximo paso concreto
-FASE 10 — identidad, sync y premium (criterios exactos en `docs/roadmap.md`):
-1. Comparación documentada Cloudflare Workers+D1(+R2) vs Supabase: límites del
-   plan gratis verificados en la web oficial, auth, base relacional,
-   almacenamiento, protección de videos, sync y costos. Decisión con el
-   propietario (el sitio usa Workers; ya hay cuenta Cloudflare).
-2. Autenticación segura + roles (usuario/admin separados); validación de
-   permisos SIEMPRE en el servidor; nada de auth reutilizada del sitio sin
-   revisión de seguridad (D7).
-3. Entitlements premium verificados por el backend (nunca solo botones
-   ocultos); el módulo menstrual básico y la exportación de datos quedan
-   SIEMPRE gratis.
-4. Evaluación de amenazas para datos íntimos sincronizados ANTES del
-   lanzamiento (¿el ciclo sube al servidor? solo con cifrado extremo a extremo
-   o cifrado de cliente con PIN; evaluar derivación de la clave con PIN — D19).
-5. Estrategia de sync local-first → servidor (resolución de conflictos simple,
-   export/import como red de seguridad).
-6. Sin pasarela de pagos hasta decisión del propietario (solo preparación de
-   entitlements).
+FASE 11 — Distribución (criterios exactos en `docs/roadmap.md`):
+1. APK firmado con Capacitor (keystore del propietario), versionado semántico,
+   build reproducible, probado en Android.
+2. PWA desplegada en Cloudflare Pages con HTTPS verificado e instalable en iPhone.
+3. Estrategia de actualizaciones (PWA autoUpdate vía service worker; APK versionado).
+4. Preparar instrucciones de instalación y enlace de descarga desde la web
+   (sin tocar el sitio hasta autorización explícita).
+5. Pruebas finales offline y de accesibilidad.
 
 ## Recordatorios para la próxima sesión
 - Leer `ai/state.md`, `ai/decisions.md` y `docs/roadmap.md` antes de codificar.
-- No instalar dependencias nuevas sin autorización (ver D2/D9).
+- Instalar dependencias de Capacitor (`@capacitor/cli`, `@capacitor/core`, `@capacitor/android`)
+  con autorización del propietario al iniciar la FASE 11.
 - Nada del sitio web se toca; puerto dev de la app: 5174.
 - `activo` se persiste como 1/0 (no boolean: índices IndexedDB) — ver D12.
 - Fórmulas de salud centralizadas en `src/lib/salud/` con fórmula documentada

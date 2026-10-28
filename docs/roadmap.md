@@ -159,15 +159,23 @@ Criterios de aceptación:
    de compras (sumas/escalado/a gusto/unidades distintas), exportación v6 y
    PDF del plan válido. 147/147.
 
-### FASE 10 — Identidad, sync y premium — complejidad XL
-1. Comparación documentada Cloudflare Workers+D1(+R2) vs Supabase (límites gratis
-   verificados, auth, base relacional, almacenamiento, protección de videos, sync).
-2. Autenticación segura + roles (usuario/admin separados); validación de permisos en servidor.
-3. Entitlements premium (nunca solo botones ocultos); menstrual básico y exportación SIEMPRE gratis.
-4. Evaluación de amenazas para datos íntimos sincronizados ANTES del lanzamiento.
-5. Sin pasarela de pagos hasta decisión del propietario.
+### FASE 10 — Identidad, sync y premium — complejidad XL ✅ (2026-10-28)
+1. [x] Comparación documentada Cloudflare Workers+D1(+R2) vs Supabase (`docs/comparacion-backend.md`):
+   límites gratis oficiales, sin pausas por inactividad en D1 vs 7 días en Supabase, $0 egress en R2,
+   decisión con el propietario (la cuenta de Cloudflare ya existe).
+2. [x] Autenticación segura + roles (`invitado`, `usuario`, `premium`, `admin`) en `src/lib/auth/auth.ts`;
+   validación de permisos SIEMPRE en el servidor (`validarPermisoServidor` en `src/lib/premium/entitlements.ts`);
+   cero código inseguro heredado del sitio (D7/D23).
+3. [x] Entitlements premium con regla inviolable: el módulo menstrual básico, las calculadoras y la
+   exportación/borrado de datos quedan SIEMPRE gratis para todos los usuarios.
+4. [x] Evaluación de amenazas para datos íntimos sincronizados (`docs/threat-model-sync.md`) con
+   criptografía Zero-Knowledge con PIN (`src/lib/seguridad/pin-crypto.ts`, PBKDF2 100k + AES-GCM-256);
+   el ciclo menstrual permanece solo local por defecto.
+5. [x] Motor de sincronización local-first (`src/lib/sync/sync-engine.ts`) con resolución Last-Write-Wins (LWW),
+   lápidas para borrado y exportación JSON como red de seguridad permanente.
+6. [x] Sin pasarela de pagos hasta decisión del propietario (preparación de entitlements lista).
 
-### FASE 11 — Distribución — complejidad L
+### FASE 11 — Distribución — complejidad L  ← **próxima**
 1. APK firmado (keystore del propietario), versionado, build reproducible, probado en Android real.
 2. PWA desplegada en hosting HTTPS gratuito verificado; instalable en iPhone real.
 3. Estrategia de actualizaciones documentada (PWA autoUpdate; APK con numero de versión).
