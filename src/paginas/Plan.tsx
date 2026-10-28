@@ -54,7 +54,7 @@ export default function Plan() {
 
   if (!perfil) {
     return (
-      <main className="safe-area-inferior mx-auto max-w-md px-4 pb-24 pt-6 text-center">
+      <main className="mx-auto max-w-md px-4 pb-32 pt-6 text-center">
         <Tarjeta>
           <p className="text-sm text-zinc-600">Completá tu perfil para armar tu plan.</p>
           <Link to="/onboarding" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
@@ -105,7 +105,7 @@ export default function Plan() {
   };
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
       <div>
         <h1 className="text-xl font-bold text-zinc-900">Plan semanal</h1>
         <p className="text-sm text-zinc-500">

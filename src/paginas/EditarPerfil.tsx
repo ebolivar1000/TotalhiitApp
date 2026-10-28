@@ -91,7 +91,7 @@ export default function EditarPerfil() {
   if (cargando || !perfil) return null;
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-md px-4 pb-32 pt-6">
       <h1 className="mb-4 text-2xl font-bold text-zinc-900">Editar perfil</h1>
       <div className="space-y-4">
         <Tarjeta>

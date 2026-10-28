@@ -24,7 +24,7 @@ export default function Perfil() {
 
   if (!perfil) {
     return (
-      <main className="safe-area-inferior mx-auto max-w-md px-4 pb-24 pt-6 text-center">
+      <main className="mx-auto max-w-md px-4 pb-32 pt-6 text-center">
         <Tarjeta>
           <p className="text-2xl" aria-hidden="true">
             👋
@@ -42,7 +42,7 @@ export default function Perfil() {
   }
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-zinc-900">Mi perfil</h1>
         <Link to="/perfil/editar" className="text-sm font-semibold text-marca-magenta">

@@ -14,7 +14,7 @@ import {
   valoresInicialesPerfil,
   type FormPerfil,
 } from '../lib/datos/formulario-esquema';
-import { LLAVE_ONBOARDING_SALTADO, usePerfil } from '../hooks/usePerfil';
+import { LLAVE_ONBOARDING_COMPLETADO, LLAVE_ONBOARDING_SALTADO, usePerfil } from '../hooks/usePerfil';
 import { SeccionDatos, SeccionObjetivo, SeccionPreferencias } from '../componentes/formulario/Secciones';
 import { BotonPrimario, BotonSecundario, Campo, Tarjeta } from '../componentes/ui';
 
@@ -25,7 +25,7 @@ const CAMPOS_POR_PASO: (keyof FormPerfil)[][] = [
   ['alias', 'fechaNacimiento', 'pesoKg', 'estaturaCm', 'genero', 'nivelActividad', 'experiencia', 'equipamiento', 'paisRegion'],
   ['tipo'],
   ['alergenos', 'exclusiones', 'tiempoCocinaMaxMin', 'presupuesto', 'porcionesHabituales'],
-  [],
+  ['acepta18', 'aceptaAviso'],
 ];
 
 export default function Onboarding() {
@@ -46,7 +46,7 @@ export default function Onboarding() {
 
   const saltar = () => {
     localStorage.setItem(LLAVE_ONBOARDING_SALTADO, '1');
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
   const siguiente = async () => {
@@ -96,43 +96,67 @@ export default function Onboarding() {
     }
   };
 
-  const finalizar = form.handleSubmit(async (d) => {
-    setGuardando(true);
-    setErrorGuardado('');
-    try {
-      const perfil = await guardarPerfil({
-        alias: d.alias,
-        fechaNacimiento: d.fechaNacimiento,
-        pesoKg: d.pesoKg,
-        estaturaCm: d.estaturaCm,
-        genero: d.genero || undefined,
-        nivelActividad: d.nivelActividad,
-        experiencia: d.experiencia,
-        equipamiento: d.equipamiento,
-        paisRegion: d.paisRegion || undefined,
-      });
-      await registrarObjetivo(perfil.id, d.tipo);
-      await guardarPreferencias(perfil.id, {
-        alergenos: d.alergenos,
-        exclusiones: d.exclusiones,
-        tiempoCocinaMaxMin: d.tiempoCocinaMaxMin,
-        presupuesto: d.presupuesto,
-        porcionesHabituales: d.porcionesHabituales,
-      });
-      await otorgarConsentimiento(perfil.id, 'perfil');
-      await otorgarConsentimiento(perfil.id, 'salud_general');
-      localStorage.removeItem(LLAVE_ONBOARDING_SALTADO);
-      await recargar();
-      navigate('/');
-    } catch {
-      setErrorGuardado('No se pudieron guardar los datos. Revisá los campos e intentá de nuevo.');
-    } finally {
-      setGuardando(false);
+  const finalizar = form.handleSubmit(
+    async (d) => {
+      setGuardando(true);
+      setErrorGuardado('');
+      setErrorValidacion('');
+      try {
+        const perfil = await guardarPerfil({
+          alias: d.alias,
+          fechaNacimiento: d.fechaNacimiento,
+          pesoKg: d.pesoKg,
+          estaturaCm: d.estaturaCm,
+          genero: d.genero || undefined,
+          nivelActividad: d.nivelActividad,
+          experiencia: d.experiencia,
+          equipamiento: d.equipamiento,
+          paisRegion: d.paisRegion || undefined,
+        });
+        await registrarObjetivo(perfil.id, d.tipo);
+        await guardarPreferencias(perfil.id, {
+          alergenos: d.alergenos,
+          exclusiones: d.exclusiones,
+          tiempoCocinaMaxMin: d.tiempoCocinaMaxMin,
+          presupuesto: d.presupuesto,
+          porcionesHabituales: d.porcionesHabituales,
+        });
+        await otorgarConsentimiento(perfil.id, 'perfil');
+        await otorgarConsentimiento(perfil.id, 'salud_general');
+        localStorage.setItem(LLAVE_ONBOARDING_COMPLETADO, '1');
+        localStorage.removeItem(LLAVE_ONBOARDING_SALTADO);
+        await recargar();
+        navigate('/', { replace: true });
+      } catch (e) {
+        console.error('Error al guardar datos de onboarding:', e);
+        setErrorGuardado('No se pudieron guardar los datos. Revisá los campos e intentá de nuevo.');
+      } finally {
+        setGuardando(false);
+      }
+    },
+    (errores) => {
+      const nombresCampos: Record<string, string> = {
+        alias: 'Nombre o alias',
+        fechaNacimiento: 'Fecha de nacimiento (+18 años)',
+        pesoKg: 'Peso en kg',
+        estaturaCm: 'Estatura en cm',
+        tipo: 'Objetivo principal',
+        acepta18: 'Confirmación de mayoría de edad (+18)',
+        aceptaAviso: 'Aceptación del aviso de salud',
+      };
+      const lista = Object.keys(errores)
+        .map((k) => nombresCampos[k] || errores[k as keyof FormPerfil]?.message)
+        .filter(Boolean);
+      setErrorValidacion(
+        lista.length > 0
+          ? `Por favor revisá: ${lista.join(', ')}.`
+          : 'Por favor aceptá los términos y completá los campos obligatorios para continuar.'
+      );
     }
-  });
+  );
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md px-4 pb-40 pt-6">
+    <main className="mx-auto max-w-md px-4 pb-48 pt-6">
       <div className="mb-2 text-center">
         <p className="font-marca text-3xl text-marca-magenta">TOTALHIIT</p>
         <p className="mt-1 text-sm text-zinc-500">
@@ -232,8 +256,11 @@ export default function Onboarding() {
         </div>
       )}
 
+      {/* Espaciador generoso para que el último campo nunca quede cubierto por la barra fija inferior */}
+      <div className="h-36 w-full shrink-0" aria-hidden="true" />
+
       {/* Barra de navegación de pasos fija permanentemente en la parte inferior */}
-      <div className="safe-area-inferior fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 px-4 py-3 shadow-2xl backdrop-blur">
+      <div className="safe-area-inferior fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 px-4 pt-3 pb-3 shadow-2xl backdrop-blur">
         <div className="mx-auto max-w-md">
           {errorValidacion && (
             <div className="mb-2 rounded-xl border border-red-200 bg-red-50 p-2.5 text-center text-xs font-semibold text-red-700">
@@ -243,6 +270,7 @@ export default function Onboarding() {
           <div className="flex items-center gap-3">
             {paso > 0 ? (
               <BotonSecundario
+                type="button"
                 onClick={() => {
                   setErrorValidacion('');
                   setPaso((p) => p - 1);
@@ -254,16 +282,16 @@ export default function Onboarding() {
                 Atrás
               </BotonSecundario>
             ) : (
-              <BotonSecundario onClick={saltar} className="flex-1">
+              <BotonSecundario type="button" onClick={saltar} className="flex-1">
                 Saltar
               </BotonSecundario>
             )}
             {paso < PASOS.length - 1 ? (
-              <BotonPrimario onClick={() => void siguiente()} className="flex-1">
+              <BotonPrimario type="button" onClick={() => void siguiente()} className="flex-1">
                 Siguiente →
               </BotonPrimario>
             ) : (
-              <BotonPrimario onClick={() => void finalizar()} disabled={guardando} className="flex-1">
+              <BotonPrimario type="button" onClick={() => void finalizar()} disabled={guardando} className="flex-1">
                 {guardando ? 'Guardando…' : 'Finalizar y empezar'}
               </BotonPrimario>
             )}

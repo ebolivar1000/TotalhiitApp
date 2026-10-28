@@ -10,7 +10,7 @@ export default function Inicio() {
 
   if (!perfil) {
     return (
-      <main className="safe-area-inferior mx-auto max-w-md px-4 pb-24 pt-6">
+      <main className="mx-auto max-w-md px-4 pb-32 pt-6">
         <div className="text-center">
           <p className="font-marca text-4xl text-marca-magenta">TOTALHIIT</p>
           <p className="mt-2 text-sm text-zinc-500">Entrenamiento y nutrición para mujeres +40</p>
@@ -32,7 +32,7 @@ export default function Inicio() {
   }
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
       <div>
         <p className="text-sm text-zinc-500">Hola,</p>
         <h1 className="text-2xl font-bold text-zinc-900">{perfil.alias} 👋</h1>

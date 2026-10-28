@@ -35,7 +35,7 @@ export default function DetalleEntrenamiento() {
 
   if (!sesion || !perfil) {
     return (
-      <main className="safe-area-inferior mx-auto max-w-md px-4 pb-24 pt-6 text-center">
+      <main className="mx-auto max-w-md px-4 pb-32 pt-6 text-center">
         <Tarjeta>
           <p className="text-sm text-zinc-600">No encontramos esa clase.</p>
           <Link to="/entrenamientos" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
@@ -65,7 +65,7 @@ export default function DetalleEntrenamiento() {
   const etiquetaEquipo = (valor: string) => EQUIPAMIENTO_OPCIONES.find((o) => o.valor === valor)?.etiqueta ?? valor;
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
       <button type="button" onClick={() => navigate('/entrenamientos')} className="text-sm font-semibold text-marca-magenta">
         ← Entrenamientos
       </button>

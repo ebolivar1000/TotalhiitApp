@@ -4,7 +4,7 @@ import { BotonSecundario, Tarjeta } from '../componentes/ui';
 import { borrarDatosPersonales, exportarDatos } from '../lib/datos/repositorio';
 import { VERSIONES_CONSENTIMIENTO } from '../lib/datos/entidades';
 import { fechaHoyIso } from '../lib/utilidades/fechas';
-import { LLAVE_ONBOARDING_SALTADO, usePerfil } from '../hooks/usePerfil';
+import { LLAVE_ONBOARDING_COMPLETADO, LLAVE_ONBOARDING_SALTADO, usePerfil } from '../hooks/usePerfil';
 import { obtenerSesionActual, type SesionAuth } from '../lib/auth/auth';
 
 export default function Ajustes() {
@@ -28,13 +28,14 @@ export default function Ajustes() {
 
   const borrar = async () => {
     localStorage.removeItem(LLAVE_ONBOARDING_SALTADO);
+    localStorage.removeItem(LLAVE_ONBOARDING_COMPLETADO);
     await borrarDatosPersonales();
     await recargar();
     navigate('/onboarding', { replace: true });
   };
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
       <h1 className="text-2xl font-bold text-zinc-900">Ajustes</h1>
 
       <Tarjeta>

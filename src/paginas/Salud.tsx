@@ -96,7 +96,7 @@ export default function Salud() {
 
   if (!perfil) {
     return (
-      <main className="safe-area-inferior mx-auto max-w-md px-4 pb-24 pt-6 text-center">
+      <main className="mx-auto max-w-md px-4 pb-32 pt-6 text-center">
         <Tarjeta>
           <p className="text-2xl" aria-hidden="true">
             📊
@@ -124,7 +124,7 @@ export default function Salud() {
   const proteina = objetivo ? calcularProteinaDiaria(peso, objetivo.tipo) : null;
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">Mi salud</h1>
         <p className="text-sm text-zinc-500">Cálculos orientativos con tus datos</p>

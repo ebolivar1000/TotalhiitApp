@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import Navegacion from './componentes/Navegacion';
 import AvisoConexion from './componentes/AvisoConexion';
-import { LLAVE_ONBOARDING_SALTADO, usePerfil } from './hooks/usePerfil';
+import { LLAVE_ONBOARDING_COMPLETADO, LLAVE_ONBOARDING_SALTADO, usePerfil } from './hooks/usePerfil';
 import Ajustes from './paginas/Ajustes';
 import Ciclo from './paginas/Ciclo';
 import DetalleEntrenamiento from './paginas/DetalleEntrenamiento';
@@ -25,8 +25,9 @@ export default function App() {
   useEffect(() => {
     if (cargando) return;
     const saltado = localStorage.getItem(LLAVE_ONBOARDING_SALTADO) === '1';
+    const completado = localStorage.getItem(LLAVE_ONBOARDING_COMPLETADO) === '1';
     const enOnboarding = location.pathname.startsWith('/onboarding');
-    if (!perfil && !enOnboarding && !saltado) navigate('/onboarding', { replace: true });
+    if (!perfil && !enOnboarding && !saltado && !completado) navigate('/onboarding', { replace: true });
     if (perfil && enOnboarding) navigate('/', { replace: true });
   }, [cargando, perfil, location.pathname, navigate]);
 

@@ -69,7 +69,7 @@ export default function Entrenamientos() {
   if (cargando || !perfil) return null;
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">Entrenamientos</h1>
         <p className="text-sm text-zinc-500">

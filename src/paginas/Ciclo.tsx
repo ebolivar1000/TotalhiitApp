@@ -151,7 +151,7 @@ export default function Ciclo() {
 
   if (!perfil) {
     return (
-      <main className="safe-area-inferior mx-auto max-w-md px-4 pb-24 pt-6 text-center">
+      <main className="mx-auto max-w-md px-4 pb-32 pt-6 text-center">
         <Tarjeta>
           <p className="text-sm text-zinc-600">Completá tu perfil primero.</p>
           <Link to="/onboarding" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
@@ -165,7 +165,7 @@ export default function Ciclo() {
   // PUERTA DE CONSENTIMIENTO: sin consentimiento explícito no se ve ni se carga nada del módulo.
   if (!consentimiento) {
     return (
-      <main className="safe-area-inferior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
+      <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
         <Tarjeta>
           <h1 className="text-xl font-bold text-zinc-900">Ciclo menstrual</h1>
           <p className="mt-2 text-sm text-zinc-600">
@@ -232,7 +232,7 @@ export default function Ciclo() {
   };
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-zinc-900">Ciclo menstrual</h1>

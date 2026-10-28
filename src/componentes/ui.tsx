@@ -61,10 +61,12 @@ export function Selector({
 export function BotonPrimario({
   children,
   className = '',
+  type = 'button',
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
+      type={type}
       {...props}
       className={`rounded-xl bg-marca-magenta px-5 py-3 font-semibold text-white transition-colors hover:bg-marca-magenta-oscuro disabled:opacity-50 ${className}`}
     >
@@ -76,10 +78,12 @@ export function BotonPrimario({
 export function BotonSecundario({
   children,
   className = '',
+  type = 'button',
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
+      type={type}
       {...props}
       className={`rounded-xl border border-zinc-300 bg-white px-5 py-3 font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50 ${className}`}
     >
