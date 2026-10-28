@@ -1,5 +1,25 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 4) — FASE 3 cerrada (calculadoras de salud)
+- **Commit inicial creado** (117f261) con identidad repo-local git
+  (Everth / ebolivar1000@gmail.com; Cloudflare sigue con caribialabs@gmail.com).
+  Se excluyeron del repo los artefactos `.tsbuildinfo.*`.
+- **Librería de fórmulas con pruebas** (cada una con su suite Vitest):
+  - `bmr.ts` — Mifflin-St Jeor (10·kg + 6,25·cm − 5·edad + 5/−161; sin género → −78).
+  - `tdee.ts` — BMR × factor de actividad estándar (1,2/1,375/1,55/1,725/1,9).
+  - `hidratacion.ts` — 35 ml/kg con 1 decimal.
+  - `proteina.ts` — base 1,2 g/kg (+40); 1,6 en objetivos de carga muscular; 1,4 resistencia.
+  - `imc.ts` — se agregó `rangoPesoSaludable` (IMC 18,5–24,9 → kg).
+- **Pantalla `/salud` (nueva, diseño premium):** tarjeta hero con degradado de
+  marca para el IMC (número grande, chip de categoría con color por tramo,
+  medidor segmentado animado con marcador, rango de peso saludable), cards
+  BMR/TDEE con referencia de kcal para bajar/subir, cards agua y proteína
+  ajustadas al objetivo activo, entradas peso/estatura precargadas desde el
+  perfil (editables solo para el cálculo), avisos y limitaciones honestas.
+- Navegación: entrada "Salud" en Inicio + ruta `/salud`.
+- **Verificación:** `tsc -b` ✅ · **vitest 56/56** ✅ (23 nuevas) · build ✅
+  (chunk 521 kB — code-splitting sigue pendiente menor).
+
 ## 2026-10-28 (sesión 3) — FASE 2 cerrada (onboarding y perfil)
 - **Capa de datos con pruebas:** `src/lib/datos/entidades.ts` (schemas zod de
   perfil, objetivo, preferencias, consentimientos), `db.ts` (Dexie v1: perfiles,

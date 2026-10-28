@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calcularIMC, validarEntradas } from './imc';
+import { calcularIMC, rangoPesoSaludable, validarEntradas } from './imc';
 
 describe('calcularIMC', () => {
   it('calcula el IMC correcto para un caso típico', () => {
@@ -47,5 +47,16 @@ describe('validarEntradas', () => {
     expect(validarEntradas(5, 1.7)).toContain('Peso fuera de rango');
     expect(validarEntradas(70, 5)).toContain('Estatura fuera de rango');
     expect(validarEntradas(70, 1.7)).toBeNull();
+  });
+});
+
+describe('rangoPesoSaludable', () => {
+  it('calcula el rango para 1,65 m (18,5–24,9 × 2,7225)', () => {
+    expect(rangoPesoSaludable(1.65)).toEqual({ minimo: 50.4, maximo: 67.8 });
+  });
+
+  it('rechaza estaturas inválidas', () => {
+    expect(rangoPesoSaludable(0.3)).toBeNull();
+    expect(rangoPesoSaludable(Number.NaN)).toBeNull();
   });
 });

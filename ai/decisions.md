@@ -75,3 +75,21 @@ aceptación, matriz de dependencias, complejidad relativa y riesgos. Nota: la FA
   el resolutor se castea a `Resolver<FormPerfil>` para evitar fricción de tipos
   input/output de zod v4.
 - `active` del onboarding saltado: bandera `localStorage` (`totalhiit.onboarding.saltado`).
+
+## D13 (2026-10-28) — Fórmulas de salud y su presentación
+- Mifflin-St Jeor para BMR (la más precisa para población general); sin género
+  se usa el punto medio de los términos (+5 / −161 → −78).
+- TDEE con factores estándar de actividad (1,2/1,375/1,55/1,725/1,9).
+- Agua: 35 ml/kg (rango general 30–40); proteína: base 1,2 g/kg para +40
+  (sarcopenia), 1,6 g/kg en objetivos de carga muscular, 1,4 resistencia.
+- Toda fórmula vive en `src/lib/salud/` con su referencia en el comentario del
+  módulo (requisito del master prompt) y su suite Vitest.
+- UI: cifras grandes con degradado de marca y medidor de IMC segmentado;
+  siempre con avisos de orientación (nada de diagnóstico clínico).
+- Las kcal "para bajar/subir" se presentan como deltas orientativos
+  (−500 / +300) sin planes de dieta automáticos.
+
+## D14 (2026-10-28) — Identidad git del proyecto
+Repo-local: Everth <ebolivar1000@gmail.com> (elegida por el propietario; la
+cuenta de Cloudflare sigue siendo caribialabs@gmail.com). Artefactos
+`.tsbuildinfo.*` excluidos del repo.

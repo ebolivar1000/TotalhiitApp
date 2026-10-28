@@ -10,6 +10,7 @@ import Nutricion from './paginas/Nutricion';
 import Onboarding from './paginas/Onboarding';
 import Perfil from './paginas/Perfil';
 import Progreso from './paginas/Progreso';
+import Salud from './paginas/Salud';
 
 export default function App() {
   const { cargando, perfil } = usePerfil();
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/perfil/editar" element={<EditarPerfil />} />
+        <Route path="/salud" element={<Salud />} />
         <Route path="/nutricion" element={<Nutricion />} />
         <Route path="/entrenamientos" element={<Entrenamientos />} />
         <Route path="/progreso" element={<Progreso />} />

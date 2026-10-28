@@ -17,7 +17,10 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
 - **FASE 1 ✅** (fundación) — completa.
 - **FASE 2 ✅** (onboarding y perfil) — completa: capa de datos Dexie con pruebas,
   onboarding 5 pasos, /perfil y /perfil/editar, ajustes con exportar/borrar.
-- **FASE 3 (calculadoras de salud): próxima** — ver criterios en `docs/roadmap.md`.
+- **FASE 3 ✅** (calculadoras de salud) — completa: BMR/TDEE/agua/proteína con
+  pruebas (56/56) y pantalla `/salud` con medidor de IMC.
+- **FASE 4 (módulo D: nutrición y recetas): próxima** — ver criterios en
+  `docs/roadmap.md`.
 
 ## Plan de fases
 Definitivo en `docs/roadmap.md` (FASES 0–12 con criterios de aceptación, matriz de
@@ -39,8 +42,12 @@ dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
   exportación JSON y borrado total, guard de rutas.
 
 ## Pendientes inmediatos
-- FASE 3: calculadoras de salud con pruebas (IMC ya existe; ver `docs/roadmap.md`).
-- Pendiente menor: code-splitting del bundle (aviso 511 kB en build).
+- FASE 4: módulo de nutrición y recetas (criterios en `docs/roadmap.md`).
+- Pendiente menor: code-splitting del bundle (aviso ~521 kB en build).
+
+## Notas de entorno
+- Git repo-local: Everth <ebolivar1000@gmail.com> (Cloudflare sigue siendo caribialabs@gmail.com).
+- Commits iniciales: 117f261 (fundación + FASE 2).
 
 ## Restricciones vigentes
 - No modificar el sitio sin autorización.

@@ -12,6 +12,7 @@ export const OBJETIVOS = [
   'bienestar',
 ] as const;
 export type TipoObjetivo = (typeof OBJETIVOS)[number];
+export type NivelActividad = (typeof nivelesActividad)[number];
 
 export const ETIQUETAS_OBJETIVO: Record<TipoObjetivo, string> = {
   masa_muscular: 'Aumentar masa muscular',

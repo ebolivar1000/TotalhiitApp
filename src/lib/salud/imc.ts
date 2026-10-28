@@ -43,6 +43,17 @@ export function calcularIMC(pesoKg: number, estaturaM: number): ResultadoIMC | n
 }
 
 /**
+ * Rango de peso asociado a IMC 18,5–24,9 para una estatura dada, en kg.
+ */
+export function rangoPesoSaludable(estaturaM: number): { minimo: number; maximo: number } | null {
+  if (validarEntradas(60, estaturaM)) return null;
+  return {
+    minimo: Math.round(18.5 * estaturaM * estaturaM * 10) / 10,
+    maximo: Math.round(24.9 * estaturaM * estaturaM * 10) / 10,
+  };
+}
+
+/**
  * Texto orientativo sobre las limitaciones del IMC (para mostrar en la UI).
  */
 export const LIMITACIONES_IMC =
