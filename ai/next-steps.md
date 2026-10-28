@@ -17,20 +17,25 @@
 - FASE 5 (nutrición y recetas): ✅ completa — 12 recetas propias, motor con
   regla dura de alérgenos (prueba obligatoria), escalado de porciones,
   favoritas + preparadas (DB v3). 85/85 pruebas.
-- FASE 6 (PDF de recetas): **pendiente de inicio**.
+- FASE 6 (PDF de recetas): ✅ completa — PDF A4 con logo, tabla nutricional y
+  marca de agua TOTALHIIT en todas las páginas; pdf-lib en chunk separado
+  (import dinámico, main volvió a ~570 kB). 93/93 pruebas.
 
 ## Próximo paso concreto
-FASE 6 en incrementos con pruebas (criterios exactos en `docs/roadmap.md`):
-1. Servicio PDF con pdf-lib (`src/lib/nutricion/pdf.ts`): A4, logo, nombre,
-   ingredientes escalados, pasos, tabla nutricional y nota de valores
-   aproximados.
-2. **Marca de agua TOTALHIIT semitransparente en TODAS las páginas** (texto
-   diagonal, reutilizable para el plan semanal de FASE 9).
-3. Pruebas automatizadas de generación (bytes del PDF + texto incrustado).
-4. Botón "Descargar PDF" en el detalle de receta; verificar guardado/compartir
-   en Android (WebView) y Safari/iOS en dispositivos reales (documentar).
-5. Verificación: `npm test`, `npm run build`, recorrer en `npm run dev`.
-6. Menor pendiente: code-splitting del bundle (~567 kB) si el aviso molesta.
+FASE 7 en incrementos con pruebas (criterios exactos en `docs/roadmap.md`),
+incluye el registro de peso diferido de FASE 3:
+1. Modelo `EntradaDiario` (peso, energía, ánimo, sueño) + DB v4
+   (`entradasDiario`, índice `[userId+fecha]`); exportar/borrar actualizados.
+2. Repositorio con upsert por día (una entrada por usuario y fecha) + pruebas
+   con fake-indexeddb.
+3. Servicios de cálculo (`src/lib/progreso/`): racha de días registrados,
+   promedios móviles 7 días, tendencia de peso (Δ vs mes anterior) con fórmula
+   documentada (D13).
+4. Página `/progreso`: dashboard A (rachas + energía), formularios rápidos de
+   registro diario, gráficos de tendencia SVG sin librerías externas.
+5. Pruebas de servicios y repositorio; verificar `npm test` + build + recorrida
+   en `npm run dev` (puerto 5174).
+6. Menor: si el aviso de chunk (~570 kB) molesta, ajustar code-splitting.
 
 ## Recordatorios para la próxima sesión
 - Leer `ai/state.md`, `ai/decisions.md` y `docs/roadmap.md` antes de codificar.

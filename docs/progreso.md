@@ -1,5 +1,33 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 7) — FASE 6 cerrada (PDF de recetas)
+- **Servicio `src/lib/nutricion/pdf.ts`** con pdf-lib: A4 exacto, logo opcional
+  (`/images/logo.png` con fallback JPG y omisión en caso de error), título + meta
+  (categoría, tiempo, fecha), descripción, ingredientes escalados a las porciones
+  (reutiliza `escalarReceta`), pasos numerados con envoltura de línea
+  (`wrapText`), sustituciones/conservación, tabla nutricional de dos filas (por
+  porción y total N) dibujada con rects/bordes, y notas de fuentes (USDA FDC) +
+  aviso no clínico + uso personal.
+- **Marca de agua TOTALHIIT** (`estamparMarcaAgua`): texto diagonal 45° magenta
+  con opacidad 0.08 estampado en **todas las páginas** + pie con numeración
+  "n / total" en cada página. Exportada para reutilizar en el PDF del plan
+  semanal (FASE 9).
+- **Sanitización WinAnsi** (fuentes estándar): curly quotes → rectas, en/em dash
+  → '-', y cualquier carácter fuera de Latin-1 eliminado; acentos/ñ/° intactos
+  (probado).
+- **Descarga en UI:** botón "⬇ Descargar PDF con marca de agua" en
+  `/nutricion/:id` con estado "Generando PDF…". Guardado por Blob + a[download]
+  (mismo mecanismo válido para Android WebView y Safari). La prueba en
+  dispositivos reales queda para FASE 11 (anotada en roadmap y D17).
+- **Code-splitting del PDF:** el import estático había llevado el main a 993 kB;
+  con **import dinámico** pdf-lib queda en chunk propio `pdf-*.js`
+  (424 kB / 177 kB gzip, cargado solo al descargar) y el main volvió a ~570 kB.
+- **Verificación:** `tsc -b` ✅ · **vitest 93/93** ✅ (8 nuevas: PDF válido con
+  acentos, A4 exacto, totales con 6 porciones, multi-página, sin logo con fecha
+  fija, marca de agua en 3 páginas, wrapText ancho/saneo, nombre de archivo
+  slug) · build ✅.
+- Docs actualizadas (roadmap FASE 6 tildada, state, next-steps, D17).
+
 ## 2026-10-28 (sesión 6) — FASE 5 cerrada (nutrición y recetas)
 - **Catálogo propio** (`src/lib/nutricion/recetas.ts`): 12 recetas originales
   para +40 en 6 categorías (desayuno/almuerzo/cena/snack/bebida/postre), con

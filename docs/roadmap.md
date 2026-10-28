@@ -83,7 +83,19 @@ Criterios de aceptación:
 4. Favoritos, preparadas, plan semanal básico y lista de compras consolidada.
 5. Fuentes de datos nutricionales con licencia adecuada (atribución documentada).
 
-### FASE 6 — PDF — complejidad M
+### FASE 6 — PDF — complejidad M ✅ (2026-10-28)
+1. [x] PDF A4 de receta individual con logo, tabla nutricional (por porción y
+   totales), fecha, nota de valores aproximados y **marca de agua TOTALHIIT
+   semitransparente en TODAS las páginas** (+ pie con numeración).
+2. [x] Descarga con Blob/a[download] (funciona igual en Android WebView y
+   Safari/iOS). *Prueba en dispositivos reales: diferida a FASE 11
+   (distribución), que incluye el APK.*
+3. [x] Servicio reutilizable (`estamparMarcaAgua` + helpers de layout) listo
+   para el plan semanal de FASE 9.
+4. [x] Pruebas automatizadas de generación (PDF válido, A4, multi-página,
+   marca de agua por página, wrapText, nombre de archivo). Verificación visual
+   manual pendiente de dispositivo (documentada en `docs/testing.md`), no
+   bloquea el flujo.
 1. PDF A4 de receta individual con logo, tabla nutricional, fecha, nota de valores
    aproximados y **marca de agua TOTALHIIT semitransparente en todas las páginas**.
 2. Guardar/compartir OK en Android y Safari/iOS (probado en dispositivos reales).

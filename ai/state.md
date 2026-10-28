@@ -26,8 +26,11 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
   6 categorías), motor determinista con regla dura de alérgenos (prueba
   obligatoria), escalado de porciones, favoritas y preparadas (DB v3).
   85/85 pruebas.
-- **FASE 6 (PDF de recetas con marca de agua): próxima** — ver criterios en
-  `docs/roadmap.md`.
+- **FASE 6 ✅** (PDF de recetas) — completa: PDF A4 con logo, tabla nutricional,
+  marca de agua TOTALHIIT en todas las páginas; pdf-lib en chunk separado
+  (import dinámico). 93/93 pruebas.
+- **FASE 7 (progreso y sueño + dashboard): próxima** — ver criterios en
+  `docs/roadmap.md` (incluye el registro de peso que quedó diferido de FASE 3).
 
 ## Plan de fases
 Definitivo en `docs/roadmap.md` (FASES 0–12 con criterios de aceptación, matriz de
@@ -60,12 +63,17 @@ dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
   presupuesto escalera + escalado de porciones con recálculo), DB v3
   (preparaciones), pantallas lista + detalle con macros, porciones selector,
   "La preparé", favoritas y aviso de fuentes (USDA FDC).
+- **FASE 6 completa:** `src/lib/nutricion/pdf.ts` (A4, logo opcional, meta,
+  ingredientes escalados, pasos, tabla nutricional, notas de fuentes) +
+  `estamparMarcaAgua` (todas las páginas, reutilizable FASE 9) + `wrapText`
+  + sanitización WinAnsi + descarga Blob. Botón "Descargar PDF" en el detalle;
+  pdf-lib en chunk separado vía import dinámico (main volvió a ~570 kB).
 
 ## Pendientes inmediatos
-- FASE 6: PDF de receta con marca de agua TOTALHIIT (pdf-lib, A4, tabla
-  nutricional, guardar/compartir en Android/Safari).
-- Pendiente menor: code-splitting del bundle (~567 kB en build).
-- Pendiente menor: registro de peso conectado a Progreso (FASE 7, nota en roadmap).
+- FASE 7: progreso y sueño (registros, gráficos de tendencia, dashboard A,
+  registro de peso diferido de FASE 3).
+- Pendiente menor: code-splitting adicional del main (~570 kB) si hace falta.
+- Pendiente FASE 11: probar guardar/compartir el PDF en Android y iPhone reales.
 
 ## Notas de entorno
 - Git repo-local: Everth <ebolivar1000@gmail.com> (Cloudflare sigue siendo caribialabs@gmail.com).

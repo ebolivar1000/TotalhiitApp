@@ -10,6 +10,16 @@ import { usePerfil } from '../hooks/usePerfil';
 
 const ETIQUETAS_PRESUPUESTO: Record<string, string> = { bajo: 'Ajustado', medio: 'Medio', alto: 'Flexible' };
 
+async function cargarLogo(): Promise<Uint8Array | undefined> {
+  try {
+    const respuesta = await fetch('/images/logo.png');
+    if (!respuesta.ok) return undefined;
+    return new Uint8Array(await respuesta.arrayBuffer());
+  } catch {
+    return undefined;
+  }
+}
+
 function Macro({ valor, unidad, rotulo }: { valor: number; unidad: string; rotulo: string }) {
   return (
     <div className="rounded-xl bg-zinc-50 p-2.5 text-center">
@@ -30,6 +40,7 @@ export default function DetalleReceta() {
   const [favorita, setFavorita] = useState(false);
   const [historial, setHistorial] = useState<RecipePreparation[]>([]);
   const [mensaje, setMensaje] = useState('');
+  const [generandoPdf, setGenerandoPdf] = useState(false);
 
   useEffect(() => {
     if (!perfil || !receta) return;
@@ -71,6 +82,21 @@ export default function DetalleReceta() {
   const alternarFav = async () => {
     const resultado = await alternarFavorito(perfil.id, 'receta', receta.id);
     setFavorita(resultado);
+  };
+
+  const descargar = async () => {
+    setGenerandoPdf(true);
+    try {
+      // Import dinámico: pdf-lib (~1 MB) solo se descarga cuando se genera el PDF.
+      const { generarPdfReceta, descargarPdf, nombreArchivoPdf } = await import('../lib/nutricion/pdf');
+      const logo = await cargarLogo();
+      const bytes = await generarPdfReceta(receta, porciones, { logoBytes: logo });
+      descargarPdf(bytes, nombreArchivoPdf(receta));
+    } catch {
+      setMensaje('No se pudo generar el PDF. Intentá de nuevo.');
+    } finally {
+      setGenerandoPdf(false);
+    }
   };
 
   return (
@@ -186,6 +212,10 @@ export default function DetalleReceta() {
         </BotonSecundario>
       </div>
       {mensaje && <p className="text-center text-sm font-semibold text-green-700">{mensaje}</p>}
+
+      <BotonSecundario onClick={() => void descargar()} disabled={generandoPdf} className="w-full">
+        {generandoPdf ? 'Generando PDF…' : '⬇ Descargar PDF con marca de agua'}
+      </BotonSecundario>
 
       {historial.length > 0 && (
         <Tarjeta>

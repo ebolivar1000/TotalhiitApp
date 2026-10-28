@@ -123,3 +123,22 @@ cuenta de Cloudflare sigue siendo caribialabs@gmail.com). Artefactos
   (lista de compras consolidada).
 - DB v3: `preparaciones` (RecipePreparation) incluida en exportación/borrado.
 - Snacks con 2 pasos son válidos (esquema min(2) pasos, no min(3)).
+
+## D17 — FASE 6: PDF de recetas (2026-10-28)
+- pdf-lib 1.17.1 (ya aprobado) genera PDF A4: logo opcional (`/images/logo.png`,
+  PNG con fallback JPG, si falla se omite), meta, ingredientes escalados a las
+  porciones (reutiliza `escalarReceta`), pasos, tabla nutricional (por porción
+  y totales) y notas de fuentes (USDA FDC) + aviso no clínico.
+- **Marca de agua TOTALHIIT semitransparente en TODAS las páginas**
+  (`estamparMarcaAgua`, texto diagonal 45°, opacidad 0.08) + pie con numeración
+  en cada página. Reutilizable tal cual para el plan semanal (FASE 9).
+- Fuentes estándar Helvetica (WinAnsi): texto saneado antes de dibujar
+  (curly quotes → rectas, en/em dash → '-', resto fuera de Latin-1 fuera).
+  Los acentos/ñ/° sobreviven (probado).
+- pdf-lib se carga con **import dinámico** desde el detalle de receta: queda en
+  chunk separado (~424 kB / 177 gzip) y el main volvió a ~570 kB (sin el
+  salto a 993 kB). Botón "Descargar PDF" con Blob + a[download]; el guardado/
+  compartir en dispositivos reales (Android WebView / Safari) se prueba en
+  FASE 11 (distribución APK / PWA).
+- Pruebas: bytes válidos %PDF, A4 exacto, multi-página con contenido largo,
+  marca de agua cuenta páginas, wrapText respeta ancho, nombre de archivo slug.
