@@ -1,5 +1,26 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 5) — FASE 4 cerrada (entrenamientos)
+- **Catálogo real:** 15 sesiones del canal del propietario (12 clases del
+  bootcamp TOTAL+40 + intro + 2 de movilidad) en
+  `src/lib/entrenamiento/sesiones.ts`, con 10 categorías derivadas del
+  contenido, nivel, duración, equipo, objetivos compatibles y precauciones.
+- **Motor de filtros** (`filtros.ts`) con **regla dura de equipo** (nunca sugiere
+  equipo que falta en el perfil; `peso_corporal` siempre disponible) + filtros
+  por categoría/duración/nivel/objetivo y orden "para tu objetivo".
+- **DB v2:** stores `sesiones` (entrenamientos realizados) y `favoritos`
+  genéricos (sesión|receta). Exportación JSON y borrado total incluyen ambas.
+- **Reproductor** (`ReproductorVideo`): YouTube en modo nocookie con estados de
+  carga, error (con "Ver en YouTube" + reintentar) y **offline** (detecta
+  navigator.onLine).
+- **Pantallas:** `/entrenamientos` (chips de categoría y duración, badge "Para
+  tu objetivo", ⭐ favoritos, "Hecha N×", historial de últimas sesiones) y
+  `/entrenamientos/:id` (reproductor, descripción, precauciones, equipo,
+  "Completé esta clase" que registra la sesión, favoritos, historial por clase).
+- **Suite: 68/68 en verde** (+10 de catálogo/filtros, +3 de repositorio).
+- **Verificación:** `tsc -b` ✅ · build ✅ (chunk 542 kB) · roadmap actualizado
+  (nota: registro de peso queda para FASE 7 junto al dashboard de Progreso).
+
 ## 2026-10-28 (sesión 4) — FASE 3 cerrada (calculadoras de salud)
 - **Commit inicial creado** (117f261) con identidad repo-local git
   (Everth / ebolivar1000@gmail.com; Cloudflare sigue con caribialabs@gmail.com).

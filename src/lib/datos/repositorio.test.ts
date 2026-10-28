@@ -17,6 +17,12 @@ import {
   tieneConsentimiento,
   registrarObjetivo,
   aplicarCambiosPerfil,
+  registrarSesion,
+  sesionesDeUsuario,
+  sesionesDeWorkout,
+  alternarFavorito,
+  esFavorito,
+  favoritosDe,
 } from './repositorio';
 
 const entradaPerfil: EntradaPerfil = {
@@ -113,17 +119,55 @@ describe('exportación y borrado', () => {
     await registrarObjetivo(perfil.id, 'bienestar');
     await guardarPreferencias(perfil.id, { alergenos: [], exclusiones: [], porcionesHabituales: 3 });
     await otorgarConsentimiento(perfil.id, 'perfil');
+    await registrarSesion({ userId: perfil.id, workoutId: 'w1-c1', fecha: '2026-10-28' });
+    await alternarFavorito(perfil.id, 'sesion', 'w1-c1');
 
     const datos = await exportarDatos();
     expect(datos['app']).toBe('totalhiit-app');
     expect((datos['perfiles'] as unknown[]).length).toBe(1);
     expect((datos['objetivos'] as unknown[]).length).toBe(1);
+    expect((datos['sesiones'] as unknown[]).length).toBe(1);
+    expect((datos['favoritos'] as unknown[]).length).toBe(1);
 
     await borrarDatosPersonales();
     expect(await db.perfiles.count()).toBe(0);
     expect(await db.objetivos.count()).toBe(0);
     expect(await db.preferencias.count()).toBe(0);
     expect(await db.consentimientos.count()).toBe(0);
+    expect(await db.sesiones.count()).toBe(0);
+    expect(await db.favoritos.count()).toBe(0);
+  });
+});
+
+describe('sesiones y favoritos (FASE 4)', () => {
+  it('registra sesiones, las lista por fecha y las filtra por workout', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    const s1 = await registrarSesion({ userId: perfil.id, workoutId: 'w1-c1', fecha: '2026-10-27', duracionRealMin: 25 });
+    const s2 = await registrarSesion({ userId: perfil.id, workoutId: 'w1-c2', fecha: '2026-10-28', duracionRealMin: 28 });
+    expect(s1.completado).toBe(true);
+    expect(s2.id).not.toBe(s1.id);
+
+    const todas = await sesionesDeUsuario(perfil.id);
+    expect(todas).toHaveLength(2);
+    expect(todas[0]?.workoutId).toBe('w1-c2');
+
+    const deW1 = await sesionesDeWorkout(perfil.id, 'w1-c1');
+    expect(deW1).toHaveLength(1);
+    expect(deW1[0]?.duracionRealMin).toBe(25);
+  });
+
+  it('alterna favoritos y consulta estado', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    expect(await esFavorito(perfil.id, 'sesion', 'w1-c1')).toBe(false);
+    expect(await alternarFavorito(perfil.id, 'sesion', 'w1-c1')).toBe(true);
+    expect(await esFavorito(perfil.id, 'sesion', 'w1-c1')).toBe(true);
+    expect(await alternarFavorito(perfil.id, 'sesion', 'w1-c1')).toBe(false);
+    expect(await esFavorito(perfil.id, 'sesion', 'w1-c1')).toBe(false);
+
+    await alternarFavorito(perfil.id, 'sesion', 'w1-c2');
+    await alternarFavorito(perfil.id, 'receta', 'r1');
+    expect((await favoritosDe(perfil.id, 'sesion')).map((f) => f.refId)).toEqual(['w1-c2']);
+    expect(await favoritosDe(perfil.id, 'receta')).toHaveLength(1);
   });
 });
 

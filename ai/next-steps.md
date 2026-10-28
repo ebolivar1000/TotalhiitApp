@@ -11,18 +11,22 @@
   perfil editable, ajustes con exportar/borrar, guard de rutas.
 - FASE 3 (calculadoras de salud): ✅ completa — BMR/TDEE/agua/proteína/IMC con
   pruebas (56/56) y pantalla `/salud` premium (medidor de IMC animado).
-- FASE 4 (módulo D: nutrición y recetas): **pendiente de inicio**.
+- FASE 4 (entrenamientos): ✅ completa — catálogo real del canal, filtros con
+  regla dura de equipo, reproductor nocookie offline/error, favoritos e
+  historial (DB v2). 68/68 pruebas.
+- FASE 5 (nutrición y recetas): **pendiente de inicio**.
 
 ## Próximo paso concreto
-FASE 4 en incrementos con pruebas (criterios exactos en `docs/roadmap.md`):
-1. Banco de recetas propio en TypeScript (`src/lib/nutricion/recetas.ts`) con
-   macros por porción y alérgenos declarados.
-2. Motor de filtrado: alérgenos + exclusiones + tiempo de cocina + presupuesto
-   desde `NutritionPreferences` + tests.
-3. Pantalla `/nutricion`: lista filtrada + detalle de receta (ingredientes,
-   pasos, macros) usando los datos del perfil.
-4. Verificación: `npm test`, `npm run build`, recorrer en `npm run dev`.
-5. Menor pendiente: code-splitting del bundle (~521 kB) si el aviso molesta.
+FASE 5 en incrementos con pruebas (criterios exactos en `docs/roadmap.md`):
+1. Catálogo de recetas estructurado (6 categorías) con macros por porción y
+   alérgenos declarados (`src/lib/nutricion/recetas.ts`).
+2. Motor de reglas determinista con **prueba obligatoria**: nunca sugiere
+   alérgenos declarados (regla dura como la de equipo en FASE 4).
+3. Filtro por ingredientes/exclusiones + ajuste de porciones con recálculo.
+4. Pantalla `/nutricion` (lista + detalle) reutilizando favoritos genéricos
+   (`tipo: 'receta'`) y `RecipePreparation` para "preparadas".
+5. Verificación: `npm test`, `npm run build`, recorrer en `npm run dev`.
+6. Menor pendiente: code-splitting del bundle (~542 kB) si el aviso molesta.
 
 ## Recordatorios para la próxima sesión
 - Leer `ai/state.md`, `ai/decisions.md` y `docs/roadmap.md` antes de codificar.

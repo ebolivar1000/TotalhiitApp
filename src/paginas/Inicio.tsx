@@ -59,8 +59,11 @@ export default function Inicio() {
       <Tarjeta>
         <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Entrenamiento</p>
         <p className="mt-1 text-sm text-zinc-600">
-          Próximamente: rutinas HIIT adaptadas con el equipamiento que marcaste en tu perfil.
+          Clases de tu programa TOTAL+40 en video, filtradas por tu equipo y tu objetivo.
         </p>
+        <Link to="/entrenamientos" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
+          Ver rutinas →
+        </Link>
       </Tarjeta>
 
       <Tarjeta>

@@ -93,3 +93,17 @@ aceptación, matriz de dependencias, complejidad relativa y riesgos. Nota: la FA
 Repo-local: Everth <ebolivar1000@gmail.com> (elegida por el propietario; la
 cuenta de Cloudflare sigue siendo caribialabs@gmail.com). Artefactos
 `.tsbuildinfo.*` excluidos del repo.
+
+## D15 (2026-10-28) — Entrenamientos: contenido real del canal y reglas del motor
+- El catálogo usa los 15 videos reales del canal del propietario (12 clases del
+  bootcamp + intro + 2 de movilidad; mismos IDs de YouTube que el sitio), en
+  modo privado (youtube-nocookie) con estados carga/error/offline.
+- Las 10 categorías (§5.F) se derivaron del contenido real (activación, fuerza,
+  core, cardio, hiit, tonificación, tren_inferior, tren_superior, movilidad,
+  equilibrio) en `src/lib/entrenamiento/sesiones.ts`.
+- **Regla dura del motor:** una sesión cuyo equipo requerido no está en el perfil
+  nunca aparece (análoga a la de alérgenos de FASE 5; probada).
+- DB v2: `sesiones` (id, userId, workoutId, fecha) y `favoritos` genéricos
+  (`tipo: 'sesion'|'receta'`) para reutilizarlos en recetas. Exportación y
+  borrado total incluyen ambas tablas.
+- La escala de nivel del catálogo: semanas 1–2 principiante, 3–4 intermedio.

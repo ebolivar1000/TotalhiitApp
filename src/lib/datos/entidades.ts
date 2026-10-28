@@ -13,6 +13,8 @@ export const OBJETIVOS = [
 ] as const;
 export type TipoObjetivo = (typeof OBJETIVOS)[number];
 export type NivelActividad = (typeof nivelesActividad)[number];
+export type NivelExperiencia = (typeof nivelesExperiencia)[number];
+export type Equipamiento = (typeof equipamientos)[number];
 
 export const ETIQUETAS_OBJETIVO: Record<TipoObjetivo, string> = {
   masa_muscular: 'Aumentar masa muscular',
@@ -89,6 +91,28 @@ export type EntradaPreferencias = Omit<NutritionPreferences, 'id' | 'userId' | '
 export const consentModulos = ['perfil', 'salud_general', 'menstrual'] as const;
 export type ModuloConsentimiento = (typeof consentModulos)[number];
 
+export const TIPOS_FAVORITO = ['sesion', 'receta'] as const;
+
+export const workoutSessionSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  workoutId: z.string(),
+  fecha: fechaIso,
+  duracionRealMin: z.number().int().min(5).max(180).optional(),
+  completado: z.boolean().default(true),
+  notas: z.string().max(300).optional(),
+});
+
+export const favoritoSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  tipo: z.enum(TIPOS_FAVORITO),
+  refId: z.string().min(1),
+  createdAt: z.number().int().positive(),
+});
+export type Favorito = z.infer<typeof favoritoSchema>;
+export type TipoFavorito = (typeof TIPOS_FAVORITO)[number];
+
 export const consentRecordSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -98,6 +122,7 @@ export const consentRecordSchema = z.object({
   revocado: z.number().nullish(),
 });
 export type ConsentRecord = z.infer<typeof consentRecordSchema>;
+export type WorkoutSession = z.infer<typeof workoutSessionSchema>;
 
 /** Versión actual de cada consentimiento (bump al cambiar el texto legal). */
 export const VERSIONES_CONSENTIMIENTO: Record<ModuloConsentimiento, string> = {

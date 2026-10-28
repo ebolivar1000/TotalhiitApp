@@ -47,14 +47,19 @@ Criterios de aceptación:
 6. Solo mayores de 18 (validación de edad con minimización de datos).
 
 ### FASE 3 — Calculadoras — complejidad M
-1. IMC (ya probado) + TMB Mifflin-St Jeor + TDEE + orientación de macros, con
+1. [x] IMC (ya probado) + TMB Mifflin-St Jeor + TDEE + orientación de macros, con
    variables fisiológicas pedidas por separado del género.
-2. Estimaciones ajustables por objetivo; sin déficits extremos automáticos.
-3. Pruebas matemáticas unitarias (casos límite) en verde.
-4. Registro opcional de evolución (peso) conectado a Progreso (FASE 7 muestra la tendencia).
-5. Advertencias de incertidumbre visibles en cada resultado.
+2. [x] Estimaciones ajustables por objetivo; sin déficits extremos automáticos.
+3. [x] Pruebas matemáticas unitarias (casos límite) en verde.
+4. [ ] Registro opcional de evolución (peso) conectado a Progreso → se implementa
+   junto con el dashboard de Progreso (FASE 7); la FASE 3 deja la fórmula lista.
+5. [x] Advertencias de incertidumbre visibles en cada resultado.
 
-### FASE 4 — Entrenamientos — complejidad L
+### FASE 4 — Entrenamientos — complejidad L ✅ (2026-10-28)
+1. [x] Catálogo con 10 categorías (derivadas del contenido real del canal) + filtros por objetivo/nivel/duración/equipo.
+2. [x] Reproductor (YouTube en modo nocookie) con estados de carga/error/offline y reintento.
+3. [x] Completados, favoritos e historial de sesiones en Dexie (DB v2).
+4. [x] Contenido con videos/textos propios del proyecto (canal del propietario); nada propietario de terceros.
 1. Catálogo con las 10 categorías del §5.F; filtros por objetivo/nivel/duración/equipo.
 2. Reproductor (YouTube propio + origen configurable) con estados de carga/error/offline.
 3. Completados, favoritos e historial de sesiones en Dexie.

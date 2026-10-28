@@ -7,11 +7,14 @@ import {
   type ConsentRecord,
   type EntradaPerfil,
   type EntradaPreferencias,
+  type Favorito,
   type ModuloConsentimiento,
   type NutritionPreferences,
+  type TipoFavorito,
   type TipoObjetivo,
   type UserGoal,
   type UserProfile,
+  type WorkoutSession,
 } from './entidades';
 
 /** Crea un perfil nuevo o actualiza el existente manteniendo createdAt. */
@@ -111,25 +114,43 @@ export async function tieneConsentimiento(userId: string, modulo: ModuloConsenti
 
 /** Exportación en JSON plano de todos los datos del usuario (módulo J). */
 export async function exportarDatos(): Promise<Record<string, unknown>> {
-  const [perfiles, objetivos, preferencias, consentimientos] = await Promise.all([
+  const [perfiles, objetivos, preferencias, consentimientos, sesiones, favoritos] = await Promise.all([
     db.perfiles.toArray(),
     db.objetivos.toArray(),
     db.preferencias.toArray(),
     db.consentimientos.toArray(),
+    db.sesiones.toArray(),
+    db.favoritos.toArray(),
   ]);
-  return { app: 'totalhiit-app', version: 1, exportado: new Date().toISOString(), perfiles, objetivos, preferencias, consentimientos };
+  return {
+    app: 'totalhiit-app',
+    version: 2,
+    exportado: new Date().toISOString(),
+    perfiles,
+    objetivos,
+    preferencias,
+    consentimientos,
+    sesiones,
+    favoritos,
+  };
 }
 
 /** Borrado definitivo de todos los datos personales locales. */
 export async function borrarDatosPersonales(): Promise<void> {
-  await db.transaction('rw', db.perfiles, db.objetivos, db.preferencias, db.consentimientos, async () => {
-    await Promise.all([
-      db.perfiles.clear(),
-      db.objetivos.clear(),
-      db.preferencias.clear(),
-      db.consentimientos.clear(),
-    ]);
-  });
+  await db.transaction(
+    'rw',
+    [db.perfiles, db.objetivos, db.preferencias, db.consentimientos, db.sesiones, db.favoritos],
+    async () => {
+      await Promise.all([
+        db.perfiles.clear(),
+        db.objetivos.clear(),
+        db.preferencias.clear(),
+        db.consentimientos.clear(),
+        db.sesiones.clear(),
+        db.favoritos.clear(),
+      ]);
+    },
+  );
 }
 
 export async function aplicarCambiosPerfil(id: string, cambios: CambiosPerfil): Promise<UserProfile> {
@@ -138,4 +159,51 @@ export async function aplicarCambiosPerfil(id: string, cambios: CambiosPerfil): 
   const actualizado: UserProfile = { ...existente, ...cambios, id, updatedAt: Date.now() };
   await db.perfiles.put(actualizado);
   return actualizado;
+}
+
+/** Registra una sesión de entrenamiento realizada (FASE 4). */
+export async function registrarSesion(
+  entrada: Omit<WorkoutSession, 'id' | 'completado'> & { completado?: boolean; id?: string },
+): Promise<WorkoutSession> {
+  const { id, ...resto } = entrada;
+  const sesion: WorkoutSession = { ...resto, completado: resto.completado ?? true, id: id ?? nuevoId() };
+  await db.sesiones.put(sesion);
+  return sesion;
+}
+
+export async function sesionesDeUsuario(userId: string): Promise<WorkoutSession[]> {
+  const filas = await db.sesiones.where('userId').equals(userId).toArray();
+  return filas.sort((a, b) => b.fecha.localeCompare(a.fecha));
+}
+
+export async function sesionesDeWorkout(userId: string, workoutId: string): Promise<WorkoutSession[]> {
+  const filas = await db.sesiones.where('workoutId').equals(workoutId).toArray();
+  return filas.filter((s) => s.userId === userId).sort((a, b) => b.fecha.localeCompare(a.fecha));
+}
+
+/** Alterna un favorito; devuelve true si quedó como favorito. */
+export async function alternarFavorito(
+  userId: string,
+  tipo: TipoFavorito,
+  refId: string,
+): Promise<boolean> {
+  const clave = (f: Favorito) => f.userId === userId && f.tipo === tipo && f.refId === refId;
+  const existentes = (await db.favoritos.toArray()).filter(clave);
+  if (existentes.length > 0) {
+    await db.favoritos.bulkDelete(existentes.map((f) => f.id));
+    return false;
+  }
+  const favorito: Favorito = { id: nuevoId(), userId, tipo, refId, createdAt: Date.now() };
+  await db.favoritos.put(favorito);
+  return true;
+}
+
+export async function esFavorito(userId: string, tipo: TipoFavorito, refId: string): Promise<boolean> {
+  const filas = await db.favoritos.where('[userId+tipo]').equals([userId, tipo]).toArray();
+  return filas.some((f) => f.refId === refId);
+}
+
+export async function favoritosDe(userId: string, tipo: TipoFavorito): Promise<Favorito[]> {
+  const filas = await db.favoritos.where('[userId+tipo]').equals([userId, tipo]).toArray();
+  return filas.sort((a, b) => b.createdAt - a.createdAt);
 }
