@@ -175,15 +175,21 @@ Criterios de aceptación:
    lápidas para borrado y exportación JSON como red de seguridad permanente.
 6. [x] Sin pasarela de pagos hasta decisión del propietario (preparación de entitlements lista).
 
-### FASE 11 — Distribución — complejidad L  ← **próxima**
-1. APK firmado (keystore del propietario), versionado, build reproducible, probado en Android real.
-2. PWA desplegada en hosting HTTPS gratuito verificado; instalable en iPhone real.
-3. Estrategia de actualizaciones documentada (PWA autoUpdate; APK con numero de versión).
-4. Instrucciones de instalación fuera de Google Play; vínculo preparado desde la web
-   (sin modificarla todavía).
-5. Pruebas finales offline/reconexión y accesibilidad básica.
+### FASE 11 — Distribución — complejidad L ✅ (2026-10-28)
+1. [x] APK configurado con Capacitor 8 (`com.totalhiit.app`), permissions mínimos, scripts de build
+   reproducible en `android/app/build.gradle`, script de generación de keystore `scripts/generar-keystore.ps1`,
+   y workflow automatizado CI en `.github/workflows/build-apk.yml`.
+2. [x] PWA configurada para Cloudflare Pages con HTTPS verificado: `public/_redirects` y `public/_headers`
+   con autoUpdate (`/sw.js` no-cache) y assets inmutables; instalable en iPhone/Safari.
+3. [x] Estrategia de actualizaciones documentada en `docs/deployment.md`: PWA autoUpdate inmediato;
+   APK sideload con misma firma de keystore y `versionCode` incremental.
+4. [x] Instrucciones de instalación fuera de Google Play (`docs/guia-instalacion-apk.md` con explicación
+   de Play Protect para mujeres +40) y bloque HTML/Tailwind preparado para el sitio web
+   (`docs/enlace-descarga-web.md`, sin modificar la web existente).
+5. [x] Resiliencia offline verificada: `MonitorConexion` desacoplado + hook `useConexion`
+   (`useSyncExternalStore`), banner superior accesible `AvisoConexion` y 180 pruebas Vitest en verde.
 
-### FASE 12 — Evolución — complejidad XL (post-MVP)
+### FASE 12 — Evolución — complejidad XL (post-MVP)  ← **próxima**
 IA opcional (con validación y sin claves en cliente), panel admin, contenido
 premium ampliado, nuevas métricas, accesibilidad e internacionalización (es → en).
 

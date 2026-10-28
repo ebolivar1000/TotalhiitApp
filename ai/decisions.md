@@ -260,3 +260,29 @@ cuenta de Cloudflare sigue siendo caribialabs@gmail.com). Artefactos
   - `validarSeguridadRegistro` rechaza sincronizar datos íntimos si no cuentan con
     el sobre cifrado Zero-Knowledge.
   - Exportación e importación JSON en Ajustes se conservan intactas como red de rescate.
+
+## D25 — FASE 11: Capacitor 8 para distribución Android APK (2026-10-28)
+- Instalación de dependencias `@capacitor/core`, `@capacitor/cli`, `@capacitor/android` v8.6.0.
+- Configuración de `capacitor.config.ts` (`appId: "com.totalhiit.app"`, `appName: "TOTALHIIT"`).
+- `android/` configurado con permisos mínimos (`INTERNET`, `ACCESS_NETWORK_STATE`).
+- Scripts npm agregados: `cap:copy`, `cap:sync`, `cap:open`.
+- Keystore de producción: script `scripts/generar-keystore.ps1` con validez de 10.000 días;
+  excluida por `.gitignore`. Build reproducible en `android/app/build.gradle` con
+  `signingConfigs.release` configurable por variables de entorno / propiedades.
+- Workflow CI reproducible en `.github/workflows/build-apk.yml` que compila el APK
+  en Ubuntu con JDK 21 Temurin sin ensuciar la máquina local.
+
+## D26 — FASE 11: Despliegue PWA en Cloudflare Pages (2026-10-28)
+- Configurados `public/_redirects` (`/* /index.html 200`) para enrutamiento SPA y
+  `public/_headers` con políticas de seguridad y caché diferenciada:
+  `/sw.js` y manifest sin caché para autoUpdate inmediato; `/assets/*` inmutables.
+- Guías de usuario preparadas: `docs/guia-instalacion-apk.md` (Android sideload y
+  aviso de Play Protect para mujeres +40) y `docs/enlace-descarga-web.md` (bloque
+  HTML/Tailwind listo para el sitio sin modificarlo).
+
+## D27 — FASE 11: Monitor de Conectividad desacoplado y Aviso Offline (2026-10-28)
+- `MonitorConexion` (`src/lib/red/conexion.ts`): clase singleton desacoplada que
+  gestiona eventos de red, testeada unitariamente sin librerías pesadas en Vitest.
+- `useConexion`: hook React con `useSyncExternalStore` (estándar React 19).
+- `AvisoConexion`: banner superior discreto y accesible (`role="status"`, `aria-live="polite"`)
+  que tranquiliza a la usuaria confirmando que la app sigue operativa 100% offline.

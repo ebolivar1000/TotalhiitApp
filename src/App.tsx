@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import Navegacion from './componentes/Navegacion';
+import AvisoConexion from './componentes/AvisoConexion';
 import { LLAVE_ONBOARDING_SALTADO, usePerfil } from './hooks/usePerfil';
 import Ajustes from './paginas/Ajustes';
 import Ciclo from './paginas/Ciclo';
@@ -35,6 +36,7 @@ export default function App() {
 
   return (
     <div className="min-h-dvh bg-neutro-100">
+      <AvisoConexion />
       <Routes>
         <Route path="/" element={<Inicio />} />
         <Route path="/onboarding" element={<Onboarding />} />

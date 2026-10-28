@@ -10,6 +10,10 @@ coverage/
 .env
 .env.*
 *.local
+*.keystore
+*.jks
+*.apk
+*.aab
 
 # Capacitor / Android (artefactos generados, no el proyecto)
 android/app/build/

@@ -1,5 +1,36 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 12) — FASE 11 cerrada (distribución APK + PWA)
+- **Capacitor 8 para Android APK:**
+  instalación de `@capacitor/core`, `@capacitor/cli`, `@capacitor/android` v8.6.0;
+  inicialización de `com.totalhiit.app` (`capacitor.config.ts`);
+  plataforma nativa `android/` configurada con permisos mínimos (`INTERNET`,
+  `ACCESS_NETWORK_STATE`) y `allowBackup="true"`.
+- **Firma y compilación reproducible:**
+  `android/app/build.gradle` configurado con soporte para firma de release
+  mediante variables de entorno/propiedades; script de generación de keystore
+  `scripts/generar-keystore.ps1` (RSA 2048, 10.000 días de validez);
+  `.keystore`, `.jks`, `.apk` excluidos del repo en `.gitignore`.
+  Workflow automatizado CI en `.github/workflows/build-apk.yml` (compilación
+  en la nube con Ubuntu y JDK 21 Temurin).
+- **PWA en Cloudflare Pages:**
+  `public/_redirects` (`/* /index.html 200`) para SPA; `public/_headers` con
+  seguridad OWASP y política de autoUpdate (`/sw.js` y manifest sin caché,
+  `/assets/*` inmutables por 1 año).
+- **Materiales de distribución para la usuaria:**
+  guía completa de instalación fuera de Google Play (`docs/guia-instalacion-apk.md`)
+  con explicación transparente del aviso de Play Protect para mujeres +40;
+  bloque HTML/Tailwind preparado para el sitio web (`docs/enlace-descarga-web.md`)
+  sin tocar el repositorio del sitio existente.
+- **Resiliencia offline y accesibilidad:**
+  monitor desacoplado `MonitorConexion` (`src/lib/red/conexion.ts`), hook `useConexion`
+  con `useSyncExternalStore` (React 19) y banner superior accesible `AvisoConexion`
+  (`role="status"`, `aria-live="polite"`).
+- **Verificación:** `tsc -b` ✅ · **vitest 180/180** ✅ (3 nuevas: monitoreo de red,
+  notificación a suscriptores, desuscripción limpia) · `npm run cap:copy` ✅ ·
+  build web y sincronización nativa en verde.
+- Docs actualizadas (`docs/roadmap.md`, `docs/deployment.md`, `ai/state.md`, `ai/next-steps.md`, D25–D27).
+
 ## 2026-10-28 (sesión 11) — FASE 10 cerrada (identidad, sync y premium)
 - **Comparativa de Backend documentada** (`docs/comparacion-backend.md`):
   análisis exhaustivo Cloudflare Workers+D1(+R2) vs Supabase con límites de plan

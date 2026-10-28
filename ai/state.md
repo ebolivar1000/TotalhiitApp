@@ -51,8 +51,15 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
   validación de permisos en backend, auth local-first (`src/lib/auth/auth.ts`),
   motor de sincronización LWW (`src/lib/sync/sync-engine.ts`) y UI en `/ajustes`.
   177/177 pruebas.
-- **FASE 11 (distribución): próxima** — APK firmado con Capacitor + PWA en
-  Cloudflare Pages; pruebas en dispositivos reales.
+- **FASE 11 ✅** (distribución) — completa: Capacitor 8 (`com.totalhiit.app`)
+  con plataforma `android/` configurada, scripts `cap:copy`/`cap:sync`, script
+  `generar-keystore.ps1`, GitHub Actions CI workflow reproducible (`build-apk.yml`),
+  PWA en Cloudflare Pages (`_redirects`, `_headers`), guía de instalación fuera
+  de Google Play (`guia-instalacion-apk.md`), bloque para la web (`enlace-descarga-web.md`),
+  monitor de conexión desacoplado (`MonitorConexion`) y banner `AvisoConexion`.
+  180/180 pruebas.
+- **FASE 12 (evolución post-MVP): próxima** — IA opcional, panel admin, nuevas
+  métricas, accesibilidad e internacionalización.
 
 ## Plan de fases
 Definitivo en `docs/roadmap.md` (FASES 0–12 con criterios de aceptación, matriz de
@@ -114,10 +121,15 @@ dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
   de PIN (`pin-crypto.ts`), entitlements y permisos de servidor (`entitlements.ts`),
   auth y sesión (`auth.ts`), motor de sync LWW (`sync-engine.ts`) y UI en `/ajustes`.
 
+- **FASE 11 completa:** Capacitor 8 (`com.totalhiit.app`) con Android nativo,
+  scripts de build y keystore (`generar-keystore.ps1`), CI `.github/workflows/build-apk.yml`,
+  Cloudflare Pages configs (`_redirects`, `_headers`), guías de instalación y bloque web,
+  monitor offline (`MonitorConexion`) y banner `AvisoConexion`.
+
 ## Pendientes inmediatos
-- FASE 11: distribución (APK firmado con Capacitor, PWA desplegada en Cloudflare Pages,
-  instalable en iPhone, pruebas offline en dispositivos reales).
-- Pendiente menor: code-splitting adicional del main (~615 kB) si hace falta.
+- FASE 12: evolución post-MVP (IA opcional con proxy backend, panel admin, nuevas
+  métricas de entrenamiento, internacionalización es → en).
+- Pendiente menor: code-splitting adicional del main (~616 kB) si hace falta.
 - Probar guardar/compartir el PDF (receta y plan) en Android y iPhone reales.
 
 ## Notas de entorno

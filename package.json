@@ -10,9 +10,15 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "cap:sync": "npm run build && cap sync android",
+    "cap:copy": "npm run build && cap copy android",
+    "cap:open": "cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
     "@hookform/resolvers": "^6.0.2",
     "dexie": "^4.4.7",
     "pdf-lib": "^1.17.1",
