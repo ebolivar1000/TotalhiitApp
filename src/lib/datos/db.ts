@@ -5,6 +5,7 @@ import type {
   EntradaDiario,
   Favorito,
   NutritionPreferences,
+  PlanSemanal,
   RecipePreparation,
   UserGoal,
   UserProfile,
@@ -23,6 +24,7 @@ export const db = new Dexie(NOMBRE_DB) as Dexie & {
   preparaciones: EntityTable<RecipePreparation, 'id'>;
   entradasDiario: EntityTable<EntradaDiario, 'id'>;
   ciclo: EntityTable<CicloRegistro, 'id'>;
+  planes: EntityTable<PlanSemanal, 'id'>;
 };
 
 db.version(1).stores({
@@ -51,4 +53,9 @@ db.version(4).stores({
 /** FASE 8: ciclo menstrual — SOLO metadatos + payload cifrado (nunca en claro). */
 db.version(5).stores({
   ciclo: 'id, userId, fecha, [userId+fecha]',
+});
+
+/** FASE 9: planes semanales de comidas. */
+db.version(6).stores({
+  planes: 'id, userId, semanaInicio, [userId+semanaInicio]',
 });

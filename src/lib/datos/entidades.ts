@@ -186,6 +186,33 @@ export const cicloRegistroSchema = z.object({
 });
 export type CicloRegistro = z.infer<typeof cicloRegistroSchema>;
 
+/**
+ * FASE 9 — Plan semanal de comidas. Un plan por usuario y semana (lunes).
+ * Los slots los sugiere el motor (sin IA) y la usuaria puede reemplazarlos.
+ */
+export const COMIDAS_PLAN = ['desayuno', 'almuerzo', 'cena', 'snack'] as const;
+export type ComidaPlan = (typeof COMIDAS_PLAN)[number];
+
+export const slotPlanSchema = z.object({
+  /** 0 = lunes … 6 = domingo. */
+  dia: z.number().int().min(0).max(6),
+  comida: z.enum(COMIDAS_PLAN),
+  recetaId: z.string().min(1),
+});
+export type SlotPlan = z.infer<typeof slotPlanSchema>;
+
+export const planSemanalSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  /** Lunes de la semana (YYYY-MM-DD). */
+  semanaInicio: fechaIso,
+  slots: z.array(slotPlanSchema),
+  porciones: z.number().int().min(1).max(12).default(2),
+  createdAt: z.number().int().positive(),
+  updatedAt: z.number().int().positive(),
+});
+export type PlanSemanal = z.infer<typeof planSemanalSchema>;
+
 export const consentRecordSchema = z.object({
   id: z.string(),
   userId: z.string(),

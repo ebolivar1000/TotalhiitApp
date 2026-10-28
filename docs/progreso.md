@@ -1,5 +1,32 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 10) — FASE 9 cerrada (menús semanales, compras y PDF del plan)
+- **Modelo + DB v6:** `planSemanalSchema` (semana arranca en lunes, slots únicos
+  por día/comida, porciones del plan) y store `planes` con índice
+  `[userId+semanaInicio]`; `guardarPlanSemanal` hace upsert conservando
+  id/createdAt; exportación pasa a **versión 6** y el borrado definitivo limpia
+  los 10 stores.
+- **Planificador determinista** (`src/lib/nutricion/planificador.ts`): 7 días ×
+  desayuno/almuerzo/cena/snack con `filtrarRecetas` + `ordenarPorObjetivo`
+  (alérgenos/exclusiones/presupuesto/objetivo del perfil, sin IA), rotación por
+  día, `recetasParaComida` para el reemplazo manual y `reemplazarSlot`.
+- **Lista de compras consolidada** (`compras.ts`): suma por nombre+unidad
+  escalada a las porciones del plan, "a gusto" aparte y orden alfabético es-AR.
+- **PDF del plan** (`pdf.ts` refactorizado): `crearMarco` compartido (cabecera
+  con logo + wordmark) + `generarPdfPlan` (sección por día con las 4 comidas y
+  lista de compras del día con cantidades) + `nombreArchivoPdfPlan`;
+  `cargarLogoPdf` exportada y reutilizada por el detalle de receta. Marca de
+  agua + pie en todas las páginas.
+- **UI `/plan`:** CTA "Generar mi plan" si no hay plan de la semana; regenerar,
+  toggle de compras, PDF (import dinámico) y Selector por comida para cambiar
+  cualquier slot con link al detalle. Enlace "Plan semanal →" en la tarjeta de
+  Nutrición de Inicio.
+- **Verificación:** `tsc -b` ✅ · **vitest 147/147** ✅ (14 nuevas: determinismo,
+  cobertura de categorías, alérgenos, reemplazo, upsert por semana, historial,
+  compras, exportación v6, PDF del plan) · build ✅ (main 611 kB, pdf 426 kB
+  lazy) · dev 5174 responde en `/plan`.
+- Docs actualizadas (roadmap FASE 9 tildada, state, next-steps, D20).
+
 ## 2026-10-28 (sesión 9) — FASE 8 cerrada (ciclo menstrual, privacidad estricta)
 - **Cifrado local** (`src/lib/ciclo/cifrado.ts`): WebCrypto AES-GCM-256 con
   clave aleatoria que vive solo en `localStorage`; IV nuevo por cifrado; helpers

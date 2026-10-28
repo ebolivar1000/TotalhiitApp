@@ -15,7 +15,9 @@ import {
   type Favorito,
   type ModuloConsentimiento,
   type NutritionPreferences,
+  type PlanSemanal,
   type RecipePreparation,
+  type SlotPlan,
   type TipoFavorito,
   type TipoObjetivo,
   type UserGoal,
@@ -120,7 +122,7 @@ export async function tieneConsentimiento(userId: string, modulo: ModuloConsenti
 
 /** Exportación en JSON plano de todos los datos del usuario (módulo J). */
 export async function exportarDatos(): Promise<Record<string, unknown>> {
-  const [perfiles, objetivos, preferencias, consentimientos, sesiones, favoritos, preparaciones, entradasDiario, ciclo] =
+  const [perfiles, objetivos, preferencias, consentimientos, sesiones, favoritos, preparaciones, entradasDiario, ciclo, planes] =
     await Promise.all([
       db.perfiles.toArray(),
       db.objetivos.toArray(),
@@ -131,10 +133,11 @@ export async function exportarDatos(): Promise<Record<string, unknown>> {
       db.preparaciones.toArray(),
       db.entradasDiario.toArray(),
       db.ciclo.toArray(), // SOLO metadatos + datosCifrados: el contenido íntimo no sale en claro.
+      db.planes.toArray(),
     ]);
   return {
     app: 'totalhiit-app',
-    version: 5,
+    version: 6,
     exportado: new Date().toISOString(),
     perfiles,
     objetivos,
@@ -145,6 +148,7 @@ export async function exportarDatos(): Promise<Record<string, unknown>> {
     preparaciones,
     entradasDiario,
     ciclo,
+    planes,
   };
 }
 
@@ -162,6 +166,7 @@ export async function borrarDatosPersonales(): Promise<void> {
       db.preparaciones,
       db.entradasDiario,
       db.ciclo,
+      db.planes,
     ],
     async () => {
       await Promise.all([
@@ -174,6 +179,7 @@ export async function borrarDatosPersonales(): Promise<void> {
         db.preparaciones.clear(),
         db.entradasDiario.clear(),
         db.ciclo.clear(),
+        db.planes.clear(),
       ]);
     },
   );
@@ -368,4 +374,37 @@ export async function registrosCicloLegibles(
     }
   }
   return legibles.sort((a, b) => b.fecha.localeCompare(a.fecha));
+}
+
+/**
+ * FASE 9 — Plan semanal: un plan por usuario y semana (upsert por lunes).
+ */
+export async function guardarPlanSemanal(
+  userId: string,
+  semanaInicio: string,
+  slots: SlotPlan[],
+  porciones: number,
+): Promise<PlanSemanal> {
+  const ahora = Date.now();
+  const existente = await db.planes.where('[userId+semanaInicio]').equals([userId, semanaInicio]).first();
+  const plan: PlanSemanal = {
+    id: existente?.id ?? nuevoId(),
+    userId,
+    semanaInicio,
+    slots,
+    porciones,
+    createdAt: existente?.createdAt ?? ahora,
+    updatedAt: ahora,
+  };
+  await db.planes.put(plan);
+  return plan;
+}
+
+export async function obtenerPlanSemanal(userId: string, semanaInicio: string): Promise<PlanSemanal | undefined> {
+  return db.planes.where('[userId+semanaInicio]').equals([userId, semanaInicio]).first();
+}
+
+export async function planesDeUsuario(userId: string): Promise<PlanSemanal[]> {
+  const filas = await db.planes.where('userId').equals(userId).toArray();
+  return filas.sort((a, b) => b.semanaInicio.localeCompare(a.semanaInicio));
 }

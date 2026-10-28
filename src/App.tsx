@@ -12,6 +12,7 @@ import Inicio from './paginas/Inicio';
 import Nutricion from './paginas/Nutricion';
 import Onboarding from './paginas/Onboarding';
 import Perfil from './paginas/Perfil';
+import Plan from './paginas/Plan';
 import Progreso from './paginas/Progreso';
 import Salud from './paginas/Salud';
 
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/salud" element={<Salud />} />
         <Route path="/nutricion" element={<Nutricion />} />
         <Route path="/nutricion/:id" element={<DetalleReceta />} />
+        <Route path="/plan" element={<Plan />} />
         <Route path="/entrenamientos" element={<Entrenamientos />} />
         <Route path="/entrenamientos/:id" element={<DetalleEntrenamiento />} />
         <Route path="/progreso" element={<Progreso />} />

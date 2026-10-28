@@ -139,10 +139,25 @@ Criterios de aceptación:
    ocurre solo en memoria y los registros corruptos se omiten sin exponer
    nada; la app no tiene telemetría ni logs.
 
-### FASE 9 — Menús semanales — complejidad M
-1. Planificador semanal desde el motor (usa catálogo + preferencias).
-2. Lista de compras consolidada por semana.
-3. Recomendaciones y exportación PDF del plan (marca de agua incluida).
+### FASE 9 — Menús semanales — complejidad M ✅ (2026-10-28)
+1. [x] Planificador semanal desde el motor (usa catálogo + preferencias y
+   objetivo del perfil; **sin IA**): 7 días × desayuno/almuerzo/cena/snack con
+   `filtrarRecetas` + `ordenarPorObjetivo`; generación determinista y rotación;
+   cada slot reemplazable desde el catálogo con los mismos filtros.
+2. [x] Lista de compras consolidada por semana: suma de ingredientes de las
+   recetas del plan escaladas a las porciones del plan (agrupadas por
+   nombre+unidad, "a gusto" aparte) en `/plan` (toggle).
+3. [x] Exportación PDF del plan (marca de agua + pie incluidos, reutiliza
+   `estamparMarcaAgua` y el marco de `pdf.ts`): portada del plan, por día las
+   4 comidas con tiempo de cocción y por día su lista de compras con las
+   cantidades; nombre `totalhiit-plan-AAAA-MM-DD.pdf`.
+4. [x] Modelo `PlanSemanal` (semana arranca en lunes, upsert por
+   `[userId+semanaInicio]`, historial conservado) + DB v6 (`planes`);
+   exportación v6 y borrado definitivo incluyen el store.
+5. [x] Pruebas: plan determinista + cobertura de categorías por slot, filtro
+   por alérgenos/exclusiones, reemplazo de slot, upsert por semana, consolidado
+   de compras (sumas/escalado/a gusto/unidades distintas), exportación v6 y
+   PDF del plan válido. 147/147.
 
 ### FASE 10 — Identidad, sync y premium — complejidad XL
 1. Comparación documentada Cloudflare Workers+D1(+R2) vs Supabase (límites gratis

@@ -195,3 +195,31 @@ cuenta de Cloudflare sigue siendo caribialabs@gmail.com). Artefactos
   resolución segura de almacenamiento en `cifrado.ts`.
 - Accesos: ruta `/ciclo` + tarjetas en Inicio y Progreso. Cero dependencias
   nuevas (WebCrypto nativo).
+
+## D20 — FASE 9: menús semanales y lista de compras (2026-10-28)
+- **Planificación determinista, sin IA:** `planificador.ts` cubre 7 días ×
+  desayuno/almuerzo/cena/snack usando `filtrarRecetas` + `ordenarPorObjetivo`
+  (las reglas duras de alérgenos/exclusiones del motor se aplican igual que en
+  la FASE 5); snack acepta categorías snack/bebida/postre. Rotación por
+  índice de día (`dia % candidatas.length`): determinista y variada; con una
+  sola candidata se repite honestamente; sin candidatas el slot se omite.
+- **Modelo:** `planSemanalSchema` con `semanaInicio` = lunes ISO (reutiliza
+  `lunesDeSemana` de FASE 7) y slots únicos por `[dia, comida]`
+  (`reemplazarSlot` normaliza). DB v6 store `planes`
+  (`'id, userId, semanaInicio, [userId+semanaInicio]'`); `guardarPlanSemanal`
+  hace upsert conservando id/createdAt; un plan por semana (regenerar
+  reemplaza; semanas anteriores quedan en el historial).
+- **Lista de compras:** `consolidarCompras` suma por clave nombre+unidad
+  (case-insensitive) con el factor de porciones del plan; los ingredientes sin
+  cantidad ("a gusto") van aparte, sin sumar; unidades distintas del mismo
+  alimento quedan en líneas separadas (sin conversión de unidades en MVP).
+- **PDF del plan:** `pdf.ts` refactorizado con `crearMarco` (cabecera logo +
+  wordmark reutilizable) y `generarPdfPlan`: una sección por día con las 4
+  comidas (receta, tiempo) y la lista de compras del día con cantidades;
+  misma marca de agua + pie en todas las páginas; `cargarLogoPdf` exportada
+  y compartida con el detalle de receta.
+- **UI `/plan`:** si no hay plan para la semana → CTA "Generar mi plan" (usa
+  alérgenos/exclusiones/presupuesto/porciones del perfil y el objetivo activo);
+  si hay → regenerar (reescribe slots), toggle compras, PDF, y un Selector por
+  comida para reemplazar desde el catálogo filtrado + link "ver →" al detalle.
+  Cero dependencias nuevas; pdf-lib sigue en chunk lazy (import dinámico).

@@ -37,9 +37,15 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
   consentimiento, payload íntimo SIEMPRE cifrado (AES-GCM, clave solo en el
   dispositivo, DB v5), calendario + historial + estimación con incertidumbre
   visible, exportación cifrada y borrado definitivo. 133/133 pruebas.
-- **FASE 9 (menús semanales + lista de compras + PDF del plan): próxima** — ver
-  criterios en `docs/roadmap.md`; reutiliza el motor de recetas y
-  `estamparMarcaAgua`.
+- **FASE 9 ✅** (menús semanales) — completa: planificador determinista sin IA
+  (7 días × 4 comidas con filtros del motor), upsert por semana (DB v6 store
+  `planes`), lista de compras consolidada y PDF del plan con marca de agua;
+  página `/plan` con regeneración, reemplazo por slot y compras. 147/147
+  pruebas.
+- **FASE 10 (identidad, sync y premium): próxima** — ver criterios en
+  `docs/roadmap.md`; incluye comparación de backends y evaluación de amenazas
+  para datos íntimos sincronizados; evaluar derivación de la clave del ciclo
+  con PIN (D19).
 
 ## Plan de fases
 Definitivo en `docs/roadmap.md` (FASES 0–12 con criterios de aceptación, matriz de
@@ -84,6 +90,11 @@ dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
   (máx. 3, sin culpa), gráficos propios (`componentes/graficos.tsx`) y página
   `/progreso` completa (racha, métricas, formulario diario con checkbox para
   actualizar el peso del perfil, calendario de actividad, 4 semanas).
+- **FASE 9 completa:** `planificador.ts` (7 días × desayuno/almuerzo/cena/snack,
+  sin IA, filtros del motor), `compras.ts` (consolidado por nombre+unidad con
+  escalado), `pdf.ts` refactorizado con `crearMarco` + `generarPdfPlan`, DB v6
+  (`planes` con upsert por semana, exportación v6), página `/plan` (generar,
+  regenerar, reemplazar slots, compras, PDF) y enlace desde Inicio.
 - **FASE 8 completa:** cifrado WebCrypto AES-GCM (`src/lib/ciclo/cifrado.ts`,
   clave aleatoria solo en localStorage), registro de ciclo cifrado
   (`guardarRegistroCiclo`/`registrosCicloLegibles`, DB v5 store `ciclo`),
@@ -92,15 +103,18 @@ dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
   y control de desactivación con borrado; exportación v5 cifrada (sin clave).
 
 ## Pendientes inmediatos
-- FASE 9: menús semanales (planificador desde el motor), lista de compras
-  consolidada y PDF del plan con marca de agua.
-- Pendiente menor: code-splitting adicional del main (~604 kB) si hace falta.
-- Pendiente FASE 10: evaluar derivación de la clave del ciclo con PIN (D19).
-- Pendiente FASE 11: probar guardar/compartir el PDF en Android y iPhone reales.
+- FASE 10: identidad/sync/premium (comparación Cloudflare Workers+D1 vs
+  Supabase, auth+roles, entitlements, evaluación de amenazas para datos íntimos
+  sincronizados; evaluar PIN para la clave del ciclo — D19).
+- Pendiente menor: code-splitting adicional del main (~611 kB) si hace falta.
+- Pendiente FASE 11: probar guardar/compartir el PDF (receta y plan) en
+  Android y iPhone reales.
 
 ## Notas de entorno
 - Git repo-local: Everth <ebolivar1000@gmail.com> (Cloudflare sigue siendo caribialabs@gmail.com).
-- Commits iniciales: 117f261 (fundación + FASE 2).
+- Commits: 117f261 (fundación + FASE 2), 1de2c88 (FASE 3), 29e6db9 (FASE 4),
+  5798414 (FASE 5), e4a38a9 (FASE 6), be36a23 (chore gitignore), a9de6cd
+  (FASE 7), f7a980d (FASE 8).
 
 ## Restricciones vigentes
 - No modificar el sitio sin autorización.

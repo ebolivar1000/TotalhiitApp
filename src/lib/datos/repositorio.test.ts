@@ -44,6 +44,9 @@ import {
   borrarTodosRegistrosCiclo,
   registrosCicloCifrados,
   registrosCicloLegibles,
+  guardarPlanSemanal,
+  obtenerPlanSemanal,
+  planesDeUsuario,
 } from './repositorio';
 
 const entradaPerfil: EntradaPerfil = {
@@ -145,10 +148,11 @@ describe('exportación y borrado', () => {
     await registrarPreparacion({ userId: perfil.id, recetaId: 'r5', fecha: '2026-10-28', porciones: 2 });
     await guardarEntradaDiaria(perfil.id, '2026-10-28', { pesoKg: 70, vasosAgua: 5 });
     await guardarRegistroCiclo(perfil.id, '2026-10-28', { flujo: 'abundante', sintomas: ['cólicos'] });
+    await guardarPlanSemanal(perfil.id, '2026-10-26', [{ dia: 0, comida: 'desayuno', recetaId: 'r1' }], 2);
 
     const datos = await exportarDatos();
     expect(datos['app']).toBe('totalhiit-app');
-    expect(datos['version']).toBe(5);
+    expect(datos['version']).toBe(6);
     expect((datos['perfiles'] as unknown[]).length).toBe(1);
     expect((datos['objetivos'] as unknown[]).length).toBe(1);
     expect((datos['sesiones'] as unknown[]).length).toBe(1);
@@ -159,6 +163,7 @@ describe('exportación y borrado', () => {
     expect((datos['ciclo'] as unknown[]).length).toBe(1);
     expect(JSON.stringify(datos)).not.toContain('abundante');
     expect(JSON.stringify(datos)).not.toContain('cólicos');
+    expect((datos['planes'] as unknown[]).length).toBe(1);
 
     await borrarDatosPersonales();
     expect(await db.perfiles.count()).toBe(0);
@@ -170,6 +175,7 @@ describe('exportación y borrado', () => {
     expect(await db.preparaciones.count()).toBe(0);
     expect(await db.entradasDiario.count()).toBe(0);
     expect(await db.ciclo.count()).toBe(0);
+    expect(await db.planes.count()).toBe(0);
   });
 });
 
@@ -338,5 +344,50 @@ describe('ciclo menstrual con cifrado (FASE 8)', () => {
     const datos = await exportarDatos();
     expect((datos['ciclo'] as unknown[]).length).toBe(1);
     expect(JSON.stringify(datos)).not.toContain('abundante');
+  });
+});
+
+describe('plan semanal (FASE 9)', () => {
+  it('upsert por semana mantiene id/createdAt y reemplaza los slots', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    const primero = await guardarPlanSemanal(
+      perfil.id,
+      '2026-10-26',
+      [
+        { dia: 0, comida: 'desayuno', recetaId: 'r1' },
+        { dia: 0, comida: 'almuerzo', recetaId: 'r4' },
+      ],
+      2,
+    );
+    expect(primero.createdAt).toBeGreaterThan(0);
+
+    const reemplazado = await guardarPlanSemanal(
+      perfil.id,
+      '2026-10-26',
+      [
+        { dia: 0, comida: 'desayuno', recetaId: 'r2' },
+        { dia: 0, comida: 'almuerzo', recetaId: 'r4' },
+        { dia: 0, comida: 'cena', recetaId: 'r5' },
+      ],
+      4,
+    );
+    expect(reemplazado.id).toBe(primero.id);
+    expect(reemplazado.createdAt).toBe(primero.createdAt);
+    expect(reemplazado.slots).toHaveLength(3);
+    expect(reemplazado.slots[0]?.recetaId).toBe('r2');
+    expect(reemplazado.porciones).toBe(4);
+
+    const otro = await guardarPlanSemanal(perfil.id, '2026-11-02', [{ dia: 0, comida: 'cena', recetaId: 'r6' }], 2);
+    expect(otro.id).not.toBe(primero.id);
+  });
+
+  it('obtiene por semana y lista los planes del más nuevo al más viejo', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    await guardarPlanSemanal(perfil.id, '2026-10-26', [], 2);
+    await guardarPlanSemanal(perfil.id, '2026-11-02', [], 2);
+    expect((await obtenerPlanSemanal(perfil.id, '2026-10-26'))?.slots).toEqual([]);
+    expect(await obtenerPlanSemanal(perfil.id, '2026-10-19')).toBeUndefined();
+    const planes = await planesDeUsuario(perfil.id);
+    expect(planes.map((p) => p.semanaInicio)).toEqual(['2026-11-02', '2026-10-26']);
   });
 });

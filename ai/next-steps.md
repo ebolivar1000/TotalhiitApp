@@ -26,23 +26,29 @@
 - FASE 8 (ciclo menstrual): ✅ completa — consentimiento estricto, cifrado
   AES-GCM de los campos íntimos (DB v5), calendario, estimación con
   incertidumbre, exportación cifrada y borrado. 133/133 pruebas.
+- FASE 9 (menús semanales): ✅ completa — planificador determinista sin IA,
+  upsert por semana (DB v6), lista de compras consolidada, PDF del plan con
+  marca de agua, página `/plan` con reemplazo por slot. 147/147 pruebas.
 
 ## Próximo paso concreto
-FASE 9 — menús semanales (criterios exactos en `docs/roadmap.md`):
-1. Planificador semanal desde el motor: para cada comida del día (desayuno,
-   almuerzo, cena + snack opcional) elegir receta compatible con alérgenos,
-   presupuesto y objetivo (`filtrarRecetas` + `ordenarPorObjetivo`, sin IA;
-   con posibilidad de reemplazo manual desde el catálogo).
-2. Modelo `PlanSemanal` (semana ISO, slots por día/comida con recetaId) + DB v6
-   (`planes`); exportación v6 y borrado incluyen el store.
-3. Lista de compras consolidada: suma de ingredientes de las recetas del plan
-   (normalizando cantidades por porciones) agrupada por categoría/proteína.
-4. Exportación PDF del plan semanal (reutiliza `estamparMarcaAgua` y el layout
-   de `src/lib/nutricion/pdf.ts`).
-5. Página `/plan`: vista semanal, regenerar/reescribir slots, botón lista de
-   compras y PDF.
-6. Pruebas: generación determinista del plan, consolidación de compras,
-   exportación; `npm test` + build + recorrida dev (puerto 5174).
+FASE 10 — identidad, sync y premium (criterios exactos en `docs/roadmap.md`):
+1. Comparación documentada Cloudflare Workers+D1(+R2) vs Supabase: límites del
+   plan gratis verificados en la web oficial, auth, base relacional,
+   almacenamiento, protección de videos, sync y costos. Decisión con el
+   propietario (el sitio usa Workers; ya hay cuenta Cloudflare).
+2. Autenticación segura + roles (usuario/admin separados); validación de
+   permisos SIEMPRE en el servidor; nada de auth reutilizada del sitio sin
+   revisión de seguridad (D7).
+3. Entitlements premium verificados por el backend (nunca solo botones
+   ocultos); el módulo menstrual básico y la exportación de datos quedan
+   SIEMPRE gratis.
+4. Evaluación de amenazas para datos íntimos sincronizados ANTES del
+   lanzamiento (¿el ciclo sube al servidor? solo con cifrado extremo a extremo
+   o cifrado de cliente con PIN; evaluar derivación de la clave con PIN — D19).
+5. Estrategia de sync local-first → servidor (resolución de conflictos simple,
+   export/import como red de seguridad).
+6. Sin pasarela de pagos hasta decisión del propietario (solo preparación de
+   entitlements).
 
 ## Recordatorios para la próxima sesión
 - Leer `ai/state.md`, `ai/decisions.md` y `docs/roadmap.md` antes de codificar.

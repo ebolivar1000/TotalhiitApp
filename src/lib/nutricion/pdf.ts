@@ -1,16 +1,20 @@
 /**
- * FASE 6 — Generación de PDF A4 de recetas (pdf-lib).
- * Incluye: logo, título, meta, ingredientes escalados a las porciones,
- * preparación, tabla nutricional (por porción y totales), nota de valores
- * aproximados con fuentes, y MARCA DE AGUA TOTALHIIT semitransparente en
- * TODAS las páginas (reutilizable para el plan semanal de FASE 9).
+ * FASE 6/9 — Generación de PDF A4 (pdf-lib).
+ * - generarPdfReceta: receta individual (ingredientes escalados, pasos, tabla
+ *   nutricional, notas de fuentes).
+ * - generarPdfPlan (FASE 9): plan semanal de comidas día por día.
+ * Ambos incluyen: logo opcional, y MARCA DE AGUA TOTALHIIT semitransparente en
+ * TODAS las páginas + pie con numeración (reutilizable en FASE 10+).
  * Fuentes estándar (WinAnsi): se sanea el texto para acentos/ñ correctos.
  */
 
 import { PDFDocument, StandardFonts, degrees, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
+import type { SlotPlan } from '../datos/entidades';
+import { sumarDias } from '../progreso/metricas';
 import type { Receta } from './recetas';
 import { escalarReceta, formatearCantidad } from './motor';
 import { ETIQUETAS_CATEGORIA_RECETA } from './recetas';
+import { DIAS_SEMANA, ETIQUETAS_COMIDA_PLAN } from './planificador';
 
 const MAGENTA = rgb(0.69, 0, 0.314);
 const TEXTO = rgb(0.24, 0.24, 0.27);
@@ -55,7 +59,7 @@ export function wrapText(texto: string, font: PDFFont, size: number, anchoMaximo
   return lineas.length > 0 ? lineas : [''];
 }
 
-/** Estampa la marca de agua en todas las páginas. Devuelve cuántas estampó. */
+/** Estampa la marca de agua y el pie en todas las páginas. Devuelve cuántas estampó. */
 export function estamparMarcaAgua(doc: PDFDocument, font: PDFFont): number {
   let estampadas = 0;
   const paginas = doc.getPages();
@@ -73,7 +77,6 @@ export function estamparMarcaAgua(doc: PDFDocument, font: PDFFont): number {
       opacity: 0.08,
       rotate: degrees(45),
     });
-    // Pie de página discreto + numeración
     page.drawText('TOTALHIIT · entrenamiento y nutrición +40', {
       x: MARGEN,
       y: 26,
@@ -95,36 +98,10 @@ export function estamparMarcaAgua(doc: PDFDocument, font: PDFFont): number {
   return estampadas;
 }
 
-async function incrustarLogo(doc: PDFDocument, page: PDFPage, y: number, logoBytes: Uint8Array): Promise<number> {
-  try {
-    let imagen;
-    try {
-      imagen = await doc.embedPng(logoBytes);
-    } catch {
-      imagen = await doc.embedJpg(logoBytes);
-    }
-    const escala = Math.min(34 / imagen.height, 110 / imagen.width);
-    const { width, height } = imagen.scale(escala);
-    page.drawImage(imagen, { x: MARGEN, y: y - height, width, height });
-    return width + 10;
-  } catch {
-    return 0;
-  }
-}
-
-export async function generarPdfReceta(
-  receta: Receta,
-  porciones: number,
-  opciones: OpcionesPdf = {},
-): Promise<Uint8Array> {
-  const fecha = opciones.fecha ?? new Date();
-  const doc = await PDFDocument.create();
-  doc.setTitle(sanitizar(`TOTALHIIT - ${receta.nombre}`));
-  doc.setAuthor('TOTALHIIT');
-  doc.setCreator('App TOTALHIIT');
+/** Marco de página compartido: cursor de contenido, saltos y helpers de texto. */
+async function crearMarco(doc: PDFDocument) {
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
-
   let page = doc.addPage([ANCHO, ALTO]);
   let y = ALTO - MARGEN;
 
@@ -152,57 +129,112 @@ export async function generarPdfReceta(
     page.drawText(sanitizar(titulo), { x: MARGEN, y: y - 12, size: 12, font: fontBold, color: MAGENTA });
     y -= 22;
   };
+  const cabecera = async (subtitulo: string, logoBytes?: Uint8Array) => {
+    let x = MARGEN;
+    if (logoBytes) x += await incrustarLogo(doc, page, y, logoBytes);
+    page.drawText('TOTALHIIT', { x, y: y - 15, size: 19, font: fontBold, color: MAGENTA });
+    page.drawText('entrenamiento y nutrición +40', { x, y: y - 28, size: 8, font, color: TEXTO_SUAVE });
+    y -= 46;
+    escribir(subtitulo, { size: 9, color: TEXTO_SUAVE });
+    y -= 4;
+  };
 
-  // Encabezado con logo opcional
-  let x = MARGEN;
-  if (opciones.logoBytes) x += await incrustarLogo(doc, page, y, opciones.logoBytes);
-  page.drawText('TOTALHIIT', { x, y: y - 15, size: 19, font: fontBold, color: MAGENTA });
-  page.drawText('entrenamiento y nutrición +40', { x, y: y - 28, size: 8, font, color: TEXTO_SUAVE });
-  y -= 46;
+  return {
+    doc,
+    font,
+    fontBold,
+    get page() {
+      return page;
+    },
+    get y() {
+      return y;
+    },
+    set y(valor: number) {
+      y = valor;
+    },
+    nueva,
+    espacio,
+    escribir,
+    seccion,
+    cabecera,
+  };
+}
 
-  // Título y meta
-  escribir(receta.nombre, { size: 17, bold: true });
-  y -= 2;
-  const meta = `${ETIQUETAS_CATEGORIA_RECETA[receta.categoria]} · ${receta.tiempoMin} min · porciones escalables · ${fecha.toLocaleDateString('es-AR')}`;
-  escribir(meta, { size: 9, color: TEXTO_SUAVE });
-  y -= 6;
-  escribir(receta.descripcion, { size: 9.5, color: TEXTO_SUAVE });
-  y -= 6;
+async function incrustarLogo(doc: PDFDocument, page: PDFPage, y: number, logoBytes: Uint8Array): Promise<number> {
+  try {
+    let imagen;
+    try {
+      imagen = await doc.embedPng(logoBytes);
+    } catch {
+      imagen = await doc.embedJpg(logoBytes);
+    }
+    const escala = Math.min(34 / imagen.height, 110 / imagen.width);
+    const { width, height } = imagen.scale(escala);
+    page.drawImage(imagen, { x: MARGEN, y: y - height, width, height });
+    return width + 10;
+  } catch {
+    return 0;
+  }
+}
+
+const fechaCorta = (iso: string) => iso.slice(5).split('-').reverse().join('/');
+
+export async function generarPdfReceta(
+  receta: Receta,
+  porciones: number,
+  opciones: OpcionesPdf = {},
+): Promise<Uint8Array> {
+  const fecha = opciones.fecha ?? new Date();
+  const doc = await PDFDocument.create();
+  doc.setTitle(sanitizar(`TOTALHIIT - ${receta.nombre}`));
+  doc.setAuthor('TOTALHIIT');
+  doc.setCreator('App TOTALHIIT');
+  const marco = await crearMarco(doc);
+
+  await marco.cabecera(
+    `${ETIQUETAS_CATEGORIA_RECETA[receta.categoria]} · ${receta.tiempoMin} min · ${fecha.toLocaleDateString('es-AR')}`,
+    opciones.logoBytes,
+  );
+
+  marco.escribir(receta.nombre, { size: 17, bold: true });
+  marco.y -= 2;
+  marco.escribir(receta.descripcion, { size: 9.5, color: TEXTO_SUAVE });
+  marco.y -= 6;
 
   // Ingredientes escalados
   const escalada = escalarReceta(receta, porciones);
-  seccion(`Ingredientes (${porciones} ${porciones === 1 ? 'porción' : 'porciones'})`);
+  marco.seccion(`Ingredientes (${porciones} ${porciones === 1 ? 'porción' : 'porciones'})`);
   for (const ing of escalada.ingredientes) {
     const cantidad = ing.cantidad === null ? 'a gusto' : `${formatearCantidad(ing.cantidad)} ${ing.unidad}`;
-    escribir(`• ${ing.nombre} — ${cantidad}`, { size: 10, sangria: 4 });
+    marco.escribir(`• ${ing.nombre} — ${cantidad}`, { size: 10, sangria: 4 });
   }
-  y -= 4;
+  marco.y -= 4;
 
   // Preparación
-  seccion('Preparación');
+  marco.seccion('Preparación');
   receta.pasos.forEach((paso, indice) => {
-    espacio(16);
-    page.drawText(`${indice + 1}.`, { x: MARGEN, y: y - 10, size: 10, font: fontBold, color: MAGENTA });
-    const lineas = wrapText(paso, font, 10, ANCHO - MARGEN * 2 - 18);
+    marco.espacio(16);
+    marco.page.drawText(`${indice + 1}.`, { x: MARGEN, y: marco.y - 10, size: 10, font: marco.fontBold, color: MAGENTA });
+    const lineas = wrapText(paso, marco.font, 10, ANCHO - MARGEN * 2 - 18);
     for (const linea of lineas) {
-      espacio(14);
-      page.drawText(linea, { x: MARGEN + 18, y: y - 10, size: 10, font, color: TEXTO });
-      y -= 14;
+      marco.espacio(14);
+      marco.page.drawText(linea, { x: MARGEN + 18, y: marco.y - 10, size: 10, font: marco.font, color: TEXTO });
+      marco.y -= 14;
     }
-    y -= 2;
+    marco.y -= 2;
   });
   if (receta.sustituciones) {
-    escribir(`Sustituciones: ${receta.sustituciones}`, { size: 9, color: TEXTO_SUAVE });
-    y -= 2;
+    marco.escribir(`Sustituciones: ${receta.sustituciones}`, { size: 9, color: TEXTO_SUAVE });
+    marco.y -= 2;
   }
   if (receta.conservacion) {
-    escribir(`Conservación: ${receta.conservacion}`, { size: 9, color: TEXTO_SUAVE });
-    y -= 2;
+    marco.escribir(`Conservación: ${receta.conservacion}`, { size: 9, color: TEXTO_SUAVE });
+    marco.y -= 2;
   }
 
   // Tabla nutricional
-  espacio(120);
-  seccion('Información nutricional (valores aproximados)');
+  marco.espacio(120);
+  marco.seccion('Información nutricional (valores aproximados)');
   const colLabel = 110;
   const colW = (ANCHO - MARGEN * 2 - colLabel) / 5;
   const filas = [
@@ -226,40 +258,102 @@ export async function generarPdfReceta(
   ];
   const altoFila = 20;
   filas.forEach((fila, indiceFila) => {
-    espacio(altoFila + 2);
-    const yFila = y - altoFila;
+    marco.espacio(altoFila + 2);
+    const yFila = marco.y - altoFila;
     if (indiceFila === 0) {
-      page.drawRectangle({ x: MARGEN, y: yFila, width: ANCHO - MARGEN * 2, height: altoFila, color: RELLENO_CLARO, borderColor: BORDE, borderWidth: 0.7 });
+      marco.page.drawRectangle({ x: MARGEN, y: yFila, width: ANCHO - MARGEN * 2, height: altoFila, color: RELLENO_CLARO, borderColor: BORDE, borderWidth: 0.7 });
     } else {
-      page.drawRectangle({ x: MARGEN, y: yFila, width: ANCHO - MARGEN * 2, height: altoFila, borderColor: BORDE, borderWidth: 0.7 });
+      marco.page.drawRectangle({ x: MARGEN, y: yFila, width: ANCHO - MARGEN * 2, height: altoFila, borderColor: BORDE, borderWidth: 0.7 });
     }
-    page.drawRectangle({ x: MARGEN + colLabel - 0.35, y: yFila, width: 0.7, height: altoFila, color: BORDE });
+    marco.page.drawRectangle({ x: MARGEN + colLabel - 0.35, y: yFila, width: 0.7, height: altoFila, color: BORDE });
     fila.forEach((celda, indiceCol) => {
       const cx = MARGEN + (indiceCol === 0 ? 6 : colLabel + (indiceCol - 1) * colW + 5);
-      const fuente = indiceFila === 0 || indiceCol === 0 ? fontBold : font;
-      page.drawText(celda, { x: cx, y: yFila + 6, size: 8.5, font: fuente, color: indiceFila === 0 ? TEXTO : TEXTO });
-      y = yFila;
+      const fuente = indiceFila === 0 || indiceCol === 0 ? marco.fontBold : marco.font;
+      marco.page.drawText(celda, { x: cx, y: yFila + 6, size: 8.5, font: fuente, color: TEXTO });
+      marco.y = yFila;
     });
   });
-  y -= 18;
+  marco.y -= 18;
 
   // Notas legales y de fuentes
-  escribir(
+  marco.escribir(
     'Los valores nutricionales son aproximados y fueron elaborados con tablas de composición de alimentos de dominio público (USDA FoodData Central).',
     { size: 8, color: TEXTO_SUAVE },
   );
-  escribir(
+  marco.escribir(
     'Este material es orientativo y no reemplaza el consejo, diagnóstico o tratamiento de profesionales de la salud.',
     { size: 8, color: TEXTO_SUAVE },
   );
-  escribir(`Generado el ${fecha.toLocaleDateString('es-AR')} por la app TOTALHIIT. Uso personal.`, {
+  marco.escribir(`Generado el ${fecha.toLocaleDateString('es-AR')} por la app TOTALHIIT. Uso personal.`, {
     size: 8,
     color: TEXTO_SUAVE,
   });
 
-  // Marca de agua + pie en TODAS las páginas
-  estamparMarcaAgua(doc, fontBold);
+  estamparMarcaAgua(doc, marco.fontBold);
+  return doc.save();
+}
 
+export interface DatosPlanPdf {
+  semanaInicio: string;
+  slots: SlotPlan[];
+  porciones: number;
+}
+
+/** PDF del plan semanal (FASE 9): día por día con las comidas del plan. */
+export async function generarPdfPlan(
+  plan: DatosPlanPdf,
+  resolver: (id: string) => Receta | undefined,
+  opciones: OpcionesPdf = {},
+): Promise<Uint8Array> {
+  const fecha = opciones.fecha ?? new Date();
+  const doc = await PDFDocument.create();
+  doc.setTitle(sanitizar(`TOTALHIIT - Plan semanal ${plan.semanaInicio}`));
+  doc.setAuthor('TOTALHIIT');
+  doc.setCreator('App TOTALHIIT');
+  const marco = await crearMarco(doc);
+
+  await marco.cabecera(
+    `Plan de comidas · ${fechaCorta(plan.semanaInicio)} al ${fechaCorta(sumarDias(plan.semanaInicio, 6))} · ${plan.porciones} ${plan.porciones === 1 ? 'porción' : 'porciones'} por receta`,
+    opciones.logoBytes,
+  );
+
+  for (let dia = 0; dia < 7; dia++) {
+    const delDia = plan.slots.filter((s) => s.dia === dia);
+    if (delDia.length === 0) continue;
+    marco.seccion(`${DIAS_SEMANA[dia]} · ${fechaCorta(sumarDias(plan.semanaInicio, dia))}`);
+    for (const slot of delDia) {
+      const receta = resolver(slot.recetaId);
+      if (receta) {
+        marco.escribir(
+          `${ETIQUETAS_COMIDA_PLAN[slot.comida]}: ${receta.nombre} — ${receta.macrosPorPorcion.kcal} kcal/porción`,
+          { size: 10, sangria: 4 },
+        );
+      } else {
+        marco.escribir(`${ETIQUETAS_COMIDA_PLAN[slot.comida]}: (receta no disponible en el catálogo)`, {
+          size: 10,
+          sangria: 4,
+          color: TEXTO_SUAVE,
+        });
+      }
+    }
+    marco.y -= 4;
+  }
+
+  marco.espacio(60);
+  marco.escribir(
+    'Los valores nutricionales de cada receta son aproximados (USDA FoodData Central, dominio público) y los totales de la semana dependen de las porciones que cocines.',
+    { size: 8, color: TEXTO_SUAVE },
+  );
+  marco.escribir(
+    'Este plan es orientativo y no reemplaza el consejo de profesionales de la salud. Podés reemplazar cualquier comida desde la app.',
+    { size: 8, color: TEXTO_SUAVE },
+  );
+  marco.escribir(`Generado el ${fecha.toLocaleDateString('es-AR')} por la app TOTALHIIT. Uso personal.`, {
+    size: 8,
+    color: TEXTO_SUAVE,
+  });
+
+  estamparMarcaAgua(doc, marco.fontBold);
   return doc.save();
 }
 
@@ -271,6 +365,21 @@ export function nombreArchivoPdf(receta: Receta): string {
     .replace(/^-+|-+$/g, '')
     .toLowerCase();
   return `totalhiit-${slug}.pdf`;
+}
+
+export function nombreArchivoPdfPlan(semanaInicio: string): string {
+  return `totalhiit-plan-${semanaInicio}.pdf`;
+}
+
+/** Carga el logo para incrustar en los PDF (si falla, se genera sin logo). */
+export async function cargarLogoPdf(): Promise<Uint8Array | undefined> {
+  try {
+    const respuesta = await fetch('/images/logo.png');
+    if (!respuesta.ok) return undefined;
+    return new Uint8Array(await respuesta.arrayBuffer());
+  } catch {
+    return undefined;
+  }
 }
 
 /** Descarga el PDF en el navegador (Android WebView y Safari lo muestran/comparten). */

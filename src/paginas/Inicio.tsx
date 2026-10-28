@@ -71,9 +71,14 @@ export default function Inicio() {
         <p className="mt-1 text-sm text-zinc-600">
           Recetas filtradas por tus alérgenos, tu tiempo de cocina y tu presupuesto.
         </p>
-        <Link to="/nutricion" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
-          Ver recetas →
-        </Link>
+        <div className="mt-3 flex gap-4 text-sm font-semibold">
+          <Link to="/nutricion" className="text-marca-magenta">
+            Ver recetas →
+          </Link>
+          <Link to="/plan" className="text-marca-magenta">
+            Plan semanal →
+          </Link>
+        </div>
       </Tarjeta>
 
       <Tarjeta>
