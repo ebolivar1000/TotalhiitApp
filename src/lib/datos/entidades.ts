@@ -122,6 +122,27 @@ export const recipePreparationSchema = z.object({
   createdAt: z.number().int().positive(),
 });
 
+/** FASE 7 — Registro diario voluntario. Todo el contenido es opcional y editable. */
+export const entradaDiarioSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  fecha: fechaIso,
+  pesoKg: z.number().min(25, 'Peso fuera de rango plausible').max(400, 'Peso fuera de rango plausible').optional(),
+  energiaNivel: z.number().int().min(1).max(5).optional(),
+  animoNivel: z.number().int().min(1).max(5).optional(),
+  horasSueno: z.number().min(0, 'Entre 0 y 16 horas').max(16, 'Entre 0 y 16 horas').optional(),
+  calidadSueno: z.number().int().min(1).max(5).optional(),
+  vasosAgua: z.number().int().min(0).max(24).optional(),
+  notas: z.string().trim().max(500, 'Máximo 500 caracteres').optional(),
+  createdAt: z.number().int().positive(),
+  updatedAt: z.number().int().positive(),
+});
+export type EntradaDiario = z.infer<typeof entradaDiarioSchema>;
+/** Campos que la usuaria puede cargar en el registro diario (todo opcional). */
+export type DatosDiarios = Partial<
+  Omit<EntradaDiario, 'id' | 'userId' | 'fecha' | 'createdAt' | 'updatedAt'>
+>;
+
 export const consentRecordSchema = z.object({
   id: z.string(),
   userId: z.string(),

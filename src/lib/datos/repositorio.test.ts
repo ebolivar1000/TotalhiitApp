@@ -26,6 +26,10 @@ import {
   registrarPreparacion,
   preparacionesDe,
   preparacionesDeReceta,
+  guardarEntradaDiaria,
+  obtenerEntradaDiaria,
+  entradasDiarias,
+  entradasEntre,
 } from './repositorio';
 
 const entradaPerfil: EntradaPerfil = {
@@ -125,14 +129,17 @@ describe('exportación y borrado', () => {
     await registrarSesion({ userId: perfil.id, workoutId: 'w1-c1', fecha: '2026-10-28' });
     await alternarFavorito(perfil.id, 'sesion', 'w1-c1');
     await registrarPreparacion({ userId: perfil.id, recetaId: 'r5', fecha: '2026-10-28', porciones: 2 });
+    await guardarEntradaDiaria(perfil.id, '2026-10-28', { pesoKg: 70, vasosAgua: 5 });
 
     const datos = await exportarDatos();
     expect(datos['app']).toBe('totalhiit-app');
+    expect(datos['version']).toBe(4);
     expect((datos['perfiles'] as unknown[]).length).toBe(1);
     expect((datos['objetivos'] as unknown[]).length).toBe(1);
     expect((datos['sesiones'] as unknown[]).length).toBe(1);
     expect((datos['favoritos'] as unknown[]).length).toBe(1);
     expect((datos['preparaciones'] as unknown[]).length).toBe(1);
+    expect((datos['entradasDiario'] as unknown[]).length).toBe(1);
 
     await borrarDatosPersonales();
     expect(await db.perfiles.count()).toBe(0);
@@ -142,6 +149,7 @@ describe('exportación y borrado', () => {
     expect(await db.sesiones.count()).toBe(0);
     expect(await db.favoritos.count()).toBe(0);
     expect(await db.preparaciones.count()).toBe(0);
+    expect(await db.entradasDiario.count()).toBe(0);
   });
 });
 
@@ -197,5 +205,62 @@ describe('preparaciones de recetas (FASE 5)', () => {
 describe('nombre de base', () => {
   it('es estable para actualizaciones futuras', () => {
     expect(NOMBRE_DB).toBe('totalhiit-app');
+  });
+});
+
+describe('registro diario (FASE 7)', () => {
+  it('crea una entrada por día y mantiene id/createdAt al actualizar', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    const primera = await guardarEntradaDiaria(perfil.id, '2026-10-28', { pesoKg: 70, energiaNivel: 3 });
+    expect(primera.id).toBeTruthy();
+    expect(primera.createdAt).toBeGreaterThan(0);
+
+    const actualizada = await guardarEntradaDiaria(perfil.id, '2026-10-28', {
+      vasosAgua: 6,
+      notas: 'Mucha energía',
+    });
+    expect(actualizada.id).toBe(primera.id); // upsert
+    expect(actualizada.createdAt).toBe(primera.createdAt);
+    expect(actualizada.pesoKg).toBe(70); // conserva campos previos
+    expect(actualizada.energiaNivel).toBe(3);
+    expect(actualizada.vasosAgua).toBe(6);
+    expect(actualizada.notas).toBe('Mucha energía');
+
+    const otraDia = await guardarEntradaDiaria(perfil.id, '2026-10-29', { vasosAgua: 4 });
+    expect(otraDia.id).not.toBe(primera.id);
+  });
+
+  it('quita los campos enviados como undefined o vacíos', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    await guardarEntradaDiaria(perfil.id, '2026-10-28', { pesoKg: 70, notas: 'algo' });
+    const limpiada = await guardarEntradaDiaria(perfil.id, '2026-10-28', { pesoKg: undefined, notas: '' });
+    expect(limpiada.pesoKg).toBeUndefined();
+    expect(limpiada.notas).toBeUndefined();
+  });
+
+  it('lista de más reciente a más vieja con límite opcional', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    await guardarEntradaDiaria(perfil.id, '2026-10-26', { vasosAgua: 3 });
+    await guardarEntradaDiaria(perfil.id, '2026-10-28', { vasosAgua: 5 });
+    await guardarEntradaDiaria(perfil.id, '2026-10-27', { vasosAgua: 4 });
+
+    const todas = await entradasDiarias(perfil.id);
+    expect(todas.map((e) => e.fecha)).toEqual(['2026-10-28', '2026-10-27', '2026-10-26']);
+
+    const ultimas = await entradasDiarias(perfil.id, 2);
+    expect(ultimas).toHaveLength(2);
+    expect(ultimas[0]?.fecha).toBe('2026-10-28');
+  });
+
+  it('consulta por rango inclusivo', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    await guardarEntradaDiaria(perfil.id, '2026-10-26', { vasosAgua: 3 });
+    await guardarEntradaDiaria(perfil.id, '2026-10-28', { vasosAgua: 5 });
+    await guardarEntradaDiaria(perfil.id, '2026-10-29', { vasosAgua: 6 });
+
+    const rango = await entradasEntre(perfil.id, '2026-10-26', '2026-10-28');
+    expect(rango).toHaveLength(2);
+    expect((await obtenerEntradaDiaria(perfil.id, '2026-10-28'))?.vasosAgua).toBe(5);
+    expect(await obtenerEntradaDiaria(perfil.id, '2026-10-30')).toBeUndefined();
   });
 });

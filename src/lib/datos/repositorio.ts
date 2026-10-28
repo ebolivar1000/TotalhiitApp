@@ -5,6 +5,8 @@ import {
   VERSIONES_CONSENTIMIENTO,
   type CambiosPerfil,
   type ConsentRecord,
+  type DatosDiarios,
+  type EntradaDiario,
   type EntradaPerfil,
   type EntradaPreferencias,
   type Favorito,
@@ -115,7 +117,7 @@ export async function tieneConsentimiento(userId: string, modulo: ModuloConsenti
 
 /** Exportación en JSON plano de todos los datos del usuario (módulo J). */
 export async function exportarDatos(): Promise<Record<string, unknown>> {
-  const [perfiles, objetivos, preferencias, consentimientos, sesiones, favoritos, preparaciones] =
+  const [perfiles, objetivos, preferencias, consentimientos, sesiones, favoritos, preparaciones, entradasDiario] =
     await Promise.all([
       db.perfiles.toArray(),
       db.objetivos.toArray(),
@@ -124,10 +126,11 @@ export async function exportarDatos(): Promise<Record<string, unknown>> {
       db.sesiones.toArray(),
       db.favoritos.toArray(),
       db.preparaciones.toArray(),
+      db.entradasDiario.toArray(),
     ]);
   return {
     app: 'totalhiit-app',
-    version: 3,
+    version: 4,
     exportado: new Date().toISOString(),
     perfiles,
     objetivos,
@@ -136,6 +139,7 @@ export async function exportarDatos(): Promise<Record<string, unknown>> {
     sesiones,
     favoritos,
     preparaciones,
+    entradasDiario,
   };
 }
 
@@ -143,7 +147,16 @@ export async function exportarDatos(): Promise<Record<string, unknown>> {
 export async function borrarDatosPersonales(): Promise<void> {
   await db.transaction(
     'rw',
-    [db.perfiles, db.objetivos, db.preferencias, db.consentimientos, db.sesiones, db.favoritos, db.preparaciones],
+    [
+      db.perfiles,
+      db.objetivos,
+      db.preferencias,
+      db.consentimientos,
+      db.sesiones,
+      db.favoritos,
+      db.preparaciones,
+      db.entradasDiario,
+    ],
     async () => {
       await Promise.all([
         db.perfiles.clear(),
@@ -153,6 +166,7 @@ export async function borrarDatosPersonales(): Promise<void> {
         db.sesiones.clear(),
         db.favoritos.clear(),
         db.preparaciones.clear(),
+        db.entradasDiario.clear(),
       ]);
     },
   );
@@ -233,4 +247,57 @@ export async function preparacionesDe(userId: string): Promise<RecipePreparation
 export async function preparacionesDeReceta(userId: string, recetaId: string): Promise<RecipePreparation[]> {
   const filas = await db.preparaciones.where('recetaId').equals(recetaId).toArray();
   return filas.filter((p) => p.userId === userId).sort((a, b) => b.fecha.localeCompare(a.fecha));
+}
+
+/**
+ * FASE 7 — Registro diario: una entrada por usuario y día (upsert).
+ * Los campos provistos se guardan; los enviados como undefined o ''
+ * se quitan (permite limpiar un dato del día). Mantiene id/createdAt.
+ */
+export async function guardarEntradaDiaria(
+  userId: string,
+  fecha: string,
+  datos: DatosDiarios,
+): Promise<EntradaDiario> {
+  const ahora = Date.now();
+  const existente = await db.entradasDiario.where('[userId+fecha]').equals([userId, fecha]).first();
+  const entrada: EntradaDiario = {
+    id: existente?.id ?? nuevoId(),
+    userId,
+    fecha,
+    createdAt: existente?.createdAt ?? ahora,
+    updatedAt: ahora,
+  };
+  if (existente) {
+    for (const [clave, valor] of Object.entries(existente)) {
+      if (!['id', 'userId', 'fecha', 'createdAt', 'updatedAt'].includes(clave)) {
+        (entrada as Record<string, unknown>)[clave] = valor;
+      }
+    }
+  }
+  for (const [clave, valor] of Object.entries(datos)) {
+    if (valor === undefined || valor === '') delete (entrada as Record<string, unknown>)[clave];
+    else (entrada as Record<string, unknown>)[clave] = valor;
+  }
+  await db.entradasDiario.put(entrada);
+  return entrada;
+}
+
+export async function obtenerEntradaDiaria(userId: string, fecha: string): Promise<EntradaDiario | undefined> {
+  return db.entradasDiario.where('[userId+fecha]').equals([userId, fecha]).first();
+}
+
+/** Todas las entradas del usuario, de más reciente a más vieja. */
+export async function entradasDiarias(userId: string, limiteDias?: number): Promise<EntradaDiario[]> {
+  const filas = await db.entradasDiario.where('userId').equals(userId).toArray();
+  const ordenadas = filas.sort((a, b) => b.fecha.localeCompare(a.fecha));
+  return limiteDias === undefined ? ordenadas : ordenadas.slice(0, limiteDias);
+}
+
+/** Entradas de un rango de fechas inclusivo (YYYY-MM-DD). */
+export async function entradasEntre(userId: string, desde: string, hasta: string): Promise<EntradaDiario[]> {
+  return db.entradasDiario
+    .where('[userId+fecha]')
+    .between([userId, desde], [userId, hasta], true, true)
+    .toArray();
 }

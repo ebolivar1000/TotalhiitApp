@@ -142,3 +142,26 @@ cuenta de Cloudflare sigue siendo caribialabs@gmail.com). Artefactos
   FASE 11 (distribución APK / PWA).
 - Pruebas: bytes válidos %PDF, A4 exacto, multi-página con contenido largo,
   marca de agua cuenta páginas, wrapText respeta ancho, nombre de archivo slug.
+
+## D18 — FASE 7: progreso y sueño (2026-10-28)
+- **Registro diario con upsert por día:** `guardarEntradaDiaria(userId, fecha,
+  datos)` preserva id/createdAt, fusiona con la entrada previa y ELIMINA los
+  campos enviados como `undefined` o `''` (permite limpiar un dato). Schema
+  zod `entradaDiarioSchema` (todo opcional): pesoKg 25–400, energiaNivel/animo
+  /calidadSueno 1–5, horasSueno 0–16, vasosAgua 0–24, notas ≤500.
+- **DB v4:** store `entradasDiario` `'id, userId, fecha, [userId+fecha]'`;
+  exportación pasa a versión 4 e incluye la nueva clave; borrado la limpia.
+- **Racha sin culpa (criterio 4):** `rachaDiasActivos` cuenta días consecutivos
+  con entreno O registro diario y SE MANTIENE si el último día activo fue ayer;
+  solo vuelve a 0 si el último día activo es anterior a ayer. Copy "un día de
+  descanso no rompe la racha". Sin puntuaciones.
+- **Tendencia de peso sin juicio:** último registro vs el más antiguo dentro de
+  30 días (≥2 registros); Δ a 1 decimal, sin adjetivos.
+- **Sugerencias deterministas (sin IA):** orden fijo entrenamiento (vs semana
+  pasada) → hidratación (vs meta 35 ml/kg → vasos 250 ml) → sueño (<7 h prom 7
+  días) → peso (>14 días) → receta del motor (alérgenos+presupuesto+objetivo);
+  máximo 3 (slice). Reutiliza `ordenarPorObjetivo` y `filtrarRecetas`.
+- **El peso del registro puede actualizar el perfil** (checkbox activado) para
+  que IMC/BMR/TDEE/agua sigan vigentes; no es automático silencioso.
+- Gráficos: SVG polilínea + divs para barras (cero dependencias). FASE 7 no
+  instaló dependencias nuevas.

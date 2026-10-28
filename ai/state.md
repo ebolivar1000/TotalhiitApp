@@ -29,8 +29,13 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
 - **FASE 6 ✅** (PDF de recetas) — completa: PDF A4 con logo, tabla nutricional,
   marca de agua TOTALHIIT en todas las páginas; pdf-lib en chunk separado
   (import dinámico). 93/93 pruebas.
-- **FASE 7 (progreso y sueño + dashboard): próxima** — ver criterios en
-  `docs/roadmap.md` (incluye el registro de peso que quedó diferido de FASE 3).
+- **FASE 7 ✅** (progreso y sueño) — completa: registro diario con upsert (DB
+  v4), métricas puras (racha, promedios, tendencia de peso, resúmenes
+  semanales), sugerencias del motor sin IA, página `/progreso` con gráficos
+  propios y calendario. 118/118 pruebas.
+- **FASE 8 (ciclo menstrual, privacidad estricta): próxima** — ver criterios en
+  `docs/roadmap.md`. Requiere consentimiento explícito (modulo 'menstrual',
+  ya declarado en consentModulos) y cifrado local de campos íntimos.
 
 ## Plan de fases
 Definitivo en `docs/roadmap.md` (FASES 0–12 con criterios de aceptación, matriz de
@@ -68,11 +73,18 @@ dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
   `estamparMarcaAgua` (todas las páginas, reutilizable FASE 9) + `wrapText`
   + sanitización WinAnsi + descarga Blob. Botón "Descargar PDF" en el detalle;
   pdf-lib en chunk separado vía import dinámico (main volvió a ~570 kB).
+- **FASE 7 completa:** registro diario con upsert (DB v4, índice `[userId+fecha]`,
+  exportación versión 4), métricas puras en `src/lib/progreso/metricas.ts`
+  (racha que no se rompe por descansar hoy, promedios en ventana, tendencia de
+  peso, resúmenes semanales), sugerencias deterministas en `recomendaciones.ts`
+  (máx. 3, sin culpa), gráficos propios (`componentes/graficos.tsx`) y página
+  `/progreso` completa (racha, métricas, formulario diario con checkbox para
+  actualizar el peso del perfil, calendario de actividad, 4 semanas).
 
 ## Pendientes inmediatos
-- FASE 7: progreso y sueño (registros, gráficos de tendencia, dashboard A,
-  registro de peso diferido de FASE 3).
-- Pendiente menor: code-splitting adicional del main (~570 kB) si hace falta.
+- FASE 8: ciclo menstrual (consentimiento explícito, calendario, cifrado local
+  de campos íntimos, exportación/borrado).
+- Pendiente menor: code-splitting adicional del main (~588 kB) si hace falta.
 - Pendiente FASE 11: probar guardar/compartir el PDF en Android y iPhone reales.
 
 ## Notas de entorno

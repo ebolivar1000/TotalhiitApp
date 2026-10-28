@@ -20,22 +20,27 @@
 - FASE 6 (PDF de recetas): ✅ completa — PDF A4 con logo, tabla nutricional y
   marca de agua TOTALHIIT en todas las páginas; pdf-lib en chunk separado
   (import dinámico, main volvió a ~570 kB). 93/93 pruebas.
+- FASE 7 (progreso y sueño): ✅ completa — registro diario con upsert (DB v4),
+  métricas puras con pruebas, sugerencias deterministas sin IA, página
+  `/progreso` con gráficos SVG propios y calendario. 118/118 pruebas.
 
 ## Próximo paso concreto
-FASE 7 en incrementos con pruebas (criterios exactos en `docs/roadmap.md`),
-incluye el registro de peso diferido de FASE 3:
-1. Modelo `EntradaDiario` (peso, energía, ánimo, sueño) + DB v4
-   (`entradasDiario`, índice `[userId+fecha]`); exportar/borrar actualizados.
-2. Repositorio con upsert por día (una entrada por usuario y fecha) + pruebas
-   con fake-indexeddb.
-3. Servicios de cálculo (`src/lib/progreso/`): racha de días registrados,
-   promedios móviles 7 días, tendencia de peso (Δ vs mes anterior) con fórmula
-   documentada (D13).
-4. Página `/progreso`: dashboard A (rachas + energía), formularios rápidos de
-   registro diario, gráficos de tendencia SVG sin librerías externas.
-5. Pruebas de servicios y repositorio; verificar `npm test` + build + recorrida
-   en `npm run dev` (puerto 5174).
-6. Menor: si el aviso de chunk (~570 kB) molesta, ajustar code-splitting.
+FASE 8 — ciclo menstrual, privacidad estricta (criterios exactos en
+`docs/roadmap.md`; revisar además `docs/security-privacy.md` y D18):
+1. Esquema `CicloRegistro` (fecha, flujo, síntomas opcionales, notas) + DB v5
+   con store `ciclo`; **cifrado local de los campos íntimos** (WebCrypto AES-GCM
+   con clave derivada en el dispositivo — decidir derivación y guardarla solo
+   local) antes de escribir en IndexedDB.
+2. Consentimiento explícito `menstrual` ANTES de la primera pantalla del módulo
+   (pantalla de consentimiento propio; sin consentimiento → no se ve nada).
+3. Página `/ciclo`: calendario mensual, registro/edición/borrado, historial y
+   estimaciones con **incertidumbre visible** (rangos, no fechas exactas);
+   manejo de ciclos irregulares y datos insuficientes.
+4. Exportación/borrado incluyen `ciclo`; NADA del módulo aparece en la
+   exportación genérica sin los datos descifrados ni en logs.
+5. Pruebas de privacidad: campos cifrados en la DB, ausencia en export genérica
+   (o exportación con cifrado intacto), borrado completo.
+6. Verificación: `npm test` + build + recorrida en `npm run dev` (puerto 5174).
 
 ## Recordatorios para la próxima sesión
 - Leer `ai/state.md`, `ai/decisions.md` y `docs/roadmap.md` antes de codificar.

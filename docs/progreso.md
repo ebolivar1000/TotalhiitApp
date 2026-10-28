@@ -1,5 +1,35 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 8) — FASE 7 cerrada (progreso y sueño)
+- **Modelo de registro diario** (`entradaDiarioSchema`): una entrada por usuario
+  y día con upsert (`guardarEntradaDiaria` preserva id/createdAt, fusiona con lo
+  previo y limpia los campos enviados como `undefined`/`''`). Campos voluntarios:
+  peso (25–400), energía y ánimo 1–5, horas de sueño (0–16), calidad 1–5,
+  vasos de agua (0–24) y notas (500).
+- **DB v4:** store `entradasDiario` con índice `[userId+fecha]`; exportación
+  (version 4) y borrado definitivo incluyen el nuevo store.
+- **Métricas puras** (`src/lib/progreso/metricas.ts`, con fórmulas documentadas):
+  racha de días activos (hoy o ayer; el descanso de hoy NO rompe la racha),
+  promedio en ventana de N días, tendencia de peso (último vs más antiguo en 30
+  días, ≥2 registros, Δ redondeado) y resúmenes semanales lunes–domingo.
+- **Sugerencias del dashboard** (`recomendaciones.ts`): reglas deterministas y
+  orden fijo (entrenamiento vs semana pasada → hidratación vs meta 35 ml/kg →
+  sueño <7 h → peso si pasaron 14 días → receta del motor con alérgenos y
+  presupuesto aplicados), máximo 3, sin culpabilización.
+- **Gráficos propios** (`componentes/graficos.tsx`): línea SVG (polilínea +
+  puntos + min/max) y barras por div; cero librerías nuevas.
+- **Página `/progreso` completa:** racha en hero magenta, 4 métricas rápidas,
+  formulario "Registro de hoy" (chips 1–5, checkbox para actualizar el peso del
+  perfil usado por las calculadoras), gráficos, calendario de actividad del mes
+  (entreno/registro/hoy), últimas 4 semanas y sugerencias. Copy sin juicios y
+  aviso de datos solo locales.
+- **Verificación:** `tsc -b` ✅ · **vitest 118/118** ✅ (25 nuevas: calendario,
+  racha con huecos/duplicados, ventanas de promedio, tendencia y semanas,
+  sugerencias con máximo 3, upsert/limpieza/rango/limite del registro diario,
+  exportación v4 + borrado) · build ✅ (main 588 kB, pdf 424 kB lazy) ·
+  dev server 5174 responde en `/progreso`.
+- Docs actualizadas (roadmap FASE 7 tildada, state, next-steps, D18).
+
 ## 2026-10-28 (sesión 7) — FASE 6 cerrada (PDF de recetas)
 - **Servicio `src/lib/nutricion/pdf.ts`** con pdf-lib: A4 exacto, logo opcional
   (`/images/logo.png` con fallback JPG y omisión en caso de error), título + meta

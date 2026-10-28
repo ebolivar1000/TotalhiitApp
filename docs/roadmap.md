@@ -102,11 +102,20 @@ Criterios de aceptación:
 3. PDF de plan semanal (FASE 9) reutiliza el mismo servicio.
 4. Pruebas automatizadas de generación + verificación visual manual documentada.
 
-### FASE 7 — Progreso y sueño — complejidad M
-1. Registros voluntarios (entrenamientos, peso, recetas, sueño, hidratación, notas).
-2. Gráficos de tendencia + calendario de actividad + resúmenes semanales.
-3. Dashboard (módulo A) personalizado con recomendaciones del motor (sin IA).
-4. Sin puntuaciones culpabilizantes ni afirmaciones médicas.
+### FASE 7 — Progreso y sueño — complejidad M ✅ (2026-10-28)
+1. [x] Registros voluntarios: registro diario único por día (upsert) con peso,
+   energía 1–5, ánimo 1–5, horas y calidad de sueño, vasos de agua y notas;
+   entrenamientos y recetas ya se registraban (FASES 4–5). El peso puede
+   actualizar el perfil (checkbox) para que las calculadoras queden al día.
+2. [x] Gráficos de tendencia (línea SVG de peso 30 días, barras de sueño y
+   energía de 7 días) + calendario de actividad del mes (entreno/registro/hoy)
+   + resúmenes de las últimas 4 semanas.
+3. [x] Dashboard A personalizado con sugerencias del motor (deterministas,
+   sin IA): entrenamiento vs semana pasada, hidratación vs meta (35 ml/kg),
+   sueño <7 h, invitación a pesarse si pasaron 14 días y receta alineada al
+   objetivo (alérgenos y presupuesto aplicados).
+4. [x] Sin puntuaciones culpabilizantes ni afirmaciones médicas (tono positivo,
+   racha con "descanso hoy no rompe la racha", avisos de que no es diagnóstico).
 
 ### FASE 8 — Seguimiento menstrual — complejidad L (privacidad estricta)
 1. Consentimiento explícito antes de ver cualquier pantalla del módulo.
