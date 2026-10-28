@@ -91,10 +91,10 @@ export function SeccionDatos({ form }: { form: FormPerfilApi }) {
       </Campo>
       <div className="grid grid-cols-2 gap-3">
         <Campo etiqueta="Peso (kg)" htmlFor="pesoKg" error={errores.pesoKg?.message}>
-          <EntradaTexto id="pesoKg" type="number" inputMode="decimal" step="0.1" {...register('pesoKg', { valueAsNumber: true })} />
+          <EntradaTexto id="pesoKg" type="number" inputMode="decimal" step="0.1" placeholder="Ej: 65" {...register('pesoKg', { valueAsNumber: true })} />
         </Campo>
         <Campo etiqueta="Estatura (cm)" htmlFor="estaturaCm" error={errores.estaturaCm?.message}>
-          <EntradaTexto id="estaturaCm" type="number" inputMode="numeric" {...register('estaturaCm', { valueAsNumber: true })} />
+          <EntradaTexto id="estaturaCm" type="number" inputMode="numeric" placeholder="Ej: 165" {...register('estaturaCm', { valueAsNumber: true })} />
         </Campo>
       </div>
       <Campo etiqueta="Nivel de actividad física" htmlFor="nivelActividad" error={errores.nivelActividad?.message}>

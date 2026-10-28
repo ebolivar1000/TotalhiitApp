@@ -53,7 +53,7 @@ export default function App() {
         <Route path="/ajustes" element={<Ajustes />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <Navegacion />
+      {!location.pathname.startsWith('/onboarding') && <Navegacion />}
     </div>
   );
 }

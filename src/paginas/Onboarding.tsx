@@ -34,6 +34,7 @@ export default function Onboarding() {
   const [paso, setPaso] = useState(0);
   const [guardando, setGuardando] = useState(false);
   const [errorGuardado, setErrorGuardado] = useState('');
+  const [errorValidacion, setErrorValidacion] = useState('');
 
   const form = useForm<FormPerfil>({
     resolver: zodResolver(esquemaPerfilFormulario) as Resolver<FormPerfil>,
@@ -49,8 +50,50 @@ export default function Onboarding() {
   };
 
   const siguiente = async () => {
+    setErrorValidacion('');
     const campos = CAMPOS_POR_PASO[paso] ?? [];
-    if (campos.length === 0 || (await form.trigger(campos))) setPaso((p) => Math.min(p + 1, PASOS.length - 1));
+    if (campos.length === 0) {
+      setPaso((p) => Math.min(p + 1, PASOS.length - 1));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const esValido = await form.trigger(campos);
+    if (esValido) {
+      setPaso((p) => Math.min(p + 1, PASOS.length - 1));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const errores = form.formState.errors;
+      const nombresCampos: Record<string, string> = {
+        alias: 'Nombre o alias',
+        fechaNacimiento: 'Fecha de nacimiento (+18 años)',
+        pesoKg: 'Peso en kg (mínimo 25 kg)',
+        estaturaCm: 'Estatura en cm (mínimo 50 cm)',
+        tipo: 'Objetivo principal',
+        acepta18: 'Mayoría de edad (+18)',
+        aceptaAviso: 'Aviso de salud',
+      };
+
+      const fallidos = campos
+        .filter((c) => errores[c])
+        .map((c) => nombresCampos[c] || c);
+
+      const mensaje = fallidos.length > 0
+        ? `Revisá estos campos: ${fallidos.join(', ')}.`
+        : 'Por favor completá los campos obligatorios para avanzar.';
+
+      setErrorValidacion(mensaje);
+
+      // Auto-scroll al primer campo con error
+      const primerError = campos.find((c) => errores[c]);
+      if (primerError) {
+        const elemento = document.getElementById(primerError as string);
+        if (elemento) {
+          elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          elemento.focus();
+        }
+      }
+    }
   };
 
   const finalizar = form.handleSubmit(async (d) => {
@@ -189,25 +232,41 @@ export default function Onboarding() {
         </div>
       )}
 
-      <div className="mt-6 flex items-center gap-3">
-        {paso > 0 ? (
-          <BotonSecundario onClick={() => setPaso((p) => p - 1)} disabled={guardando} className="flex-1">
-            Atrás
-          </BotonSecundario>
-        ) : (
-          <BotonSecundario onClick={saltar} className="flex-1">
-            Saltar
-          </BotonSecundario>
+      {/* Barra de navegación de pasos sticky (fija en la parte inferior para que SIEMPRE sea visible) */}
+      <div className="sticky bottom-0 z-20 mt-8 -mx-4 border-t border-zinc-200 bg-white/95 px-4 py-3 backdrop-blur shadow-lg">
+        {errorValidacion && (
+          <div className="mb-2 rounded-xl border border-red-200 bg-red-50 p-2.5 text-center text-xs font-semibold text-red-700">
+            ⚠️ {errorValidacion}
+          </div>
         )}
-        {paso < PASOS.length - 1 ? (
-          <BotonPrimario onClick={() => void siguiente()} className="flex-1">
-            Siguiente
-          </BotonPrimario>
-        ) : (
-          <BotonPrimario onClick={() => void finalizar()} disabled={guardando} className="flex-1">
-            {guardando ? 'Guardando…' : 'Finalizar'}
-          </BotonPrimario>
-        )}
+        <div className="flex items-center gap-3">
+          {paso > 0 ? (
+            <BotonSecundario
+              onClick={() => {
+                setErrorValidacion('');
+                setPaso((p) => p - 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={guardando}
+              className="flex-1"
+            >
+              Atrás
+            </BotonSecundario>
+          ) : (
+            <BotonSecundario onClick={saltar} className="flex-1">
+              Saltar
+            </BotonSecundario>
+          )}
+          {paso < PASOS.length - 1 ? (
+            <BotonPrimario onClick={() => void siguiente()} className="flex-1">
+              Siguiente →
+            </BotonPrimario>
+          ) : (
+            <BotonPrimario onClick={() => void finalizar()} disabled={guardando} className="flex-1">
+              {guardando ? 'Guardando…' : 'Finalizar y empezar'}
+            </BotonPrimario>
+          )}
+        </div>
       </div>
     </main>
   );

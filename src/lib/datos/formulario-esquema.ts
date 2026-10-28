@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { OBJETIVOS, nutritionPreferencesSchema, userProfileSchema } from './entidades';
+import { edadCumplida } from '../utilidades/fechas';
 
 /**
  * Esquema único del formulario de perfil (onboarding y edición).
@@ -7,10 +8,20 @@ import { OBJETIVOS, nutritionPreferencesSchema, userProfileSchema } from './enti
  * requeridos (los valores iniciales los provee el formulario).
  */
 export const esquemaPerfilFormulario = z.object({
-  alias: userProfileSchema.shape.alias,
-  fechaNacimiento: userProfileSchema.shape.fechaNacimiento,
-  pesoKg: userProfileSchema.shape.pesoKg,
-  estaturaCm: userProfileSchema.shape.estaturaCm,
+  alias: z.string().trim().min(1, 'Ingresá tu nombre o alias').max(40, 'Máximo 40 caracteres'),
+  fechaNacimiento: z
+    .string()
+    .min(1, 'Ingresá tu fecha de nacimiento')
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de fecha inválido')
+    .refine((iso) => edadCumplida(iso) >= 18, 'La app es para personas de 18 años o más'),
+  pesoKg: z.coerce
+    .number({ message: 'Ingresá tu peso en kg' })
+    .min(25, 'El peso debe ser al menos 25 kg')
+    .max(400, 'El peso debe ser menor a 400 kg'),
+  estaturaCm: z.coerce
+    .number({ message: 'Ingresá tu estatura en cm' })
+    .min(50, 'La estatura debe ser al menos 50 cm')
+    .max(260, 'La estatura debe ser menor a 260 cm'),
   genero: userProfileSchema.shape.genero,
   nivelActividad: userProfileSchema.shape.nivelActividad,
   experiencia: userProfileSchema.shape.experiencia,
@@ -31,8 +42,8 @@ export type FormPerfil = z.infer<typeof esquemaPerfilFormulario>;
 export const valoresInicialesPerfil: FormPerfil = {
   alias: '',
   fechaNacimiento: '',
-  pesoKg: 0,
-  estaturaCm: 0,
+  pesoKg: '' as unknown as number,
+  estaturaCm: '' as unknown as number,
   genero: undefined,
   nivelActividad: 'ligero',
   experiencia: 'principiante',
