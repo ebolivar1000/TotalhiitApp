@@ -54,10 +54,13 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
 - **FASE 11 ✅** (distribución) — completa: Capacitor 8 (`com.totalhiit.app`)
   con plataforma `android/` configurada, scripts `cap:copy`/`cap:sync`, script
   `generar-keystore.ps1`, GitHub Actions CI workflow reproducible (`build-apk.yml`),
-  PWA en Cloudflare Pages (`_redirects`, `_headers`), guía de instalación fuera
+  PWA en Cloudflare (`wrangler.jsonc`), guía de instalación fuera
   de Google Play (`guia-instalacion-apk.md`), bloque para la web (`enlace-descarga-web.md`),
   monitor de conexión desacoplado (`MonitorConexion`) y banner `AvisoConexion`.
   180/180 pruebas.
+- **HOTFIX ONBOARDING & UI MÓVIL ✅** — resuelto y desplegado:
+  1. Espacio inferior en móviles: corrección de regla CSS en `.safe-area-inferior` y espaciadores de seguridad en `<main>` para evitar que la barra fija tape el último campo en navegadores móviles (ej. país en paso 2).
+  2. Bucle infinito en paso 5: sincronización reactiva global de `usePerfil` (`useSyncExternalStore`) y bandera persistente `LLAVE_ONBOARDING_COMPLETADO`, evitando que `App.tsx` desvíe de nuevo a `/onboarding` tras finalizar. 182/182 pruebas en verde.
 - **FASE 12 (evolución post-MVP): próxima** — IA opcional, panel admin, nuevas
   métricas, accesibilidad e internacionalización.
 
