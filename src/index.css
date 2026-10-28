@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+/* ─── Marca TOTALHIIT ─────────────────────────────────────────────── */
+@font-face {
+  font-family: "Edo";
+  src: url("/fonts/edo.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-marca-magenta: #b00050;
+  --color-marca-magenta-oscuro: #8a0038;
+  --color-marca-acento: #e0006c;
+  --color-marca-rosa: #ff3287;
+  --color-marca-crema: #ffd3e6;
+  --color-marca-ambar: #ffb400;
+  --color-neutro-950: #0b1120;
+  --color-neutro-100: #f4f4f5;
+  --font-marca: "Edo", "Georgia", cursive;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  @apply bg-white text-zinc-900 antialiased;
+}
+
+/* Área segura en iOS (notch / barra inferior) */
+.safe-area-inferior {
+  padding-bottom: env(safe-area-inset-bottom);
+}

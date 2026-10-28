@@ -1,0 +1,49 @@
+# Estado actual — TOTALHIIT App
+
+> Memoria persistente del proyecto. Actualizar al cerrar cada tarea.
+
+## Objetivo
+App independiente TOTALHIIT (entrenamiento + nutrición + bienestar para mujeres +40)
+con **dos distribuciones del mismo código**: APK Android (Capacitor) y PWA iOS/web.
+El sitio web (MiPrimeraApp) queda intacto y no se le copian mecanismos de auth/pagos.
+
+## Tecnologías
+React 19 + TypeScript 7 (fallback 5.9) + Vite 8 + Tailwind CSS 4.3 +
+react-router 8 + Dexie 4 (IndexedDB local-first) + pdf-lib + zod/react-hook-form +
+vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
+
+## Fase actual
+- **FASE 0 ✅** (auditoría y planificación) — completa con todos los entregables §14.
+- **FASE 1 ✅** (fundación) — completa.
+- **FASE 2 ✅** (onboarding y perfil) — completa: capa de datos Dexie con pruebas,
+  onboarding 5 pasos, /perfil y /perfil/editar, ajustes con exportar/borrar.
+- **FASE 3 (calculadoras de salud): próxima** — ver criterios en `docs/roadmap.md`.
+
+## Plan de fases
+Definitivo en `docs/roadmap.md` (FASES 0–12 con criterios de aceptación, matriz de
+dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
+
+## Hecho hasta ahora (2026-10-28, sesión 3)
+- Proyecto creado en `C:\Users\Everth\ProyectosIA\TotalhiitApp` con git (main).
+- Configuración completa (Vite 8 + TS estricto + Tailwind 4 + PWA plugin) y
+  `npm install` ejecutado.
+- Esqueleto navegable: rutas placeholder + navegación inferior con safe-areas.
+- Primera fórmula con pruebas: IMC (`src/lib/salud/imc.ts`).
+- Recursos de marca copiados del sitio (logo, Edo, paleta).
+- Documentación de continuidad completa (§12): `docs/architecture.md`,
+  `docs/roadmap.md` (definitivo FASES 0–12), `docs/data-model.md`,
+  `docs/security-privacy.md`, `docs/testing.md`, `docs/deployment.md`,
+  `docs/progreso.md`, `ai/next-steps.md`.
+- **FASE 2 completa:** entidades zod + Dexie v1 + repositorio con pruebas
+  (33/33), onboarding 5 pasos saltado, /perfil, /perfil/editar, ajustes con
+  exportación JSON y borrado total, guard de rutas.
+
+## Pendientes inmediatos
+- FASE 3: calculadoras de salud con pruebas (IMC ya existe; ver `docs/roadmap.md`).
+- Pendiente menor: code-splitting del bundle (aviso 511 kB en build).
+
+## Restricciones vigentes
+- No modificar el sitio sin autorización.
+- Sin dependencias pagas ni de suscripción; MVP sin IA de pago.
+- Datos íntimos (menstrual): consentimiento explícito + local + cifrado en su fase.
+- Antes de instalar nuevas dependencias: pedir autorización.

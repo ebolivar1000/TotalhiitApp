@@ -1,0 +1,29 @@
+# Dependencias y builds
+node_modules/
+dist/
+dev-dist/
+coverage/
+.tsbuildinfo
+*.tsbuildinfo
+
+# Entornos y secretos (nunca commitear claves)
+.env
+.env.*
+*.local
+
+# Capacitor / Android (artefactos generados, no el proyecto)
+android/app/build/
+android/.gradle/
+android/build/
+android/local.properties
+android/.idea/
+android/capacitor-cordova-android-plugins/
+
+# iOS (si algún día se genera un proyecto nativo)
+ios/App/build/
+ios/DerivedData/
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
