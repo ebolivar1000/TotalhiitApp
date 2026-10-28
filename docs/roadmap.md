@@ -65,7 +65,18 @@ Criterios de aceptación:
 3. Completados, favoritos e historial de sesiones en Dexie.
 4. Contenido con videos/textos propios del proyecto; nada propietario de terceros.
 
-### FASE 5 — Nutrición y recetas — complejidad XL
+### FASE 5 — Nutrición y recetas — complejidad XL ✅ (2026-10-28)
+1. [x] Catálogo estructurado original (6 categorías) con los campos del §5.D:
+   macros por porción, alérgenos, objetivos compatibles, sustituciones,
+   conservación (ingredientes embebidos; la normalización FoodIngredient/RecipeIngredient
+   queda diferida a la FASE 9, que la necesita para la lista de compras).
+2. [x] Motor de reglas determinista: **nunca sugiere alérgenos declarados (prueba obligatoria en verde)**.
+3. [x] Filtro por ingrediente ("¿qué tenés en casa?"), exclusión de alimentos,
+   ajuste de porciones con recálculo de cantidades y macros.
+4. [x] Favoritos (⭐, reutiliza favoritos genéricos) y "preparadas" (RecipePreparation, DB v3).
+   [ ] Plan semanal básico + lista de compras → FASE 9 (pantalla dedicada).
+5. [x] Fuentes documentadas: valores aproximados elaborados con tablas de
+   dominio público (USDA FoodData Central), atribución visible en UI y código.
 1. Catálogo estructurado original (6 categorías) con todos los campos del §5.D.
 2. Motor de reglas determinista: nunca sugiere alérgenos declarados (prueba obligatoria).
 3. Filtro por ingredientes, exclusión de alimentos, ajuste de porciones con recálculo.

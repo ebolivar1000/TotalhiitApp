@@ -23,6 +23,9 @@ import {
   alternarFavorito,
   esFavorito,
   favoritosDe,
+  registrarPreparacion,
+  preparacionesDe,
+  preparacionesDeReceta,
 } from './repositorio';
 
 const entradaPerfil: EntradaPerfil = {
@@ -121,6 +124,7 @@ describe('exportación y borrado', () => {
     await otorgarConsentimiento(perfil.id, 'perfil');
     await registrarSesion({ userId: perfil.id, workoutId: 'w1-c1', fecha: '2026-10-28' });
     await alternarFavorito(perfil.id, 'sesion', 'w1-c1');
+    await registrarPreparacion({ userId: perfil.id, recetaId: 'r5', fecha: '2026-10-28', porciones: 2 });
 
     const datos = await exportarDatos();
     expect(datos['app']).toBe('totalhiit-app');
@@ -128,6 +132,7 @@ describe('exportación y borrado', () => {
     expect((datos['objetivos'] as unknown[]).length).toBe(1);
     expect((datos['sesiones'] as unknown[]).length).toBe(1);
     expect((datos['favoritos'] as unknown[]).length).toBe(1);
+    expect((datos['preparaciones'] as unknown[]).length).toBe(1);
 
     await borrarDatosPersonales();
     expect(await db.perfiles.count()).toBe(0);
@@ -136,6 +141,7 @@ describe('exportación y borrado', () => {
     expect(await db.consentimientos.count()).toBe(0);
     expect(await db.sesiones.count()).toBe(0);
     expect(await db.favoritos.count()).toBe(0);
+    expect(await db.preparaciones.count()).toBe(0);
   });
 });
 
@@ -168,6 +174,23 @@ describe('sesiones y favoritos (FASE 4)', () => {
     await alternarFavorito(perfil.id, 'receta', 'r1');
     expect((await favoritosDe(perfil.id, 'sesion')).map((f) => f.refId)).toEqual(['w1-c2']);
     expect(await favoritosDe(perfil.id, 'receta')).toHaveLength(1);
+  });
+});
+
+describe('preparaciones de recetas (FASE 5)', () => {
+  it('registra, lista por fecha y filtra por receta', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    const p1 = await registrarPreparacion({ userId: perfil.id, recetaId: 'r5', fecha: '2026-10-27', porciones: 2 });
+    const p2 = await registrarPreparacion({ userId: perfil.id, recetaId: 'r3', fecha: '2026-10-28', porciones: 1 });
+    expect(p1.id).not.toBe(p2.id);
+
+    const todas = await preparacionesDe(perfil.id);
+    expect(todas).toHaveLength(2);
+    expect(todas[0]?.recetaId).toBe('r3');
+
+    const deR5 = await preparacionesDeReceta(perfil.id, 'r5');
+    expect(deR5).toHaveLength(1);
+    expect(deR5[0]?.porciones).toBe(2);
   });
 });
 

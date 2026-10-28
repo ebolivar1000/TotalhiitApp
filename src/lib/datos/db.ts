@@ -3,6 +3,7 @@ import type {
   ConsentRecord,
   Favorito,
   NutritionPreferences,
+  RecipePreparation,
   UserGoal,
   UserProfile,
   WorkoutSession,
@@ -17,6 +18,7 @@ export const db = new Dexie(NOMBRE_DB) as Dexie & {
   consentimientos: EntityTable<ConsentRecord, 'id'>;
   sesiones: EntityTable<WorkoutSession, 'id'>;
   favoritos: EntityTable<Favorito, 'id'>;
+  preparaciones: EntityTable<RecipePreparation, 'id'>;
 };
 
 db.version(1).stores({
@@ -30,4 +32,9 @@ db.version(1).stores({
 db.version(2).stores({
   sesiones: 'id, userId, workoutId, fecha',
   favoritos: 'id, userId, [userId+tipo]',
+});
+
+/** FASE 5: recetas preparadas. */
+db.version(3).stores({
+  preparaciones: 'id, userId, recetaId, fecha',
 });

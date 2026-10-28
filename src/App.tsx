@@ -4,6 +4,7 @@ import Navegacion from './componentes/Navegacion';
 import { LLAVE_ONBOARDING_SALTADO, usePerfil } from './hooks/usePerfil';
 import Ajustes from './paginas/Ajustes';
 import DetalleEntrenamiento from './paginas/DetalleEntrenamiento';
+import DetalleReceta from './paginas/DetalleReceta';
 import EditarPerfil from './paginas/EditarPerfil';
 import Entrenamientos from './paginas/Entrenamientos';
 import Inicio from './paginas/Inicio';
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/perfil/editar" element={<EditarPerfil />} />
         <Route path="/salud" element={<Salud />} />
         <Route path="/nutricion" element={<Nutricion />} />
+        <Route path="/nutricion/:id" element={<DetalleReceta />} />
         <Route path="/entrenamientos" element={<Entrenamientos />} />
         <Route path="/entrenamientos/:id" element={<DetalleEntrenamiento />} />
         <Route path="/progreso" element={<Progreso />} />

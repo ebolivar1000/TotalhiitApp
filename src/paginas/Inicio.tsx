@@ -69,8 +69,11 @@ export default function Inicio() {
       <Tarjeta>
         <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Nutrición</p>
         <p className="mt-1 text-sm text-zinc-600">
-          Próximamente: recetas adaptadas a tus alérgenos, tu tiempo de cocina y tu presupuesto.
+          Recetas filtradas por tus alérgenos, tu tiempo de cocina y tu presupuesto.
         </p>
+        <Link to="/nutricion" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
+          Ver recetas →
+        </Link>
       </Tarjeta>
     </main>
   );

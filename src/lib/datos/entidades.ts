@@ -113,6 +113,15 @@ export const favoritoSchema = z.object({
 export type Favorito = z.infer<typeof favoritoSchema>;
 export type TipoFavorito = (typeof TIPOS_FAVORITO)[number];
 
+export const recipePreparationSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  recetaId: z.string().min(1),
+  fecha: fechaIso,
+  porciones: z.number().int().min(1).max(12),
+  createdAt: z.number().int().positive(),
+});
+
 export const consentRecordSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -123,6 +132,7 @@ export const consentRecordSchema = z.object({
 });
 export type ConsentRecord = z.infer<typeof consentRecordSchema>;
 export type WorkoutSession = z.infer<typeof workoutSessionSchema>;
+export type RecipePreparation = z.infer<typeof recipePreparationSchema>;
 
 /** Versión actual de cada consentimiento (bump al cambiar el texto legal). */
 export const VERSIONES_CONSENTIMIENTO: Record<ModuloConsentimiento, string> = {

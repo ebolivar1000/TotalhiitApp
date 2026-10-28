@@ -10,6 +10,7 @@ import {
   type Favorito,
   type ModuloConsentimiento,
   type NutritionPreferences,
+  type RecipePreparation,
   type TipoFavorito,
   type TipoObjetivo,
   type UserGoal,
@@ -114,17 +115,19 @@ export async function tieneConsentimiento(userId: string, modulo: ModuloConsenti
 
 /** Exportación en JSON plano de todos los datos del usuario (módulo J). */
 export async function exportarDatos(): Promise<Record<string, unknown>> {
-  const [perfiles, objetivos, preferencias, consentimientos, sesiones, favoritos] = await Promise.all([
-    db.perfiles.toArray(),
-    db.objetivos.toArray(),
-    db.preferencias.toArray(),
-    db.consentimientos.toArray(),
-    db.sesiones.toArray(),
-    db.favoritos.toArray(),
-  ]);
+  const [perfiles, objetivos, preferencias, consentimientos, sesiones, favoritos, preparaciones] =
+    await Promise.all([
+      db.perfiles.toArray(),
+      db.objetivos.toArray(),
+      db.preferencias.toArray(),
+      db.consentimientos.toArray(),
+      db.sesiones.toArray(),
+      db.favoritos.toArray(),
+      db.preparaciones.toArray(),
+    ]);
   return {
     app: 'totalhiit-app',
-    version: 2,
+    version: 3,
     exportado: new Date().toISOString(),
     perfiles,
     objetivos,
@@ -132,6 +135,7 @@ export async function exportarDatos(): Promise<Record<string, unknown>> {
     consentimientos,
     sesiones,
     favoritos,
+    preparaciones,
   };
 }
 
@@ -139,7 +143,7 @@ export async function exportarDatos(): Promise<Record<string, unknown>> {
 export async function borrarDatosPersonales(): Promise<void> {
   await db.transaction(
     'rw',
-    [db.perfiles, db.objetivos, db.preferencias, db.consentimientos, db.sesiones, db.favoritos],
+    [db.perfiles, db.objetivos, db.preferencias, db.consentimientos, db.sesiones, db.favoritos, db.preparaciones],
     async () => {
       await Promise.all([
         db.perfiles.clear(),
@@ -148,6 +152,7 @@ export async function borrarDatosPersonales(): Promise<void> {
         db.consentimientos.clear(),
         db.sesiones.clear(),
         db.favoritos.clear(),
+        db.preparaciones.clear(),
       ]);
     },
   );
@@ -206,4 +211,26 @@ export async function esFavorito(userId: string, tipo: TipoFavorito, refId: stri
 export async function favoritosDe(userId: string, tipo: TipoFavorito): Promise<Favorito[]> {
   const filas = await db.favoritos.where('[userId+tipo]').equals([userId, tipo]).toArray();
   return filas.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+/** Registra que la usuaria preparó una receta (FASE 5). */
+export async function registrarPreparacion(entrada: {
+  userId: string;
+  recetaId: string;
+  fecha: string;
+  porciones: number;
+}): Promise<RecipePreparation> {
+  const preparacion: RecipePreparation = { ...entrada, id: nuevoId(), createdAt: Date.now() };
+  await db.preparaciones.put(preparacion);
+  return preparacion;
+}
+
+export async function preparacionesDe(userId: string): Promise<RecipePreparation[]> {
+  const filas = await db.preparaciones.where('userId').equals(userId).toArray();
+  return filas.sort((a, b) => b.fecha.localeCompare(a.fecha) || b.createdAt - a.createdAt);
+}
+
+export async function preparacionesDeReceta(userId: string, recetaId: string): Promise<RecipePreparation[]> {
+  const filas = await db.preparaciones.where('recetaId').equals(recetaId).toArray();
+  return filas.filter((p) => p.userId === userId).sort((a, b) => b.fecha.localeCompare(a.fecha));
 }

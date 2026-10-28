@@ -14,19 +14,23 @@
 - FASE 4 (entrenamientos): ✅ completa — catálogo real del canal, filtros con
   regla dura de equipo, reproductor nocookie offline/error, favoritos e
   historial (DB v2). 68/68 pruebas.
-- FASE 5 (nutrición y recetas): **pendiente de inicio**.
+- FASE 5 (nutrición y recetas): ✅ completa — 12 recetas propias, motor con
+  regla dura de alérgenos (prueba obligatoria), escalado de porciones,
+  favoritas + preparadas (DB v3). 85/85 pruebas.
+- FASE 6 (PDF de recetas): **pendiente de inicio**.
 
 ## Próximo paso concreto
-FASE 5 en incrementos con pruebas (criterios exactos en `docs/roadmap.md`):
-1. Catálogo de recetas estructurado (6 categorías) con macros por porción y
-   alérgenos declarados (`src/lib/nutricion/recetas.ts`).
-2. Motor de reglas determinista con **prueba obligatoria**: nunca sugiere
-   alérgenos declarados (regla dura como la de equipo en FASE 4).
-3. Filtro por ingredientes/exclusiones + ajuste de porciones con recálculo.
-4. Pantalla `/nutricion` (lista + detalle) reutilizando favoritos genéricos
-   (`tipo: 'receta'`) y `RecipePreparation` para "preparadas".
+FASE 6 en incrementos con pruebas (criterios exactos en `docs/roadmap.md`):
+1. Servicio PDF con pdf-lib (`src/lib/nutricion/pdf.ts`): A4, logo, nombre,
+   ingredientes escalados, pasos, tabla nutricional y nota de valores
+   aproximados.
+2. **Marca de agua TOTALHIIT semitransparente en TODAS las páginas** (texto
+   diagonal, reutilizable para el plan semanal de FASE 9).
+3. Pruebas automatizadas de generación (bytes del PDF + texto incrustado).
+4. Botón "Descargar PDF" en el detalle de receta; verificar guardado/compartir
+   en Android (WebView) y Safari/iOS en dispositivos reales (documentar).
 5. Verificación: `npm test`, `npm run build`, recorrer en `npm run dev`.
-6. Menor pendiente: code-splitting del bundle (~542 kB) si el aviso molesta.
+6. Menor pendiente: code-splitting del bundle (~567 kB) si el aviso molesta.
 
 ## Recordatorios para la próxima sesión
 - Leer `ai/state.md`, `ai/decisions.md` y `docs/roadmap.md` antes de codificar.

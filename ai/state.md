@@ -22,7 +22,12 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
 - **FASE 4 ✅** (entrenamientos) — completa: catálogo real (15 sesiones del canal,
   10 categorías), filtros con regla dura de equipo, reproductor nocookie con
   offline/error, favoritos + historial (DB v2). 68/68 pruebas.
-- **FASE 5 (nutrición y recetas): próxima** — ver criterios en `docs/roadmap.md`.
+- **FASE 5 ✅** (nutrición y recetas) — completa: catálogo propio (12 recetas,
+  6 categorías), motor determinista con regla dura de alérgenos (prueba
+  obligatoria), escalado de porciones, favoritas y preparadas (DB v3).
+  85/85 pruebas.
+- **FASE 6 (PDF de recetas con marca de agua): próxima** — ver criterios en
+  `docs/roadmap.md`.
 
 ## Plan de fases
 Definitivo en `docs/roadmap.md` (FASES 0–12 con criterios de aceptación, matriz de
@@ -49,11 +54,17 @@ dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
   DB v2 (sesiones + favoritos genéricos), reproductor `ReproductorVideo`
   (nocookie, offline/error), páginas lista + detalle, favoritos ⭐ y registro
   de sesiones completadas.
+- **FASE 5 completa:** catálogo `src/lib/nutricion/recetas.ts` (12 recetas
+  originales, 6 categorías, macros por porción, alérgenos, sustituciones),
+  motor `motor.ts` (regla dura de alérgenos + exclusiones por texto +
+  presupuesto escalera + escalado de porciones con recálculo), DB v3
+  (preparaciones), pantallas lista + detalle con macros, porciones selector,
+  "La preparé", favoritas y aviso de fuentes (USDA FDC).
 
 ## Pendientes inmediatos
-- FASE 5: nutrición y recetas (criterios en `docs/roadmap.md`; motor con prueba
-  obligatoria "nunca sugiere alérgenos").
-- Pendiente menor: code-splitting del bundle (~542 kB en build).
+- FASE 6: PDF de receta con marca de agua TOTALHIIT (pdf-lib, A4, tabla
+  nutricional, guardar/compartir en Android/Safari).
+- Pendiente menor: code-splitting del bundle (~567 kB en build).
 - Pendiente menor: registro de peso conectado a Progreso (FASE 7, nota en roadmap).
 
 ## Notas de entorno

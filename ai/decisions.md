@@ -107,3 +107,19 @@ cuenta de Cloudflare sigue siendo caribialabs@gmail.com). Artefactos
   (`tipo: 'sesion'|'receta'`) para reutilizarlos en recetas. Exportación y
   borrado total incluyen ambas tablas.
 - La escala de nivel del catálogo: semanas 1–2 principiante, 3–4 intermedio.
+
+## D16 (2026-10-28) — Nutrición: motor determinista y catálogo propio
+- Motor 100% determinista (sin IA): reglas duras alérgenos (match exacto
+  case-insensitive) y exclusiones (match por nombre de ingrediente);
+  presupuesto como escalera (bajo → solo bajo; medio → bajo+medio;
+  alto/undefined → todo); filtro por ingrediente disponible.
+- Escalado de porciones: factor = N / porcionesBase; cantidades redondeadas a
+  2 decimales; macros totales = por porción × N.
+- Catálogo: 12 recetas originales en `src/lib/nutricion/recetas.ts` con macros
+  APROXIMADOS elaborados con tablas de dominio público (USDA FoodData Central);
+  atribución en código y UI. No es precisión clínica (aviso visible).
+- Ingredientes embebidos en la receta (no normalizados); la normalización
+  FoodIngredient/RecipeIngredient del data-model queda diferida a FASE 9
+  (lista de compras consolidada).
+- DB v3: `preparaciones` (RecipePreparation) incluida en exportación/borrado.
+- Snacks con 2 pasos son válidos (esquema min(2) pasos, no min(3)).

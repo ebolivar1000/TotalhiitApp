@@ -1,5 +1,25 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 6) — FASE 5 cerrada (nutrición y recetas)
+- **Catálogo propio** (`src/lib/nutricion/recetas.ts`): 12 recetas originales
+  para +40 en 6 categorías (desayuno/almuerzo/cena/snack/bebida/postre), con
+  macros por porción, alérgenos declarados, objetivos compatibles,
+  sustituciones, conservación y tiempos; ingredientes embebidos (normalización
+  FoodIngredient diferida a FASE 9).
+- **Motor determinista** (`motor.ts`): **regla dura de alérgenos con prueba
+  obligatoria en verde** (ningún alérgeno cargado pasa, case-insensitive),
+  exclusiones por nombre de ingrediente, presupuesto escalera, filtro "¿qué
+  tenés en casa?" por ingrediente y orden por objetivo.
+- **Escalado de porciones:** cantidades y macros totales recalculados (1–6).
+- **DB v3:** `preparaciones` (RecipePreparation); exportación y borrado la incluyen.
+- **Pantallas:** `/nutricion` (búsqueda por ingrediente, chips de categoría,
+  ⭐ favoritas, badge "Preparada N×", aviso de protección del motor) y
+  `/nutricion/:id` (macros por porción + totales, selector de porciones,
+  ingredientes escalados, pasos, sustituciones/conservación, "La preparé",
+  historial, fuentes USDA FDC).
+- **Suite: 85/85 en verde** (+17 motor/catálogo, +1 preparaciones).
+- **Verificación:** `tsc -b` ✅ · build ✅ (chunk 567 kB) · roadmap FASE 5 tildada.
+
 ## 2026-10-28 (sesión 5) — FASE 4 cerrada (entrenamientos)
 - **Catálogo real:** 15 sesiones del canal del propietario (12 clases del
   bootcamp TOTAL+40 + intro + 2 de movilidad) en
