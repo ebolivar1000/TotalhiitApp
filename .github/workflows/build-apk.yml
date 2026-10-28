@@ -45,14 +45,14 @@ jobs:
       - name: Dar permisos de ejecución a Gradle Wrapper
         run: chmod +x android/gradlew
 
-      - name: Compilar APK (Release / Debug)
+      - name: Compilar APK Android
         run: |
           cd android
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew assembleDebug --no-daemon
 
       - name: Subir APK como artefacto descargable
         uses: actions/upload-artifact@v4
         with:
           name: totalhiit-android-apk
-          path: android/app/build/outputs/apk/release/*.apk
+          path: android/app/build/outputs/apk/**/*.apk
           retention-days: 30

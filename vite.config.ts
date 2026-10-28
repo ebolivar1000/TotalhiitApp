@@ -39,6 +39,11 @@ export default defineConfig({
     port: 5174,
     strictPort: true,
   },
+  preview: {
+    host: '0.0.0.0',
+    port: 5174,
+    strictPort: true,
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.test.{ts,tsx}'],
