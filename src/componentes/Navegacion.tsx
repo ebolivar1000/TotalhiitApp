@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { NavLink, useLocation } from 'react-router';
 
 const items = [
   { to: '/', etiqueta: 'Inicio', icono: '🏠' },
@@ -9,6 +9,13 @@ const items = [
 ];
 
 export default function Navegacion() {
+  const location = useLocation();
+
+  // En la pantalla de onboarding la navegación inferior NUNCA se muestra
+  if (location.pathname.startsWith('/onboarding')) {
+    return null;
+  }
+
   return (
     <nav className="safe-area-inferior fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-2xl items-stretch justify-around">

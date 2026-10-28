@@ -132,7 +132,7 @@ export default function Onboarding() {
   });
 
   return (
-    <main className="safe-area-inferior mx-auto max-w-md px-4 pb-24 pt-6">
+    <main className="safe-area-inferior mx-auto max-w-md px-4 pb-40 pt-6">
       <div className="mb-2 text-center">
         <p className="font-marca text-3xl text-marca-magenta">TOTALHIIT</p>
         <p className="mt-1 text-sm text-zinc-500">
@@ -232,40 +232,42 @@ export default function Onboarding() {
         </div>
       )}
 
-      {/* Barra de navegación de pasos sticky (fija en la parte inferior para que SIEMPRE sea visible) */}
-      <div className="sticky bottom-0 z-20 mt-8 -mx-4 border-t border-zinc-200 bg-white/95 px-4 py-3 backdrop-blur shadow-lg">
-        {errorValidacion && (
-          <div className="mb-2 rounded-xl border border-red-200 bg-red-50 p-2.5 text-center text-xs font-semibold text-red-700">
-            ⚠️ {errorValidacion}
+      {/* Barra de navegación de pasos fija permanentemente en la parte inferior */}
+      <div className="safe-area-inferior fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 px-4 py-3 shadow-2xl backdrop-blur">
+        <div className="mx-auto max-w-md">
+          {errorValidacion && (
+            <div className="mb-2 rounded-xl border border-red-200 bg-red-50 p-2.5 text-center text-xs font-semibold text-red-700">
+              ⚠️ {errorValidacion}
+            </div>
+          )}
+          <div className="flex items-center gap-3">
+            {paso > 0 ? (
+              <BotonSecundario
+                onClick={() => {
+                  setErrorValidacion('');
+                  setPaso((p) => p - 1);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                disabled={guardando}
+                className="flex-1"
+              >
+                Atrás
+              </BotonSecundario>
+            ) : (
+              <BotonSecundario onClick={saltar} className="flex-1">
+                Saltar
+              </BotonSecundario>
+            )}
+            {paso < PASOS.length - 1 ? (
+              <BotonPrimario onClick={() => void siguiente()} className="flex-1">
+                Siguiente →
+              </BotonPrimario>
+            ) : (
+              <BotonPrimario onClick={() => void finalizar()} disabled={guardando} className="flex-1">
+                {guardando ? 'Guardando…' : 'Finalizar y empezar'}
+              </BotonPrimario>
+            )}
           </div>
-        )}
-        <div className="flex items-center gap-3">
-          {paso > 0 ? (
-            <BotonSecundario
-              onClick={() => {
-                setErrorValidacion('');
-                setPaso((p) => p - 1);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              disabled={guardando}
-              className="flex-1"
-            >
-              Atrás
-            </BotonSecundario>
-          ) : (
-            <BotonSecundario onClick={saltar} className="flex-1">
-              Saltar
-            </BotonSecundario>
-          )}
-          {paso < PASOS.length - 1 ? (
-            <BotonPrimario onClick={() => void siguiente()} className="flex-1">
-              Siguiente →
-            </BotonPrimario>
-          ) : (
-            <BotonPrimario onClick={() => void finalizar()} disabled={guardando} className="flex-1">
-              {guardando ? 'Guardando…' : 'Finalizar y empezar'}
-            </BotonPrimario>
-          )}
         </div>
       </div>
     </main>
