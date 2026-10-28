@@ -122,8 +122,7 @@ export const recipePreparationSchema = z.object({
   createdAt: z.number().int().positive(),
 });
 
-/** FASE 7 — Registro diario voluntario. Todo el contenido es opcional y editable. */
-export const entradaDiarioSchema = z.object({
+/** FASE 7 — Registro diario voluntario. Todo el contenido es opcional y editable. */export const entradaDiarioSchema = z.object({
   id: z.string(),
   userId: z.string(),
   fecha: fechaIso,
@@ -142,6 +141,50 @@ export type EntradaDiario = z.infer<typeof entradaDiarioSchema>;
 export type DatosDiarios = Partial<
   Omit<EntradaDiario, 'id' | 'userId' | 'fecha' | 'createdAt' | 'updatedAt'>
 >;
+
+/**
+ * FASE 8 — Ciclo menstrual (privacidad estricta).
+ * El payload íntimo (flujo, síntomas, notas) NUNCA se guarda en claro: el
+ * registro persistido solo tiene metadatos + `datosCifrados` (AES-GCM, D19).
+ */
+export const FLUJOS_CICLO = ['manchado', 'ligero', 'medio', 'abundante'] as const;
+export type FlujoCiclo = (typeof FLUJOS_CICLO)[number];
+
+export const ETIQUETAS_FLUJO: Record<FlujoCiclo, string> = {
+  manchado: 'Manchado leve',
+  ligero: 'Ligero',
+  medio: 'Medio',
+  abundante: 'Abundante',
+};
+
+export const SINTOMAS_CICLO = [
+  'cólicos',
+  'dolor de cabeza',
+  'hinchazón',
+  'cambios de ánimo',
+  'antojos',
+  'acné',
+  'cansancio',
+  'dolor de espalda',
+  'sensibilidad en el pecho',
+] as const;
+
+export const datosCicloSchema = z.object({
+  flujo: z.enum(FLUJOS_CICLO),
+  sintomas: z.array(z.string().trim().min(1).max(40)).default([]),
+  notas: z.string().trim().max(500).optional(),
+});
+export type DatosCiclo = z.infer<typeof datosCicloSchema>;
+
+export const cicloRegistroSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  fecha: fechaIso,
+  datosCifrados: z.string().min(8),
+  createdAt: z.number().int().positive(),
+  updatedAt: z.number().int().positive(),
+});
+export type CicloRegistro = z.infer<typeof cicloRegistroSchema>;
 
 export const consentRecordSchema = z.object({
   id: z.string(),

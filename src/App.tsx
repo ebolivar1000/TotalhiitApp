@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router'
 import Navegacion from './componentes/Navegacion';
 import { LLAVE_ONBOARDING_SALTADO, usePerfil } from './hooks/usePerfil';
 import Ajustes from './paginas/Ajustes';
+import Ciclo from './paginas/Ciclo';
 import DetalleEntrenamiento from './paginas/DetalleEntrenamiento';
 import DetalleReceta from './paginas/DetalleReceta';
 import EditarPerfil from './paginas/EditarPerfil';
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="/entrenamientos" element={<Entrenamientos />} />
         <Route path="/entrenamientos/:id" element={<DetalleEntrenamiento />} />
         <Route path="/progreso" element={<Progreso />} />
+        <Route path="/ciclo" element={<Ciclo />} />
         <Route path="/ajustes" element={<Ajustes />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

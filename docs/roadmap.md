@@ -117,12 +117,27 @@ Criterios de aceptación:
 4. [x] Sin puntuaciones culpabilizantes ni afirmaciones médicas (tono positivo,
    racha con "descanso hoy no rompe la racha", avisos de que no es diagnóstico).
 
-### FASE 8 — Seguimiento menstrual — complejidad L (privacidad estricta)
-1. Consentimiento explícito antes de ver cualquier pantalla del módulo.
-2. Calendario mensual, registro/edición/borrado, historial, síntomas opcionales, notas.
-3. Estimaciones con **incertidumbre visible**; manejo de ciclos irregulares y datos insuficientes.
-4. Cifrado local de los campos íntimos; exportación y borrado definitivo.
-5. Pruebas de privacidad: nada de este módulo aparece en logs, exportaciones genéricas ni telemetría.
+### FASE 8 — Seguimiento menstrual — complejidad L ✅ (2026-10-28)
+1. [x] Consentimiento explícito ANTES de ver cualquier pantalla del módulo
+   (puerta con explicación de cifrado/borrado; activar, "No, gracias",
+   desactivar+borrar desde el propio módulo; también con borrado total).
+2. [x] Calendario mensual (sangrado, manchado, ventana estimada, hoy),
+   registro/edición/borrado por día (upsert cifrado), historial de ciclos,
+   síntomas opcionales (lista + libres) y notas.
+3. [x] Estimaciones con **incertidumbre visible**: ventana (rango) con centro
+   estimado, duración mín/máx, ciclos irregulares marcados con motivo
+   (fuera del rango típico 21–35 o variación alta) y mensajes honestos con
+   datos insuficientes (0 o 1 ciclo). Aviso: no sirve para prevenir/planificar
+   embarazos ni reemplaza consulta médica.
+4. [x] **Cifrado local AES-GCM-256** (WebCrypto) de flujo/síntomas/notas ANTES
+   de escribir en IndexedDB; en claro solo metadatos. Clave aleatoria generada
+   en el dispositivo, guardada SOLO en localStorage, jamás exportada.
+   Exportación (v5) incluye registros con cifrado intacto; borrado definitivo
+   limpia el store (y la clave se borra con el borrado total vía localStorage).
+5. [x] Pruebas de privacidad: la fila cruda y la exportación serializada NO
+   contienen el contenido en claro (verificaciones de texto); el descifrado
+   ocurre solo en memoria y los registros corruptos se omiten sin exponer
+   nada; la app no tiene telemetría ni logs.
 
 ### FASE 9 — Menús semanales — complejidad M
 1. Planificador semanal desde el motor (usa catálogo + preferencias).

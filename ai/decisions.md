@@ -165,3 +165,33 @@ cuenta de Cloudflare sigue siendo caribialabs@gmail.com). Artefactos
   que IMC/BMR/TDEE/agua sigan vigentes; no es automático silencioso.
 - Gráficos: SVG polilínea + divs para barras (cero dependencias). FASE 7 no
   instaló dependencias nuevas.
+
+## D19 — FASE 8: ciclo menstrual cifrado (2026-10-28)
+- **El payload íntimo NUNCA se guarda en claro:** `datosCicloSchema` (flujo de
+  `FLUJOS_CICLO`, síntomas, notas) se cifra con **WebCrypto AES-GCM-256** antes
+  de `put`. La fila persistida (`cicloRegistroSchema`) solo tiene id, userId,
+  fecha, `datosCifrados` ("iv.cifrado" en base64) y timestamps.
+- **Clave:** aleatoria de 256 bits (`crypto.getRandomValues`), guardada SOLO en
+  localStorage (`totalhiit.ciclo.clave`); IV nuevo por cifrado. Nunca se
+  exporta. **Limitación honesta:** acceso completo al dispositivo (DB +
+  localStorage) permite recuperar la clave; protege la DB sola (respaldos,
+  copias, lecturas directas). FASE 10 evaluará derivación con PIN.
+- **Descifrado solo en memoria:** `registrosCicloLegibles` descifra al vuelo;
+  registros corruptos (otra clave/dato alterado) se omiten sin exponer nada.
+  Sin `console.log` de contenido; la app no tiene telemetría.
+- **Exportación v5:** incluye `ciclo` con el cifrado intacto (la clave NO sale);
+  `borrarDatosPersonales` limpia el store (la clave local se borra aparte con
+  localStorage del dispositivo en borrado total — ver Ajustes).
+- **Puerta de consentimiento:** `/ciclo` consulta `tieneConsentimiento('menstrual')`
+  ANTES de leer/descifrar nada; activar → otorgarConsentimiento + crear clave;
+  desactivar (doble confirmación) → revocar + `borrarTodosRegistrosCiclo`.
+- **Estimaciones con incertidumbre:** episodios de sangrado agrupan días con
+  gap ≤ 2 días calendario (un día sin registro no corta); duraciones entre
+  inicios; ventana del próximo inicio = [último + mínima − 3, último + máxima
+  + 3]; irregular si duraciones fuera de 21–35 (fuera_de_rango) o desviación
+  > 7 días con ≥3 ciclos (variacion_alta). Con <2 ciclos: mensaje honesto sin
+  estimar. Aviso explícito: orientativo, no anticonceptivo, no diagnóstico.
+- Node en pruebas no tiene localStorage: stub en `repositorio.test.ts` +
+  resolución segura de almacenamiento en `cifrado.ts`.
+- Accesos: ruta `/ciclo` + tarjetas en Inicio y Progreso. Cero dependencias
+  nuevas (WebCrypto nativo).

@@ -1,10 +1,13 @@
 import { db } from './db';
 import { nuevoId } from '../utilidades/ids';
 import { fechaHoyIso } from '../utilidades/fechas';
+import { cifrarConClave, descifrarConClave, obtenerOCrearClaveCiclo } from '../ciclo/cifrado';
 import {
   VERSIONES_CONSENTIMIENTO,
   type CambiosPerfil,
+  type CicloRegistro,
   type ConsentRecord,
+  type DatosCiclo,
   type DatosDiarios,
   type EntradaDiario,
   type EntradaPerfil,
@@ -117,7 +120,7 @@ export async function tieneConsentimiento(userId: string, modulo: ModuloConsenti
 
 /** Exportación en JSON plano de todos los datos del usuario (módulo J). */
 export async function exportarDatos(): Promise<Record<string, unknown>> {
-  const [perfiles, objetivos, preferencias, consentimientos, sesiones, favoritos, preparaciones, entradasDiario] =
+  const [perfiles, objetivos, preferencias, consentimientos, sesiones, favoritos, preparaciones, entradasDiario, ciclo] =
     await Promise.all([
       db.perfiles.toArray(),
       db.objetivos.toArray(),
@@ -127,10 +130,11 @@ export async function exportarDatos(): Promise<Record<string, unknown>> {
       db.favoritos.toArray(),
       db.preparaciones.toArray(),
       db.entradasDiario.toArray(),
+      db.ciclo.toArray(), // SOLO metadatos + datosCifrados: el contenido íntimo no sale en claro.
     ]);
   return {
     app: 'totalhiit-app',
-    version: 4,
+    version: 5,
     exportado: new Date().toISOString(),
     perfiles,
     objetivos,
@@ -140,6 +144,7 @@ export async function exportarDatos(): Promise<Record<string, unknown>> {
     favoritos,
     preparaciones,
     entradasDiario,
+    ciclo,
   };
 }
 
@@ -156,6 +161,7 @@ export async function borrarDatosPersonales(): Promise<void> {
       db.favoritos,
       db.preparaciones,
       db.entradasDiario,
+      db.ciclo,
     ],
     async () => {
       await Promise.all([
@@ -167,6 +173,7 @@ export async function borrarDatosPersonales(): Promise<void> {
         db.favoritos.clear(),
         db.preparaciones.clear(),
         db.entradasDiario.clear(),
+        db.ciclo.clear(),
       ]);
     },
   );
@@ -300,4 +307,65 @@ export async function entradasEntre(userId: string, desde: string, hasta: string
     .where('[userId+fecha]')
     .between([userId, desde], [userId, hasta], true, true)
     .toArray();
+}
+
+/**
+ * FASE 8 — Ciclo menstrual. El payload (flujo, síntomas, notas) se CIFRA con
+ * AES-GCM ANTES de escribir en IndexedDB; en claro solo quedan metadatos.
+ * Sin consentimiento del módulo 'menstrual' no se debe llamar (lo garantiza la UI).
+ */
+export async function guardarRegistroCiclo(
+  userId: string,
+  fecha: string,
+  datos: DatosCiclo,
+): Promise<CicloRegistro> {
+  const clave = await obtenerOCrearClaveCiclo();
+  const ahora = Date.now();
+  const existente = await db.ciclo.where('[userId+fecha]').equals([userId, fecha]).first();
+  const registro: CicloRegistro = {
+    id: existente?.id ?? nuevoId(),
+    userId,
+    fecha,
+    datosCifrados: await cifrarConClave(clave, datos),
+    createdAt: existente?.createdAt ?? ahora,
+    updatedAt: ahora,
+  };
+  await db.ciclo.put(registro);
+  return registro;
+}
+
+export async function borrarRegistroCiclo(userId: string, fecha: string): Promise<void> {
+  const existente = await db.ciclo.where('[userId+fecha]').equals([userId, fecha]).first();
+  if (existente) await db.ciclo.delete(existente.id);
+}
+
+/** Borra todos los registros de ciclo del usuario (desactivar el módulo). */
+export async function borrarTodosRegistrosCiclo(userId: string): Promise<void> {
+  await db.ciclo.where('userId').equals(userId).delete();
+}
+
+/** Registros crudos (cifrados) — usados solo para exportación. */
+export async function registrosCicloCifrados(userId: string): Promise<CicloRegistro[]> {
+  const filas = await db.ciclo.where('userId').equals(userId).toArray();
+  return filas.sort((a, b) => b.fecha.localeCompare(a.fecha));
+}
+
+/**
+ * Lee y descifra EN MEMORIA los registros (nunca se escriben a consola ni se
+ * cachean). Un registro corrupto o de otra clave se omite silenciosamente.
+ */
+export async function registrosCicloLegibles(
+  userId: string,
+): Promise<Array<CicloRegistro & { datos: DatosCiclo }>> {
+  const clave = await obtenerOCrearClaveCiclo();
+  const crudos = await registrosCicloCifrados(userId);
+  const legibles: Array<CicloRegistro & { datos: DatosCiclo }> = [];
+  for (const crudo of crudos) {
+    try {
+      legibles.push({ ...crudo, datos: await descifrarConClave<DatosCiclo>(clave, crudo.datosCifrados) });
+    } catch {
+      continue;
+    }
+  }
+  return legibles.sort((a, b) => b.fecha.localeCompare(a.fecha));
 }

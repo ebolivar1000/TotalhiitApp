@@ -1,5 +1,30 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 9) — FASE 8 cerrada (ciclo menstrual, privacidad estricta)
+- **Cifrado local** (`src/lib/ciclo/cifrado.ts`): WebCrypto AES-GCM-256 con
+  clave aleatoria que vive solo en `localStorage`; IV nuevo por cifrado; helpers
+  exportados (crear/importar/cifrar/descifrar/obtenerOCrear/borrarClave) con
+  almacenamiento inyectable para pruebas.
+- **Registro cifrado:** la fila en IndexedDB (DB v5, store `ciclo`) solo tiene
+  metadatos + `datosCifrados`; flujo/síntomas/notas se cifran ANTES del `put`
+  y se descifran solo en memoria al leer (los corruptos se omiten). Upsert por
+  día preservando id/createdAt.
+- **Privacidad verificada con pruebas:** ni la fila cruda ni la exportación
+  serializada (v5) contienen el contenido en claro; la clave nunca sale del
+  dispositivo; sin telemetría ni logs. 133/133 pruebas.
+- **Estimaciones honestas** (`estimaciones.ts`): episodios (gap ≤2 días), ciclos
+  por inicios, ventana del próximo inicio = [mín−3, máx+3] con centro estimado,
+  irregularidad marcada con motivo (fuera de 21–35 o variación >7 días) y
+  estados con 0/1 ciclo sin inventar predicciones.
+- **UI `/ciclo`:** puerta de consentimiento (explica cifrado/borrado, con "No,
+  gracias" y desactivación con doble confirmación + borrado total del módulo),
+  registro de hoy (flujo chips, síntomas sugeridos + libres, notas), calendario
+  del mes (sangrado/manchado/ventana punteada/hoy), historial de ciclos y
+  avisos ("no sirve para prevenir ni planificar embarazos").
+- Accesos: ruta `/ciclo` + tarjetas en Inicio y Progreso. Sin dependencias
+  nuevas; build con pdf lazy; dev 5174 responde en `/ciclo`.
+- Docs actualizadas (roadmap FASE 8 tildada, state, next-steps, D19).
+
 ## 2026-10-28 (sesión 8) — FASE 7 cerrada (progreso y sueño)
 - **Modelo de registro diario** (`entradaDiarioSchema`): una entrada por usuario
   y día con upsert (`guardarEntradaDiaria` preserva id/createdAt, fusiona con lo

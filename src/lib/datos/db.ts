@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type {
+  CicloRegistro,
   ConsentRecord,
   EntradaDiario,
   Favorito,
@@ -21,6 +22,7 @@ export const db = new Dexie(NOMBRE_DB) as Dexie & {
   favoritos: EntityTable<Favorito, 'id'>;
   preparaciones: EntityTable<RecipePreparation, 'id'>;
   entradasDiario: EntityTable<EntradaDiario, 'id'>;
+  ciclo: EntityTable<CicloRegistro, 'id'>;
 };
 
 db.version(1).stores({
@@ -44,4 +46,9 @@ db.version(3).stores({
 /** FASE 7: registro diario voluntario (peso, energía, ánimo, sueño, agua, notas). */
 db.version(4).stores({
   entradasDiario: 'id, userId, fecha, [userId+fecha]',
+});
+
+/** FASE 8: ciclo menstrual — SOLO metadatos + payload cifrado (nunca en claro). */
+db.version(5).stores({
+  ciclo: 'id, userId, fecha, [userId+fecha]',
 });

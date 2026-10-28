@@ -33,9 +33,13 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
   v4), métricas puras (racha, promedios, tendencia de peso, resúmenes
   semanales), sugerencias del motor sin IA, página `/progreso` con gráficos
   propios y calendario. 118/118 pruebas.
-- **FASE 8 (ciclo menstrual, privacidad estricta): próxima** — ver criterios en
-  `docs/roadmap.md`. Requiere consentimiento explícito (modulo 'menstrual',
-  ya declarado en consentModulos) y cifrado local de campos íntimos.
+- **FASE 8 ✅** (ciclo menstrual, privacidad estricta) — completa: puerta de
+  consentimiento, payload íntimo SIEMPRE cifrado (AES-GCM, clave solo en el
+  dispositivo, DB v5), calendario + historial + estimación con incertidumbre
+  visible, exportación cifrada y borrado definitivo. 133/133 pruebas.
+- **FASE 9 (menús semanales + lista de compras + PDF del plan): próxima** — ver
+  criterios en `docs/roadmap.md`; reutiliza el motor de recetas y
+  `estamparMarcaAgua`.
 
 ## Plan de fases
 Definitivo en `docs/roadmap.md` (FASES 0–12 con criterios de aceptación, matriz de
@@ -80,11 +84,18 @@ dependencias y riesgos). El propietario aportó el plan completo el 2026-10-28.
   (máx. 3, sin culpa), gráficos propios (`componentes/graficos.tsx`) y página
   `/progreso` completa (racha, métricas, formulario diario con checkbox para
   actualizar el peso del perfil, calendario de actividad, 4 semanas).
+- **FASE 8 completa:** cifrado WebCrypto AES-GCM (`src/lib/ciclo/cifrado.ts`,
+  clave aleatoria solo en localStorage), registro de ciclo cifrado
+  (`guardarRegistroCiclo`/`registrosCicloLegibles`, DB v5 store `ciclo`),
+  estimaciones con ventana e irregularidad (`estimaciones.ts`), página `/ciclo`
+  con puerta de consentimiento, registro diario cifrado, calendario, historial
+  y control de desactivación con borrado; exportación v5 cifrada (sin clave).
 
 ## Pendientes inmediatos
-- FASE 8: ciclo menstrual (consentimiento explícito, calendario, cifrado local
-  de campos íntimos, exportación/borrado).
-- Pendiente menor: code-splitting adicional del main (~588 kB) si hace falta.
+- FASE 9: menús semanales (planificador desde el motor), lista de compras
+  consolidada y PDF del plan con marca de agua.
+- Pendiente menor: code-splitting adicional del main (~604 kB) si hace falta.
+- Pendiente FASE 10: evaluar derivación de la clave del ciclo con PIN (D19).
 - Pendiente FASE 11: probar guardar/compartir el PDF en Android y iPhone reales.
 
 ## Notas de entorno

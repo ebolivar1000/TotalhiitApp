@@ -75,6 +75,21 @@ export default function Inicio() {
           Ver recetas →
         </Link>
       </Tarjeta>
+
+      <Tarjeta>
+        <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Progreso y ciclo</p>
+        <p className="mt-1 text-sm text-zinc-600">
+          Tus rachas, energía, sueño y —si lo activás— un calendario de ciclo privado y cifrado.
+        </p>
+        <div className="mt-3 flex gap-3 text-sm font-semibold">
+          <Link to="/progreso" className="text-marca-magenta">
+            Ver progreso →
+          </Link>
+          <Link to="/ciclo" className="text-zinc-500">
+            Ciclo (privado) →
+          </Link>
+        </div>
+      </Tarjeta>
     </main>
   );
 }

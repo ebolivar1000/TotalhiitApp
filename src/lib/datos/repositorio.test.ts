@@ -1,7 +1,16 @@
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db, NOMBRE_DB } from './db';
+import type { AlmacenClave } from '../ciclo/cifrado';
 import type { EntradaPerfil } from './entidades';
+
+/** Node no tiene localStorage: stub en memoria para la clave de cifrado del ciclo. */
+const memoriaClave = new Map<string, string>();
+(globalThis as unknown as { localStorage: AlmacenClave }).localStorage = {
+  getItem: (clave) => memoriaClave.get(clave) ?? null,
+  setItem: (clave, valor) => void memoriaClave.set(clave, valor),
+  removeItem: (clave) => void memoriaClave.delete(clave),
+};
 import {
   borrarDatosPersonales,
   exportarDatos,
@@ -30,6 +39,11 @@ import {
   obtenerEntradaDiaria,
   entradasDiarias,
   entradasEntre,
+  guardarRegistroCiclo,
+  borrarRegistroCiclo,
+  borrarTodosRegistrosCiclo,
+  registrosCicloCifrados,
+  registrosCicloLegibles,
 } from './repositorio';
 
 const entradaPerfil: EntradaPerfil = {
@@ -130,16 +144,21 @@ describe('exportación y borrado', () => {
     await alternarFavorito(perfil.id, 'sesion', 'w1-c1');
     await registrarPreparacion({ userId: perfil.id, recetaId: 'r5', fecha: '2026-10-28', porciones: 2 });
     await guardarEntradaDiaria(perfil.id, '2026-10-28', { pesoKg: 70, vasosAgua: 5 });
+    await guardarRegistroCiclo(perfil.id, '2026-10-28', { flujo: 'abundante', sintomas: ['cólicos'] });
 
     const datos = await exportarDatos();
     expect(datos['app']).toBe('totalhiit-app');
-    expect(datos['version']).toBe(4);
+    expect(datos['version']).toBe(5);
     expect((datos['perfiles'] as unknown[]).length).toBe(1);
     expect((datos['objetivos'] as unknown[]).length).toBe(1);
     expect((datos['sesiones'] as unknown[]).length).toBe(1);
     expect((datos['favoritos'] as unknown[]).length).toBe(1);
     expect((datos['preparaciones'] as unknown[]).length).toBe(1);
     expect((datos['entradasDiario'] as unknown[]).length).toBe(1);
+    // El ciclo aparece con cifrado: nada de contenido íntimo en claro.
+    expect((datos['ciclo'] as unknown[]).length).toBe(1);
+    expect(JSON.stringify(datos)).not.toContain('abundante');
+    expect(JSON.stringify(datos)).not.toContain('cólicos');
 
     await borrarDatosPersonales();
     expect(await db.perfiles.count()).toBe(0);
@@ -150,6 +169,7 @@ describe('exportación y borrado', () => {
     expect(await db.favoritos.count()).toBe(0);
     expect(await db.preparaciones.count()).toBe(0);
     expect(await db.entradasDiario.count()).toBe(0);
+    expect(await db.ciclo.count()).toBe(0);
   });
 });
 
@@ -262,5 +282,61 @@ describe('registro diario (FASE 7)', () => {
     expect(rango).toHaveLength(2);
     expect((await obtenerEntradaDiaria(perfil.id, '2026-10-28'))?.vasosAgua).toBe(5);
     expect(await obtenerEntradaDiaria(perfil.id, '2026-10-30')).toBeUndefined();
+  });
+});
+
+describe('ciclo menstrual con cifrado (FASE 8)', () => {
+  it('guarda SOLO metadatos + datosCifrados: nada en claro en la DB', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    await guardarRegistroCiclo(perfil.id, '2026-10-28', {
+      flujo: 'abundante',
+      sintomas: ['cólicos', 'antojos'],
+      notas: 'día difícil',
+    });
+
+    const cruda = await db.ciclo.toArray();
+    expect(cruda).toHaveLength(1);
+    const fila = JSON.stringify(cruda[0]);
+    expect(fila).not.toContain('abundante');
+    expect(fila).not.toContain('cólicos');
+    expect(fila).not.toContain('día difícil');
+    expect(cruda[0]?.datosCifrados).toContain('.');
+
+    const legibles = await registrosCicloLegibles(perfil.id);
+    expect(legibles).toHaveLength(1);
+    expect(legibles[0]?.datos.flujo).toBe('abundante');
+    expect(legibles[0]?.datos.sintomas).toEqual(['cólicos', 'antojos']);
+    expect(legibles[0]?.datos.notas).toBe('día difícil');
+  });
+
+  it('upsert por día mantiene id/createdAt y reemplaza el payload cifrado', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    const primera = await guardarRegistroCiclo(perfil.id, '2026-10-28', { flujo: 'ligero', sintomas: [] });
+    const segunda = await guardarRegistroCiclo(perfil.id, '2026-10-28', { flujo: 'medio', sintomas: ['acné'] });
+    expect(segunda.id).toBe(primera.id);
+    expect(segunda.createdAt).toBe(primera.createdAt);
+
+    const legibles = await registrosCicloLegibles(perfil.id);
+    expect(legibles).toHaveLength(1);
+    expect(legibles[0]?.datos.flujo).toBe('medio');
+    expect(legibles[0]?.datos.sintomas).toEqual(['acné']);
+  });
+
+  it('borra por día, todos los registros y aparece en la exportación cifrada', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    await guardarRegistroCiclo(perfil.id, '2026-10-26', { flujo: 'ligero', sintomas: [] });
+    await guardarRegistroCiclo(perfil.id, '2026-10-28', { flujo: 'medio', sintomas: [] });
+
+    await borrarRegistroCiclo(perfil.id, '2026-10-26');
+    expect(await registrosCicloCifrados(perfil.id)).toHaveLength(1);
+
+    await guardarRegistroCiclo(perfil.id, '2026-10-29', { flujo: 'abundante', sintomas: [] });
+    await borrarTodosRegistrosCiclo(perfil.id);
+    expect(await registrosCicloCifrados(perfil.id)).toHaveLength(0);
+
+    await guardarRegistroCiclo(perfil.id, '2026-10-29', { flujo: 'abundante', sintomas: [] });
+    const datos = await exportarDatos();
+    expect((datos['ciclo'] as unknown[]).length).toBe(1);
+    expect(JSON.stringify(datos)).not.toContain('abundante');
   });
 });

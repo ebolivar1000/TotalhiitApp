@@ -23,24 +23,26 @@
 - FASE 7 (progreso y sueño): ✅ completa — registro diario con upsert (DB v4),
   métricas puras con pruebas, sugerencias deterministas sin IA, página
   `/progreso` con gráficos SVG propios y calendario. 118/118 pruebas.
+- FASE 8 (ciclo menstrual): ✅ completa — consentimiento estricto, cifrado
+  AES-GCM de los campos íntimos (DB v5), calendario, estimación con
+  incertidumbre, exportación cifrada y borrado. 133/133 pruebas.
 
 ## Próximo paso concreto
-FASE 8 — ciclo menstrual, privacidad estricta (criterios exactos en
-`docs/roadmap.md`; revisar además `docs/security-privacy.md` y D18):
-1. Esquema `CicloRegistro` (fecha, flujo, síntomas opcionales, notas) + DB v5
-   con store `ciclo`; **cifrado local de los campos íntimos** (WebCrypto AES-GCM
-   con clave derivada en el dispositivo — decidir derivación y guardarla solo
-   local) antes de escribir en IndexedDB.
-2. Consentimiento explícito `menstrual` ANTES de la primera pantalla del módulo
-   (pantalla de consentimiento propio; sin consentimiento → no se ve nada).
-3. Página `/ciclo`: calendario mensual, registro/edición/borrado, historial y
-   estimaciones con **incertidumbre visible** (rangos, no fechas exactas);
-   manejo de ciclos irregulares y datos insuficientes.
-4. Exportación/borrado incluyen `ciclo`; NADA del módulo aparece en la
-   exportación genérica sin los datos descifrados ni en logs.
-5. Pruebas de privacidad: campos cifrados en la DB, ausencia en export genérica
-   (o exportación con cifrado intacto), borrado completo.
-6. Verificación: `npm test` + build + recorrida en `npm run dev` (puerto 5174).
+FASE 9 — menús semanales (criterios exactos en `docs/roadmap.md`):
+1. Planificador semanal desde el motor: para cada comida del día (desayuno,
+   almuerzo, cena + snack opcional) elegir receta compatible con alérgenos,
+   presupuesto y objetivo (`filtrarRecetas` + `ordenarPorObjetivo`, sin IA;
+   con posibilidad de reemplazo manual desde el catálogo).
+2. Modelo `PlanSemanal` (semana ISO, slots por día/comida con recetaId) + DB v6
+   (`planes`); exportación v6 y borrado incluyen el store.
+3. Lista de compras consolidada: suma de ingredientes de las recetas del plan
+   (normalizando cantidades por porciones) agrupada por categoría/proteína.
+4. Exportación PDF del plan semanal (reutiliza `estamparMarcaAgua` y el layout
+   de `src/lib/nutricion/pdf.ts`).
+5. Página `/plan`: vista semanal, regenerar/reescribir slots, botón lista de
+   compras y PDF.
+6. Pruebas: generación determinista del plan, consolidación de compras,
+   exportación; `npm test` + build + recorrida dev (puerto 5174).
 
 ## Recordatorios para la próxima sesión
 - Leer `ai/state.md`, `ai/decisions.md` y `docs/roadmap.md` antes de codificar.

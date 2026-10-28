@@ -556,6 +556,12 @@ export default function Progreso() {
       <p className="text-center text-[11px] text-zinc-400">
         Tus registros viven solo en este dispositivo. Nada de esto es un diagnóstico.
       </p>
+      <Link to="/ciclo" className="block">
+        <Tarjeta className="text-center">
+          <p className="text-sm font-semibold text-zinc-800">🌸 Ciclo menstrual</p>
+          <p className="mt-1 text-xs text-zinc-500">Calendario privado y cifrado en este dispositivo. Se activa solo si lo querés.</p>
+        </Tarjeta>
+      </Link>
     </main>
   );
 }
