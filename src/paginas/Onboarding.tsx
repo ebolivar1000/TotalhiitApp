@@ -79,8 +79,8 @@ export default function Onboarding() {
         .map((c) => nombresCampos[c] || c);
 
       const mensaje = fallidos.length > 0
-        ? `Revisá estos campos: ${fallidos.join(', ')}.`
-        : 'Por favor completá los campos obligatorios para avanzar.';
+        ? `Revisa estos campos: ${fallidos.join(', ')}.`
+        : 'Por favor completa los campos obligatorios para avanzar.';
 
       setErrorValidacion(mensaje);
 
@@ -129,7 +129,7 @@ export default function Onboarding() {
         navigate('/', { replace: true });
       } catch (e) {
         console.error('Error al guardar datos de onboarding:', e);
-        setErrorGuardado('No se pudieron guardar los datos. Revisá los campos e intentá de nuevo.');
+        setErrorGuardado('No se pudieron guardar los datos. Revisa los campos e intenta de nuevo.');
       } finally {
         setGuardando(false);
       }
@@ -149,14 +149,14 @@ export default function Onboarding() {
         .filter(Boolean);
       setErrorValidacion(
         lista.length > 0
-          ? `Por favor revisá: ${lista.join(', ')}.`
-          : 'Por favor aceptá los términos y completá los campos obligatorios para continuar.'
+          ? `Por favor revisa: ${lista.join(', ')}.`
+          : 'Por favor acepta los términos y completa los campos obligatorios para continuar.'
       );
     }
   );
 
   return (
-    <main className="mx-auto max-w-md px-4 pb-48 pt-6">
+    <main className="mx-auto max-w-md px-4 pb-52 pt-6">
       <div className="mb-2 text-center">
         <p className="font-marca text-3xl text-marca-magenta">TOTALHIIT</p>
         <p className="mt-1 text-sm text-zinc-500">
@@ -183,7 +183,7 @@ export default function Onboarding() {
             </p>
           </Tarjeta>
           <p className="text-center text-sm text-zinc-500">
-            ¿Preferís explorar primero? Podés saltarlo y completarlo después desde Ajustes.
+            ¿Prefieres explorar primero? Puedes saltarlo y completarlo después desde Ajustes.
           </p>
         </div>
       )}
@@ -257,7 +257,7 @@ export default function Onboarding() {
       )}
 
       {/* Espaciador generoso para que el último campo nunca quede cubierto por la barra fija inferior */}
-      <div className="h-36 w-full shrink-0" aria-hidden="true" />
+      <div className="h-44 w-full shrink-0" aria-hidden="true" />
 
       {/* Barra de navegación de pasos fija permanentemente en la parte inferior */}
       <div className="safe-area-inferior fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 px-4 pt-3 pb-3 shadow-2xl backdrop-blur">

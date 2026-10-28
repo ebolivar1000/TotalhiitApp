@@ -5,6 +5,7 @@ import { BotonPrimario, BotonSecundario, Campo, EntradaTexto, Tarjeta } from '..
 import { ETIQUETAS_OBJETIVO, type EntradaDiario, type WorkoutSession } from '../lib/datos/entidades';
 import {
   aplicarCambiosPerfil,
+  borrarEntradaDiaria,
   entradasDiarias,
   guardarEntradaDiaria,
   sesionesDeUsuario,
@@ -23,7 +24,7 @@ import {
   tendenciaPeso,
 } from '../lib/progreso/metricas';
 import { sugerenciasDashboard } from '../lib/progreso/recomendaciones';
-import { fechaHoyIso, isoAFecha } from '../lib/utilidades/fechas';
+import { fechaCorta, fechaHoyIso, isoAFecha } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
 
 const formatoNumero = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1 });
@@ -76,31 +77,62 @@ function EscalaChips({ valor, onChange }: { valor: string; onChange: (v: string)
   );
 }
 
-/** Calendario del mes en curso: entrenamientos (relleno magenta), registros (borde verde). */
+/** Calendario del mes interactivo: entrenamientos (relleno magenta), registros (borde verde). */
 function CalendarioMes({
   hoyIso,
+  fechaSeleccionada,
+  onSeleccionarFecha,
   fechasEntrenamiento,
   fechasRegistro,
 }: {
   hoyIso: string;
+  fechaSeleccionada: string;
+  onSeleccionarFecha: (iso: string) => void;
   fechasEntrenamiento: Set<string>;
   fechasRegistro: Set<string>;
 }) {
-  const fecha = isoAFecha(hoyIso);
-  const anio = fecha.getFullYear();
-  const mes = fecha.getMonth();
+  const [mesOffset, setMesOffset] = useState(0);
+
+  const baseDate = useMemo(() => {
+    const d = isoAFecha(hoyIso);
+    return new Date(d.getFullYear(), d.getMonth() + mesOffset, 1);
+  }, [hoyIso, mesOffset]);
+
+  const anio = baseDate.getFullYear();
+  const mes = baseDate.getMonth();
   const diasMes = new Date(anio, mes + 1, 0).getDate();
   const offset = (new Date(anio, mes, 1).getDay() + 6) % 7;
   const prefijo = `${anio}-${String(mes + 1).padStart(2, '0')}-`;
-  const nombreMes = fecha.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+  const nombreMes = baseDate.toLocaleDateString('es', { month: 'long', year: 'numeric' });
+
   return (
     <div>
-      <p className="text-center text-sm font-semibold capitalize text-zinc-700">{nombreMes}</p>
-      <div className="mt-2 grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-zinc-400">
+      <div className="flex items-center justify-between px-1">
+        <button
+          type="button"
+          onClick={() => setMesOffset((m) => m - 1)}
+          className="rounded-lg p-1.5 text-xs font-bold text-zinc-600 hover:bg-zinc-100"
+          aria-label="Mes anterior"
+        >
+          ← Anterior
+        </button>
+        <p className="text-sm font-bold capitalize text-zinc-800">{nombreMes}</p>
+        <button
+          type="button"
+          onClick={() => setMesOffset((m) => m + 1)}
+          className="rounded-lg p-1.5 text-xs font-bold text-zinc-600 hover:bg-zinc-100"
+          aria-label="Mes siguiente"
+        >
+          Siguiente →
+        </button>
+      </div>
+
+      <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-zinc-400">
         {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, i) => (
           <span key={i}>{d}</span>
         ))}
       </div>
+
       <div className="mt-1 grid grid-cols-7 gap-1">
         {Array.from({ length: offset }, (_, i) => (
           <span key={`vacio-${i}`} />
@@ -110,26 +142,32 @@ function CalendarioMes({
           const entreno = fechasEntrenamiento.has(iso);
           const registro = fechasRegistro.has(iso);
           const esHoy = iso === hoyIso;
+          const esSeleccionado = iso === fechaSeleccionada;
+
           return (
-            <span
+            <button
+              type="button"
               key={iso}
-              title={`${iso}${entreno ? ' · entrenamiento' : ''}${registro ? ' · registro diario' : ''}`}
-              className={`flex h-8 items-center justify-center rounded-lg text-xs ${
+              onClick={() => onSeleccionarFecha(iso)}
+              title={`${iso}${entreno ? ' · Entrenamiento' : ''}${registro ? ' · Registro diario' : ''}`}
+              className={`flex h-8 items-center justify-center rounded-lg text-xs transition-transform active:scale-95 ${
                 entreno
-                  ? 'bg-marca-magenta font-bold text-white'
+                  ? 'bg-marca-magenta font-bold text-white shadow-sm'
                   : registro
-                    ? 'border border-green-500 text-zinc-700'
-                    : 'bg-zinc-50 text-zinc-400'
-              } ${esHoy ? 'ring-2 ring-marca-magenta/50' : ''}`}
+                    ? 'border border-green-500 font-semibold text-zinc-700 bg-green-50/50'
+                    : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'
+              } ${esSeleccionado ? 'ring-2 ring-marca-magenta ring-offset-2 font-bold' : ''} ${
+                esHoy && !esSeleccionado ? 'border-2 border-zinc-400 font-semibold' : ''
+              }`}
             >
               {dia}
-            </span>
+            </button>
           );
         })}
       </div>
-      <p className="mt-2 text-[11px] text-zinc-500">
+      <p className="mt-2 text-center text-[11px] text-zinc-500">
         <span className="font-semibold text-marca-magenta">●</span> entrenamiento ·{' '}
-        <span className="font-semibold text-green-600">▢</span> registro diario · anillo: hoy
+        <span className="font-semibold text-green-600">▢</span> registro diario · toca cualquier día para ver o registrar
       </p>
     </div>
   );
@@ -140,8 +178,8 @@ export default function Progreso() {
   const [entradas, setEntradas] = useState<EntradaDiario[]>([]);
   const [sesiones, setSesiones] = useState<WorkoutSession[]>([]);
   const [cargandoDatos, setCargandoDatos] = useState(true);
+  const [fechaSeleccionada, setFechaSeleccionada] = useState<string>(() => fechaHoyIso());
   const [form, setForm] = useState<FormularioDiario>(FORM_VACIO);
-  const [formCargado, setFormCargado] = useState(false);
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
 
@@ -161,23 +199,23 @@ export default function Progreso() {
     })();
   }, [perfil]);
 
-  // Precarga el registro de hoy si ya existe (todo editable).
+  // Al cambiar la fecha seleccionada, precarga los datos de esa fecha si ya existen
   useEffect(() => {
-    if (!perfil || cargandoDatos || formCargado) return;
-    const hoy = fechaHoyIso();
-    const deHoy = entradas.find((e) => e.fecha === hoy);
+    if (!perfil || cargandoDatos) return;
+    const reg = entradas.find((e) => e.fecha === fechaSeleccionada);
     setForm({
-      peso: deHoy?.pesoKg !== undefined ? String(deHoy.pesoKg) : '',
-      energia: deHoy?.energiaNivel !== undefined ? String(deHoy.energiaNivel) : '',
-      animo: deHoy?.animoNivel !== undefined ? String(deHoy.animoNivel) : '',
-      horasSueno: deHoy?.horasSueno !== undefined ? String(deHoy.horasSueno) : '',
-      calidadSueno: deHoy?.calidadSueno !== undefined ? String(deHoy.calidadSueno) : '',
-      vasos: deHoy?.vasosAgua !== undefined ? String(deHoy.vasosAgua) : '',
-      notas: deHoy?.notas ?? '',
-      actualizarPerfil: true,
+      peso: reg?.pesoKg !== undefined ? String(reg.pesoKg) : '',
+      energia: reg?.energiaNivel !== undefined ? String(reg.energiaNivel) : '',
+      animo: reg?.animoNivel !== undefined ? String(reg.animoNivel) : '',
+      horasSueno: reg?.horasSueno !== undefined ? String(reg.horasSueno) : '',
+      calidadSueno: reg?.calidadSueno !== undefined ? String(reg.calidadSueno) : '',
+      vasos: reg?.vasosAgua !== undefined ? String(reg.vasosAgua) : '',
+      notas: reg?.notas ?? '',
+      actualizarPerfil: fechaSeleccionada === fechaHoyIso(),
     });
-    setFormCargado(true);
-  }, [perfil, cargandoDatos, entradas, formCargado]);
+    setMensaje('');
+    setError('');
+  }, [perfil, cargandoDatos, entradas, fechaSeleccionada]);
 
   const vista = useMemo(() => {
     if (!perfil) return null;
@@ -272,9 +310,9 @@ export default function Progreso() {
 
   if (!perfil || !vista) {
     return (
-      <main className="mx-auto max-w-md px-4 pb-32 pt-6 text-center">
+      <main className="mx-auto max-w-md px-4 pb-48 pt-6 text-center">
         <Tarjeta>
-          <p className="text-sm text-zinc-600">Primero completá tu perfil para ver tu progreso.</p>
+          <p className="text-sm text-zinc-600">Primero completa tu perfil para ver tu progreso.</p>
           <Link to="/onboarding" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
             Completar onboarding
           </Link>
@@ -282,6 +320,8 @@ export default function Progreso() {
       </main>
     );
   }
+
+  const entradaSeleccionada = entradas.find((e) => e.fecha === fechaSeleccionada);
 
   const setear = (campo: keyof FormularioDiario, valor: string | boolean) =>
     setForm((f) => ({ ...f, [campo]: valor }));
@@ -299,7 +339,7 @@ export default function Progreso() {
       setError('Las horas de sueño deben estar entre 0 y 16.');
       return;
     }
-    await guardarEntradaDiaria(perfil.id, vista.hoy, {
+    await guardarEntradaDiaria(perfil.id, fechaSeleccionada, {
       pesoKg: pesoKg,
       energiaNivel: numero(form.energia),
       animoNivel: numero(form.animo),
@@ -312,18 +352,26 @@ export default function Progreso() {
       await aplicarCambiosPerfil(perfil.id, { pesoKg: pesoKg });
     }
     setEntradas(await entradasDiarias(perfil.id));
-    setMensaje('Registro de hoy guardado 💜');
+    setMensaje(`¡Registro guardado para el ${fechaCorta(fechaSeleccionada)}! 💜`);
+  };
+
+  const borrar = async () => {
+    if (!entradaSeleccionada) return;
+    await borrarEntradaDiaria(entradaSeleccionada.id);
+    setEntradas(await entradasDiarias(perfil.id));
+    setForm(FORM_VACIO);
+    setMensaje(`Registro del ${fechaCorta(fechaSeleccionada)} eliminado.`);
   };
 
   const etiquetaSemana = (inicio: string) =>
     `Semana del ${inicio.slice(5).split('-').reverse().join('/')}`;
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <div>
         <h1 className="text-xl font-bold text-zinc-900">Progreso y hábitos</h1>
         <p className="text-sm text-zinc-500">
-          Sin puntuaciones ni culpas: acá se ve lo que venís construyendo, día a día.
+          Sin puntuaciones ni culpas: aquí se ve lo que vienes construyendo, día a día.
         </p>
       </div>
 
@@ -380,10 +428,40 @@ export default function Progreso() {
         </Tarjeta>
       </div>
 
-      {/* Registro de hoy */}
+      {/* Registro diario (fecha personalizable) */}
       <Tarjeta>
-        <h2 className="font-bold text-zinc-900">Registro de hoy</h2>
-        <p className="text-xs text-zinc-500">Todo opcional. Guardás y editás las veces que quieras.</p>
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-zinc-900">
+            {fechaSeleccionada === vista.hoy ? 'Registro de hoy' : `Registro del ${fechaCorta(fechaSeleccionada)}`}
+          </h2>
+          {fechaSeleccionada !== vista.hoy && (
+            <button
+              type="button"
+              onClick={() => setFechaSeleccionada(vista.hoy)}
+              className="text-xs font-semibold text-marca-magenta hover:underline"
+            >
+              Volver a hoy
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-zinc-500">Todo opcional. Puedes guardar o editar cualquier día cuando quieras.</p>
+
+        <div className="mt-3">
+          <Campo etiqueta="Fecha a registrar">
+            <EntradaTexto
+              type="date"
+              value={fechaSeleccionada}
+              onChange={(e) => setFechaSeleccionada(e.target.value)}
+            />
+          </Campo>
+        </div>
+
+        {entradaSeleccionada && (
+          <p className="mt-2 rounded-lg bg-green-50 p-2 text-xs font-semibold text-green-700">
+            ✓ Ya tienes un registro para el {fechaCorta(fechaSeleccionada)}. Puedes editarlo o borrarlo abajo.
+          </p>
+        )}
+
         <div className="mt-4 grid grid-cols-2 gap-3">
           <Campo etiqueta="Peso (kg)" htmlFor="peso">
             <EntradaTexto
@@ -427,7 +505,7 @@ export default function Progreso() {
           <Campo etiqueta="Calidad del sueño (1–5)" htmlFor="calidad">
             <EscalaChips valor={form.calidadSueno} onChange={(v) => setear('calidadSueno', v)} />
           </Campo>
-          <Campo etiqueta="Energía de hoy (1–5)">
+          <Campo etiqueta="Energía del día (1–5)">
             <EscalaChips valor={form.energia} onChange={(v) => setear('energia', v)} />
           </Campo>
           <Campo etiqueta="Ánimo (1–5)">
@@ -442,7 +520,7 @@ export default function Progreso() {
               maxLength={500}
               value={form.notas}
               onChange={(e) => setear('notas', e.target.value)}
-              placeholder="¿Cómo te sentiste hoy?"
+              placeholder="¿Cómo te sentiste este día?"
               className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-marca-magenta focus:ring-2 focus:ring-marca-magenta/20"
             />
           </Campo>
@@ -460,9 +538,17 @@ export default function Progreso() {
         )}
         {error && <p className="mt-2 text-xs font-semibold text-red-600">{error}</p>}
         {mensaje && <p className="mt-2 text-xs font-semibold text-green-700">{mensaje}</p>}
-        <BotonPrimario onClick={() => void guardar()} className="mt-4 w-full">
-          Guardar registro
-        </BotonPrimario>
+        
+        <div className="mt-4 flex gap-2">
+          <BotonPrimario type="button" onClick={() => void guardar()} className="flex-1">
+            {entradaSeleccionada ? 'Actualizar registro' : 'Guardar registro'}
+          </BotonPrimario>
+          {entradaSeleccionada && (
+            <BotonSecundario type="button" onClick={() => void borrar()}>
+              Borrar este día
+            </BotonSecundario>
+          )}
+        </div>
       </Tarjeta>
 
       {/* Gráficos de tendencia */}
@@ -493,6 +579,11 @@ export default function Progreso() {
         <div className="mt-3">
           <CalendarioMes
             hoyIso={vista.hoy}
+            fechaSeleccionada={fechaSeleccionada}
+            onSeleccionarFecha={(iso) => {
+              setFechaSeleccionada(iso);
+              window.scrollTo({ top: 380, behavior: 'smooth' });
+            }}
             fechasEntrenamiento={vista.fechasEntrenamiento}
             fechasRegistro={vista.fechasRegistro}
           />
@@ -524,7 +615,7 @@ export default function Progreso() {
 
       {/* Sugerencias del motor (sin IA) */}
       <Tarjeta>
-        <h2 className="font-bold text-zinc-900">Sugerencias para vos</h2>
+        <h2 className="font-bold text-zinc-900">Sugerencias para ti</h2>
         {objetivo && (
           <p className="text-xs text-zinc-500">
             Basadas en tu objetivo: {ETIQUETAS_OBJETIVO[objetivo.tipo]}.
@@ -559,9 +650,11 @@ export default function Progreso() {
       <Link to="/ciclo" className="block">
         <Tarjeta className="text-center">
           <p className="text-sm font-semibold text-zinc-800">🌸 Ciclo menstrual</p>
-          <p className="mt-1 text-xs text-zinc-500">Calendario privado y cifrado en este dispositivo. Se activa solo si lo querés.</p>
+          <p className="mt-1 text-xs text-zinc-500">Calendario privado y cifrado en este dispositivo. Se activa solo si lo quieres.</p>
         </Tarjeta>
       </Link>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

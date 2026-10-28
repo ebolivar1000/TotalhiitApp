@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Tarjeta } from '../componentes/ui';
-import { ETIQUETAS_NIVEL_ACTIVIDAD, ETIQUETAS_OBJETIVO } from '../lib/datos/entidades';
+import { ETIQUETAS_NIVEL_ACTIVIDAD } from '../lib/datos/entidades';
 import {
   alternarFavorito,
   favoritosDe,
@@ -15,15 +15,28 @@ import {
   ETIQUETAS_NIVEL_SESION,
   obtenerSesion,
   type CategoriaSesion,
+  type Workout,
 } from '../lib/entrenamiento/sesiones';
-import { equipoDisponible, filtrarSesiones, ordenarPorObjetivo } from '../lib/entrenamiento/filtros';
+import { equipoDisponible } from '../lib/entrenamiento/filtros';
 import { usePerfil } from '../hooks/usePerfil';
 
 const DURACIONES = [null, 15, 25, 35] as const;
 
+type FiltroSemana = 'todas' | '1' | '2' | '3' | '4' | 'estiramientos';
+
+const PESTANAS_SEMANA: { id: FiltroSemana; etiqueta: string }[] = [
+  { id: 'todas', etiqueta: 'Todas las clases' },
+  { id: '1', etiqueta: 'Semana 1' },
+  { id: '2', etiqueta: 'Semana 2' },
+  { id: '3', etiqueta: 'Semana 3' },
+  { id: '4', etiqueta: 'Semana 4' },
+  { id: 'estiramientos', etiqueta: 'Estiramientos' },
+];
+
 export default function Entrenamientos() {
   const { cargando, perfil, objetivo } = usePerfil();
   const navigate = useNavigate();
+  const [semanaFiltro, setSemanaFiltro] = useState<FiltroSemana>('todas');
   const [categoria, setCategoria] = useState<CategoriaSesion | null>(null);
   const [duracionMax, setDuracionMax] = useState<number | null>(null);
   const [favoritos, setFavoritos] = useState<Set<string>>(new Set());
@@ -41,19 +54,31 @@ export default function Entrenamientos() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [perfil?.id]);
 
-  const conEquipo = useMemo(
-    () => CATALOGO_SESIONES.filter((s) => equipoDisponible(s, perfil?.equipamiento)),
-    [perfil],
-  );
-  const filtradas = useMemo(
-    () =>
-      ordenarPorObjetivo(
-        filtrarSesiones(conEquipo, { categoria, duracionMaxMin: duracionMax }),
-        objetivo?.tipo ?? null,
-      ),
-    [conEquipo, categoria, duracionMax, objetivo],
-  );
-  const ocultasPorEquipo = CATALOGO_SESIONES.length - conEquipo.length;
+  // Lista ordenada naturalmente por semana y número de clase
+  const todasOrdenadas = useMemo(() => {
+    return [...CATALOGO_SESIONES].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+  }, []);
+
+  // Filtrado por pestaña de semana, categoría y duración
+  const filtradas = useMemo(() => {
+    return todasOrdenadas.filter((s) => {
+      // Filtro de semana
+      if (semanaFiltro === '1' && s.semana !== 1) return false;
+      if (semanaFiltro === '2' && s.semana !== 2) return false;
+      if (semanaFiltro === '3' && s.semana !== 3) return false;
+      if (semanaFiltro === '4' && s.semana !== 4) return false;
+      if (semanaFiltro === 'estiramientos' && s.semana !== 5) return false;
+
+      // Filtro de categoría
+      if (categoria && !s.categorias.includes(categoria)) return false;
+
+      // Filtro de duración
+      if (duracionMax !== null && s.duracionMin > duracionMax) return false;
+
+      return true;
+    });
+  }, [todasOrdenadas, semanaFiltro, categoria, duracionMax]);
+
   const conteo = useMemo(() => {
     const mapa = new Map<string, number>();
     for (const s of historial) mapa.set(s.workoutId, (mapa.get(s.workoutId) ?? 0) + 1);
@@ -68,30 +93,104 @@ export default function Entrenamientos() {
 
   if (cargando || !perfil) return null;
 
+  // Agrupamiento por semana cuando se muestran todas
+  const renderItemSesion = (s: Workout) => {
+    const tieneEquipo = equipoDisponible(s, perfil?.equipamiento);
+    return (
+      <Tarjeta key={s.id} className="relative">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => navigate(`/entrenamientos/${s.id}`)}
+          onKeyDown={(e) => e.key === 'Enter' && navigate(`/entrenamientos/${s.id}`)}
+          className="flex cursor-pointer items-start gap-3"
+        >
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-marca-crema to-white text-2xl">
+            <span aria-hidden="true">{ICONO_CATEGORIA[s.categorias[0] ?? 'activacion']}</span>
+          </div>
+          <div className="min-w-0 flex-1 pr-6">
+            <p className="font-semibold text-zinc-900">{s.titulo}</p>
+            <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{s.descripcion}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
+              <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-semibold text-zinc-600">
+                {s.duracionMin} min
+              </span>
+              <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-600">
+                {ETIQUETAS_NIVEL_SESION[s.nivel]}
+              </span>
+              {!tieneEquipo && s.equipo.includes('mancuernas') && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-800">
+                  🏋️ Requiere mancuernas
+                </span>
+              )}
+              {objetivo && s.objetivosCompatibles.includes(objetivo.tipo) && (
+                <span className="rounded-full bg-marca-crema px-2 py-0.5 font-semibold text-marca-magenta-oscuro">
+                  Para tu objetivo
+                </span>
+              )}
+              {(conteo.get(s.id) ?? 0) > 0 && (
+                <span className="rounded-full bg-green-100 px-2 py-0.5 font-semibold text-green-700">
+                  ✓ Realizada {conteo.get(s.id)}×
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          aria-label={favoritos.has(s.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+          onClick={() => void alternarFav(s.id)}
+          className={`absolute right-3 top-3 text-xl transition-transform active:scale-90 ${favoritos.has(s.id) ? 'opacity-100' : 'opacity-30'}`}
+        >
+          {favoritos.has(s.id) ? '⭐' : '☆'}
+        </button>
+      </Tarjeta>
+    );
+  };
+
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">Entrenamientos</h1>
         <p className="text-sm text-zinc-500">
-          {objetivo ? `Ordenadas para: ${ETIQUETAS_OBJETIVO[objetivo.tipo]}` : 'Elegí tu objetivo en el perfil para priorizarlas'}
+          Programa completo TOTAL+40: 12 clases por semana y 2 sesiones de estiramiento.
         </p>
       </div>
 
+      {/* Pestañas de semana */}
+      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1">
+        {PESTANAS_SEMANA.map((p) => (
+          <button
+            type="button"
+            key={p.id}
+            onClick={() => setSemanaFiltro(p.id)}
+            className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              semanaFiltro === p.id
+                ? 'border-marca-magenta bg-marca-magenta text-white shadow-sm'
+                : 'border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50'
+            }`}
+          >
+            {p.etiqueta}
+          </button>
+        ))}
+      </div>
+
+      {/* Filtros de categoría y duración */}
       <div className="space-y-2">
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
           <button
             type="button"
             onClick={() => setCategoria(null)}
-            className={`shrink-0 rounded-full border px-3 py-1.5 text-sm ${categoria === null ? 'border-marca-magenta bg-marca-crema font-semibold text-marca-magenta-oscuro' : 'border-zinc-300 bg-white text-zinc-600'}`}
+            className={`shrink-0 rounded-full border px-3 py-1 text-xs ${categoria === null ? 'border-marca-magenta bg-marca-crema font-semibold text-marca-magenta-oscuro' : 'border-zinc-300 bg-white text-zinc-600'}`}
           >
-            Todas
+            Todas las categorías
           </button>
           {(Object.keys(ETIQUETAS_CATEGORIA) as CategoriaSesion[]).map((c) => (
             <button
               type="button"
               key={c}
               onClick={() => setCategoria(categoria === c ? null : c)}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-sm ${categoria === c ? 'border-marca-magenta bg-marca-crema font-semibold text-marca-magenta-oscuro' : 'border-zinc-300 bg-white text-zinc-600'}`}
+              className={`shrink-0 rounded-full border px-3 py-1 text-xs ${categoria === c ? 'border-marca-magenta bg-marca-crema font-semibold text-marca-magenta-oscuro' : 'border-zinc-300 bg-white text-zinc-600'}`}
             >
               <span aria-hidden="true" className="mr-1">
                 {ICONO_CATEGORIA[c]}
@@ -106,65 +205,73 @@ export default function Entrenamientos() {
               type="button"
               key={String(d)}
               onClick={() => setDuracionMax(d)}
-              className={`rounded-full border px-3 py-1.5 text-xs ${duracionMax === d ? 'border-marca-magenta bg-marca-crema font-semibold text-marca-magenta-oscuro' : 'border-zinc-300 bg-white text-zinc-600'}`}
+              className={`rounded-full border px-3 py-1 text-xs ${duracionMax === d ? 'border-marca-magenta bg-marca-crema font-semibold text-marca-magenta-oscuro' : 'border-zinc-300 bg-white text-zinc-600'}`}
             >
               {d === null ? 'Cualquier duración' : `≤ ${d} min`}
             </button>
           ))}
         </div>
-        {ocultasPorEquipo > 0 && (
-          <p className="text-xs text-zinc-500">
-            {ocultasPorEquipo} {ocultasPorEquipo === 1 ? 'clase oculta' : 'clases ocultas'} por equipamiento (
-            <Link to="/perfil/editar" className="font-semibold text-marca-magenta">
-              editar
-            </Link>
-            )
-          </p>
-        )}
       </div>
 
+      {/* Lista de clases ordenadas por semana */}
       <div className="space-y-3">
-        {filtradas.map((s) => (
-          <Tarjeta key={s.id} className="relative">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate(`/entrenamientos/${s.id}`)}
-              onKeyDown={(e) => e.key === 'Enter' && navigate(`/entrenamientos/${s.id}`)}
-              className="flex cursor-pointer items-start gap-3"
-            >
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-marca-crema to-white text-2xl">
-                <span aria-hidden="true">{ICONO_CATEGORIA[s.categorias[0] ?? 'activacion']}</span>
+        {semanaFiltro === 'todas' && !categoria && duracionMax === null ? (
+          <>
+            {/* Introducción */}
+            {filtradas.filter((s) => s.semana === 0).length > 0 && (
+              <div className="space-y-2">
+                <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-500">Introducción</h2>
+                {filtradas.filter((s) => s.semana === 0).map(renderItemSesion)}
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-zinc-900">{s.titulo}</p>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-semibold text-zinc-600">{s.duracionMin} min</span>
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-600">{ETIQUETAS_NIVEL_SESION[s.nivel]}</span>
-                  {objetivo && s.objetivosCompatibles.includes(objetivo.tipo) && (
-                    <span className="rounded-full bg-marca-crema px-2 py-0.5 font-semibold text-marca-magenta-oscuro">Para tu objetivo</span>
-                  )}
-                  {(conteo.get(s.id) ?? 0) > 0 && (
-                    <span className="rounded-full bg-green-100 px-2 py-0.5 font-semibold text-green-700">
-                      ✓ Hecha {conteo.get(s.id)}×
-                    </span>
-                  )}
-                </div>
-              </div>
+            )}
+
+            {/* Semana 1 */}
+            <div className="space-y-2">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-marca-magenta">
+                📅 Semana 1 · Adaptación y Fundamentos
+              </h2>
+              {filtradas.filter((s) => s.semana === 1).map(renderItemSesion)}
             </div>
-            <button
-              type="button"
-              aria-label={favoritos.has(s.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-              onClick={() => void alternarFav(s.id)}
-              className={`absolute right-3 top-3 text-xl transition-transform active:scale-90 ${favoritos.has(s.id) ? 'opacity-100' : 'opacity-30'}`}
-            >
-              {favoritos.has(s.id) ? '⭐' : '☆'}
-            </button>
-          </Tarjeta>
-        ))}
+
+            {/* Semana 2 */}
+            <div className="space-y-2">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-marca-magenta">
+                📅 Semana 2 · Fuerza y Resistencia
+              </h2>
+              {filtradas.filter((s) => s.semana === 2).map(renderItemSesion)}
+            </div>
+
+            {/* Semana 3 */}
+            <div className="space-y-2">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-marca-magenta">
+                📅 Semana 3 · Tonificación y Control
+              </h2>
+              {filtradas.filter((s) => s.semana === 3).map(renderItemSesion)}
+            </div>
+
+            {/* Semana 4 */}
+            <div className="space-y-2">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-marca-magenta">
+                📅 Semana 4 · Máxima Intensidad y Cierre
+              </h2>
+              {filtradas.filter((s) => s.semana === 4).map(renderItemSesion)}
+            </div>
+
+            {/* Estiramientos */}
+            <div className="space-y-2">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-zinc-700">
+                🧘‍♀️ Estiramientos y Movilidad
+              </h2>
+              {filtradas.filter((s) => s.semana === 5).map(renderItemSesion)}
+            </div>
+          </>
+        ) : (
+          filtradas.map(renderItemSesion)
+        )}
+
         {filtradas.length === 0 && (
           <Tarjeta className="text-center">
-            <p className="text-sm text-zinc-500">No hay clases con esos filtros. Probá quitando alguno.</p>
+            <p className="text-sm text-zinc-500">No hay clases con esos filtros. Prueba seleccionando otra opción.</p>
           </Tarjeta>
         )}
       </div>
@@ -177,7 +284,7 @@ export default function Entrenamientos() {
               <li key={h.id} className="flex items-center justify-between text-sm">
                 <span className="truncate text-zinc-700">{obtenerSesion(h.workoutId)?.titulo ?? h.workoutId}</span>
                 <span className="ml-2 shrink-0 text-xs text-zinc-500">
-                  {new Date(h.fecha).toLocaleDateString('es-AR')} · {h.duracionRealMin ?? '?'} min
+                  {new Date(h.fecha).toLocaleDateString()} · {h.duracionRealMin ?? '—'} min
                 </span>
               </li>
             ))}
@@ -189,9 +296,10 @@ export default function Entrenamientos() {
       )}
 
       <p className="text-center text-xs text-zinc-400">
-        Actividad física: {ETIQUETAS_NIVEL_ACTIVIDAD[perfil.nivelActividad]}. Ante dolor, para y consultá a un
-        profesional.
+        Actividad física adaptada para {ETIQUETAS_NIVEL_ACTIVIDAD[perfil.nivelActividad]}. Ante cualquier molestia, detén el ejercicio y consulta a un profesional.
       </p>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

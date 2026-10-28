@@ -82,7 +82,7 @@ export default function EditarPerfil() {
       await recargar();
       navigate('/perfil');
     } catch {
-      setErrorGuardado('No se pudieron guardar los cambios. Revisá los campos e intentá de nuevo.');
+      setErrorGuardado('No se pudieron guardar los cambios. Revisa los campos e intenta de nuevo.');
     } finally {
       setGuardando(false);
     }
@@ -91,7 +91,7 @@ export default function EditarPerfil() {
   if (cargando || !perfil) return null;
 
   return (
-    <main className="mx-auto max-w-md px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md px-4 pb-48 pt-6">
       <h1 className="mb-4 text-2xl font-bold text-zinc-900">Editar perfil</h1>
       <div className="space-y-4">
         <Tarjeta>
@@ -119,6 +119,7 @@ export default function EditarPerfil() {
           </BotonPrimario>
         </div>
       </div>
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

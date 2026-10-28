@@ -1,5 +1,23 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 13) — Ajustes UX, Español Neutro, Ciclo Flexible, Catálogo Completo y Compilación Nativa APK
+- **Compilación Nativa de Android APK:**
+  compilación exitosa en local con Gradle 8.14.3, OpenJDK 21 y Android SDK 35/36 (`android/app/build/outputs/apk/debug/app-debug.apk`, ~5 MB).
+  Desplegado en Cloudflare con acceso directo para descarga en celular vía `https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk` y botones de descarga directa en pantalla de Inicio y Ajustes.
+- **Ciclo Menstrual flexible:**
+  calendario interactivo posicionado arriba con selección de día y navegación de meses; soporte para registrar períodos completos con rango de fechas personalizable (inicio y fin) o registros por día; métricas y episodios adaptados.
+- **Español neutro de Latinoamérica:**
+  reemplazo integral del voseo argentino por español neutro (completa, revisa, tienes, eres, puedes, haz, ingresa, elige, disfruta, aquí) en formularios, esquemas Zod, componentes y todas las pantallas.
+- **Catálogo de entrenamientos ordenado por semana:**
+  las 12 clases del programa + 2 de estiramientos organizadas por semana (Semana 1, Semana 2, Semana 3, Semana 4, Estiramientos) con pestañas dedicadas; las clases con mancuernas no se ocultan, sino que se destacan con badge informativo.
+- **Espaciado inferior y UX móvil:**
+  aumento de padding inferior (`pb-48` / `pb-52`) y espaciadores finales en todas las pantallas para evitar solapamientos con la barra de navegación del navegador o el sistema.
+- **Módulo de progreso flexible:**
+  selector de fecha personalizable (`<input type="date">` y calendario interactivo) para registrar o editar cualquier día pasado o futuro; función `borrarEntradaDiaria` con prueba unitaria dedicada.
+- **Botones de PDF:**
+  etiquetas simplificadas a "Descargar en PDF" (conservando la marca de agua interna TOTALHIIT).
+- **Verificación:** 183/183 pruebas unitarias en verde (`npm test`) y build TypeScript sin errores (`npm run build`).
+
 ## 2026-10-28 (sesión 12) — FASE 11 cerrada (distribución APK + PWA)
 - **Capacitor 8 para Android APK:**
   instalación de `@capacitor/core`, `@capacitor/cli`, `@capacitor/android` v8.6.0;

@@ -300,6 +300,10 @@ export async function obtenerEntradaDiaria(userId: string, fecha: string): Promi
   return db.entradasDiario.where('[userId+fecha]').equals([userId, fecha]).first();
 }
 
+export async function borrarEntradaDiaria(id: string): Promise<void> {
+  await db.entradasDiario.delete(id);
+}
+
 /** Todas las entradas del usuario, de más reciente a más vieja. */
 export async function entradasDiarias(userId: string, limiteDias?: number): Promise<EntradaDiario[]> {
   const filas = await db.entradasDiario.where('userId').equals(userId).toArray();

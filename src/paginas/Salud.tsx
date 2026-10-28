@@ -96,13 +96,13 @@ export default function Salud() {
 
   if (!perfil) {
     return (
-      <main className="mx-auto max-w-md px-4 pb-32 pt-6 text-center">
+      <main className="mx-auto max-w-md px-4 pb-48 pt-6 text-center">
         <Tarjeta>
           <p className="text-2xl" aria-hidden="true">
             📊
           </p>
           <h1 className="mt-2 text-xl font-bold text-zinc-900">Calculadoras de salud</h1>
-          <p className="mt-2 text-sm text-zinc-600">Completá tu perfil para calcularlas con tus datos.</p>
+          <p className="mt-2 text-sm text-zinc-600">Completa tu perfil para calcularlas con tus datos.</p>
           <Link to="/onboarding" className="mt-4 inline-block">
             <BotonPrimario>Completar mi perfil</BotonPrimario>
           </Link>
@@ -124,7 +124,7 @@ export default function Salud() {
   const proteina = objetivo ? calcularProteinaDiaria(peso, objetivo.tipo) : null;
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">Mi salud</h1>
         <p className="text-sm text-zinc-500">Cálculos orientativos con tus datos</p>
@@ -190,7 +190,7 @@ export default function Salud() {
         </div>
       ) : (
         <Tarjeta className="border-amber-300 bg-amber-50">
-          <p className="text-sm font-semibold text-amber-800">Ingresá peso y estatura válidos para ver tus cálculos.</p>
+          <p className="text-sm font-semibold text-amber-800">Ingresa peso y estatura válidos para ver tus cálculos.</p>
         </Tarjeta>
       )}
 
@@ -216,11 +216,11 @@ export default function Salud() {
       {tdee !== null && (
         <div className="grid grid-cols-2 gap-3">
           <Tarjeta className="border-dashed text-center">
-            <p className="text-xs font-semibold text-zinc-500">Si querés bajar de peso</p>
+            <p className="text-xs font-semibold text-zinc-500">Si quieres bajar de peso</p>
             <p className="text-lg font-extrabold text-zinc-900">≈ {numero.format(tdee - 500)} kcal</p>
           </Tarjeta>
           <Tarjeta className="border-dashed text-center">
-            <p className="text-xs font-semibold text-zinc-500">Si querés subir masa</p>
+            <p className="text-xs font-semibold text-zinc-500">Si quieres aumentar masa</p>
             <p className="text-lg font-extrabold text-zinc-900">≈ {numero.format(tdee + 300)} kcal</p>
           </Tarjeta>
         </div>
@@ -243,7 +243,7 @@ export default function Salud() {
             pie={
               objetivo
                 ? `Ajustada a tu objetivo: ${ETIQUETAS_OBJETIVO[objetivo.tipo]}.`
-                : 'Base 1,2 g/kg. Elegí un objetivo para afinarla.'
+                : 'Base 1,2 g/kg. Elige un objetivo para afinarla.'
             }
           />
         </div>
@@ -256,6 +256,8 @@ export default function Salud() {
           indicación clínica.
         </p>
       </Tarjeta>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

@@ -21,7 +21,7 @@ export default function Inicio() {
           </p>
           <h1 className="mt-2 text-lg font-bold text-zinc-900">Empecemos</h1>
           <p className="mt-2 text-sm text-zinc-600">
-            Configurá tu perfil para recibir entrenamientos y recetas pensadas para vos.
+            Configura tu perfil para recibir entrenamientos y recetas pensadas para ti.
           </p>
           <Link to="/onboarding" className="mt-4 inline-block">
             <BotonPrimario>Completar mi perfil</BotonPrimario>
@@ -32,17 +32,36 @@ export default function Inicio() {
   }
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <div>
         <p className="text-sm text-zinc-500">Hola,</p>
         <h1 className="text-2xl font-bold text-zinc-900">{perfil.alias} 👋</h1>
       </div>
 
+      <Tarjeta className="border border-purple-200 bg-purple-50">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">App para Android</p>
+            <p className="mt-1 text-sm font-semibold text-zinc-800">
+              Instala TOTALHIIT directamente en tu celular como app nativa.
+            </p>
+          </div>
+          <span className="text-2xl">📱</span>
+        </div>
+        <a
+          href="/totalhiit.apk"
+          download="totalhiit.apk"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition-colors hover:bg-marca-magenta-oscuro"
+        >
+          Descargar APK para Android
+        </a>
+      </Tarjeta>
+
       {objetivo && (
         <Tarjeta className="bg-marca-crema">
           <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta-oscuro">Tu objetivo</p>
           <p className="mt-1 text-lg font-bold text-zinc-900">{ETIQUETAS_OBJETIVO[objetivo.tipo]}</p>
-          <p className="mt-1 text-xs text-zinc-600">Se adapta a lo que hacés en Nutrición y Entrenamientos.</p>
+          <p className="mt-1 text-xs text-zinc-600">Se adapta a lo que haces en Nutrición y Entrenamientos.</p>
         </Tarjeta>
       )}
 
@@ -84,7 +103,7 @@ export default function Inicio() {
       <Tarjeta>
         <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Progreso y ciclo</p>
         <p className="mt-1 text-sm text-zinc-600">
-          Tus rachas, energía, sueño y —si lo activás— un calendario de ciclo privado y cifrado.
+          Tus rachas, energía, sueño y —si lo activas— un calendario de ciclo privado y cifrado.
         </p>
         <div className="mt-3 flex gap-3 text-sm font-semibold">
           <Link to="/progreso" className="text-marca-magenta">
@@ -95,6 +114,8 @@ export default function Inicio() {
           </Link>
         </div>
       </Tarjeta>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

@@ -54,7 +54,7 @@ export default function DetalleEntrenamiento() {
       duracionRealMin: sesion.duracionMin,
     });
     setHistorial(await sesionesDeWorkout(perfil.id, sesion.id));
-    setMensaje('¡Sesión registrada! Buenísimo 💜');
+    setMensaje('¡Sesión registrada! Excelente trabajo 💜');
   };
 
   const alternarFav = async () => {
@@ -65,7 +65,7 @@ export default function DetalleEntrenamiento() {
   const etiquetaEquipo = (valor: string) => EQUIPAMIENTO_OPCIONES.find((o) => o.valor === valor)?.etiqueta ?? valor;
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <button type="button" onClick={() => navigate('/entrenamientos')} className="text-sm font-semibold text-marca-magenta">
         ← Entrenamientos
       </button>
@@ -125,13 +125,13 @@ export default function DetalleEntrenamiento() {
       <Tarjeta>
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-marca-magenta">Tu historial en esta clase</h2>
         {historial.length === 0 ? (
-          <p className="text-sm text-zinc-500">Todavía no la registraste. Cuando la completes, va a aparecer acá.</p>
+          <p className="text-sm text-zinc-500">Todavía no la has registrado. Cuando la completes, aparecerá aquí.</p>
         ) : (
           <ul className="space-y-1.5">
             {historial.map((h) => (
               <li key={h.id} className="flex items-center justify-between text-sm text-zinc-700">
-                <span>✓ {new Date(h.fecha).toLocaleDateString('es-AR')}</span>
-                <span className="text-xs text-zinc-500">{h.duracionRealMin ?? '?'} min</span>
+                <span>✓ {new Date(h.fecha).toLocaleDateString()}</span>
+                <span className="text-xs text-zinc-500">{h.duracionRealMin ?? '—'} min</span>
               </li>
             ))}
           </ul>
@@ -141,6 +141,8 @@ export default function DetalleEntrenamiento() {
       <p className="text-center text-xs text-zinc-400">
         Aviso de salud: esta app es orientativa y no reemplaza el consejo de profesionales.
       </p>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

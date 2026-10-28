@@ -24,14 +24,14 @@ export default function Perfil() {
 
   if (!perfil) {
     return (
-      <main className="mx-auto max-w-md px-4 pb-32 pt-6 text-center">
+      <main className="mx-auto max-w-md px-4 pb-48 pt-6 text-center">
         <Tarjeta>
           <p className="text-2xl" aria-hidden="true">
             👋
           </p>
-          <h1 className="mt-2 text-xl font-bold text-zinc-900">Todavía no configuraste tu perfil</h1>
+          <h1 className="mt-2 text-xl font-bold text-zinc-900">Todavía no has configurado tu perfil</h1>
           <p className="mt-2 text-sm text-zinc-600">
-            Completalo para personalizar tus entrenamientos y recetas.
+            Complétalo para personalizar tus entrenamientos y recetas.
           </p>
           <Link to="/onboarding" className="mt-4 inline-block">
             <BotonPrimario>Completar mi perfil</BotonPrimario>
@@ -42,7 +42,7 @@ export default function Perfil() {
   }
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-zinc-900">Mi perfil</h1>
         <Link to="/perfil/editar" className="text-sm font-semibold text-marca-magenta">
@@ -70,10 +70,10 @@ export default function Perfil() {
         {objetivo ? (
           <>
             <EtiquetaDato rotulo="Actual" valor={ETIQUETAS_OBJETIVO[objetivo.tipo]} />
-            <EtiquetaDato rotulo="Desde" valor={new Date(objetivo.desde).toLocaleDateString('es-AR')} />
+            <EtiquetaDato rotulo="Desde" valor={new Date(objetivo.desde).toLocaleDateString()} />
           </>
         ) : (
-          <p className="text-sm text-zinc-500">Sin objetivo activo. Elegilo en “Editar”.</p>
+          <p className="text-sm text-zinc-500">Sin objetivo activo. Elígelo en “Editar”.</p>
         )}
       </Tarjeta>
 
@@ -98,6 +98,8 @@ export default function Perfil() {
         )}
         {preferencias && <EtiquetaDato rotulo="Porciones" valor={`${preferencias.porcionesHabituales} personas`} />}
       </Tarjeta>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

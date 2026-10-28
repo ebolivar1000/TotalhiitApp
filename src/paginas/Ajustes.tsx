@@ -35,7 +35,7 @@ export default function Ajustes() {
   };
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <h1 className="text-2xl font-bold text-zinc-900">Ajustes</h1>
 
       <Tarjeta>
@@ -118,9 +118,23 @@ export default function Ajustes() {
       </Tarjeta>
 
       <Tarjeta>
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-marca-magenta">Aplicación Android</h2>
+        <p className="mb-3 text-sm text-zinc-600">
+          Descarga e instala la app directamente en tu teléfono Android (archivo APK).
+        </p>
+        <a
+          href="/totalhiit.apk"
+          download="totalhiit.apk"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-5 py-3 font-semibold text-white transition-colors hover:bg-marca-magenta-oscuro"
+        >
+          📱 Descargar APK para Android
+        </a>
+      </Tarjeta>
+
+      <Tarjeta>
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-marca-magenta">Mis datos</h2>
         <p className="mb-3 text-sm text-zinc-600">
-          Todo se guarda solo en este dispositivo. Podés llevártelo cuando quieras.
+          Todo se guarda solo en este dispositivo. Puedes exportarlos cuando quieras.
         </p>
         <div className="space-y-3">
           <BotonSecundario onClick={() => void exportar()} className="w-full">
@@ -160,7 +174,7 @@ export default function Ajustes() {
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-marca-magenta">Privacidad</h2>
         <ul className="list-inside list-disc space-y-1 text-sm text-zinc-600">
           <li>Tus datos no se suben a ningún servidor sin tu consentimiento.</li>
-          <li>Las funciones de salud son opt-in y revocables desde acá.</li>
+          <li>Las funciones de salud son opcionales y revocables desde aquí.</li>
           <li>Consentimientos activos: {VERSIONES_CONSENTIMIENTO.perfil ? 'perfil v1' : '—'}, salud general v1, menstrual v1.</li>
           <li>Al borrar tus datos también se revocan los consentimientos.</li>
         </ul>
@@ -176,6 +190,8 @@ export default function Ajustes() {
           antes de cambiar tu rutina o tu alimentación.
         </p>
       </Tarjeta>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

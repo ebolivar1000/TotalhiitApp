@@ -106,7 +106,7 @@ export function SeccionDatos({ form }: { form: FormPerfilApi }) {
       <Campo
         etiqueta="Equipamiento disponible"
         error={errores.equipamiento?.message}
-        ayuda="Elegí todo lo que tengas a mano. Podés cambiarlo después."
+        ayuda="Elige todo lo que tengas a mano. Puedes cambiarlo después."
       >
         <ChipsMulti opciones={EQUIPAMIENTO_OPCIONES} valor={equipamiento} onChange={(n) => setValue('equipamiento', n as FormPerfil['equipamiento'], { shouldValidate: true })} />
       </Campo>
@@ -114,7 +114,7 @@ export function SeccionDatos({ form }: { form: FormPerfilApi }) {
         <Selector id="genero" opciones={GENERO_OPCIONES} incluirVacio="Prefiero no decir" {...register('genero')} />
       </Campo>
       <Campo etiqueta="País o región (opcional)" htmlFor="paisRegion" ayuda="Para adaptar ingredientes a tu zona.">
-        <EntradaTexto id="paisRegion" placeholder="Ej: Argentina" {...register('paisRegion')} />
+        <EntradaTexto id="paisRegion" placeholder="Ej: México, Colombia, Argentina" {...register('paisRegion')} />
       </Campo>
     </div>
   );
@@ -125,7 +125,7 @@ export function SeccionObjetivo({ form }: { form: FormPerfilApi }) {
   const tipo = watch('tipo');
   return (
     <div className="space-y-3">
-      <p className="text-sm text-zinc-600">Elegí tu objetivo principal. Podés cambiarlo cuando quieras sin perder tu historial.</p>
+      <p className="text-sm text-zinc-600">Elige tu objetivo principal. Puedes cambiarlo cuando quieras sin perder tu historial.</p>
       <RadioCards opciones={OPCIONES_OBJETIVO} valor={tipo} onChange={(v) => setValue('tipo', v as FormPerfil['tipo'], { shouldValidate: true })} />
       {formState.errors.tipo?.message && <p className="text-xs font-semibold text-red-600">{formState.errors.tipo.message}</p>}
     </div>
@@ -140,10 +140,10 @@ export function SeccionPreferencias({ form }: { form: FormPerfilApi }) {
   return (
     <div className="space-y-4">
       <Campo etiqueta="Alérgenos e intolerancias" error={errores.alergenos?.message} ayuda="El motor de recetas jamás te sugerirá algo con estos ingredientes.">
-        <ChipInput opcionesSugeridas={ALERGENOS_COMUNES} valor={alergenos} onChange={(n) => setValue('alergenos', n, { shouldValidate: true })} placeholder="Ej: Ajoba…" />
+        <ChipInput opcionesSugeridas={ALERGENOS_COMUNES} valor={alergenos} onChange={(n) => setValue('alergenos', n, { shouldValidate: true })} placeholder="Ej: Cacahuate, nueces…" />
       </Campo>
-      <Campo etiqueta="Alimentos que querés excluir" error={errores.exclusiones?.message} ayuda="Por gusto, preferencia o dieta. Ej: cerdo, bebidas gaseosas.">
-        <ChipInput opcionesSugeridas={['Cerdo', 'Embutidos', 'Frituras', 'Bebidas gaseosas']} valor={exclusiones} onChange={(n) => setValue('exclusiones', n, { shouldValidate: true })} />
+      <Campo etiqueta="Alimentos que quieres excluir" error={errores.exclusiones?.message} ayuda="Por gusto, preferencia o dieta. Ej: cerdo, refrescos o gaseosas.">
+        <ChipInput opcionesSugeridas={['Cerdo', 'Embutidos', 'Frituras', 'Refrescos / Gaseosas']} valor={exclusiones} onChange={(n) => setValue('exclusiones', n, { shouldValidate: true })} />
       </Campo>
       <div className="grid grid-cols-2 gap-3">
         <Campo etiqueta="Tiempo para cocinar" htmlFor="tiempoCocina" ayuda="Máximo por comida.">

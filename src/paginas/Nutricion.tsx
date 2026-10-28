@@ -69,12 +69,12 @@ export default function Nutricion() {
   if (cargando || !perfil) return null;
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">Nutrición</h1>
           <p className="text-sm text-zinc-500">
-            {objetivo ? `Ordenadas para: ${ETIQUETAS_OBJETIVO[objetivo.tipo]}` : 'Elegí tu objetivo para priorizarlas'}
+            {objetivo ? `Ordenadas para: ${ETIQUETAS_OBJETIVO[objetivo.tipo]}` : 'Elige tu objetivo para priorizarlas'}
           </p>
         </div>
         <Link to="/perfil/editar" className="shrink-0 text-xs font-semibold text-marca-magenta">
@@ -92,7 +92,7 @@ export default function Nutricion() {
       )}
 
       <EntradaTexto
-        placeholder="¿Qué tenés en casa? Ej: espinaca"
+        placeholder="¿Qué tienes en casa? Ej: espinaca, pollo"
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
         aria-label="Buscar por ingrediente"
@@ -177,7 +177,7 @@ export default function Nutricion() {
         ))}
         {filtradas.length === 0 && (
           <Tarjeta className="text-center">
-            <p className="text-sm text-zinc-500">No hay recetas con esos filtros. Probá quitando alguno.</p>
+            <p className="text-sm text-zinc-500">No hay recetas con esos filtros. Prueba quitando alguno.</p>
           </Tarjeta>
         )}
       </div>
@@ -186,6 +186,8 @@ export default function Nutricion() {
         Valores nutricionales aproximados (elaborados con tablas de dominio público USDA FoodData Central).
         No constituyen indicación clínica.
       </p>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

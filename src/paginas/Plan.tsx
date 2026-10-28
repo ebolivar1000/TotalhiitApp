@@ -54,9 +54,9 @@ export default function Plan() {
 
   if (!perfil) {
     return (
-      <main className="mx-auto max-w-md px-4 pb-32 pt-6 text-center">
+      <main className="mx-auto max-w-md px-4 pb-48 pt-6 text-center">
         <Tarjeta>
-          <p className="text-sm text-zinc-600">Completá tu perfil para armar tu plan.</p>
+          <p className="text-sm text-zinc-600">Completa tu perfil para organizar tu plan.</p>
           <Link to="/onboarding" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
             Ir al onboarding
           </Link>
@@ -96,16 +96,16 @@ export default function Plan() {
       const logo = await cargarLogoPdf();
       const bytes = await generarPdfPlan(plan, obtenerReceta, { logoBytes: logo });
       descargarPdf(bytes, nombreArchivoPdfPlan(plan.semanaInicio));
-      setMensaje('PDF del plan descargado (con marca de agua).');
+      setMensaje('PDF del plan descargado.');
     } catch {
-      setMensaje('No se pudo generar el PDF. Intentá de nuevo.');
+      setMensaje('No se pudo generar el PDF. Intenta de nuevo.');
     } finally {
       setGenerandoPdf(false);
     }
   };
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <div>
         <h1 className="text-xl font-bold text-zinc-900">Plan semanal</h1>
         <p className="text-sm text-zinc-500">
@@ -119,12 +119,12 @@ export default function Plan() {
           <p className="text-3xl" aria-hidden="true">
             🍽️
           </p>
-          <h2 className="mt-2 font-bold text-zinc-900">Armá tu menú de la semana</h2>
+          <h2 className="mt-2 font-bold text-zinc-900">Organiza tu menú de la semana</h2>
           <p className="mt-1 text-sm text-zinc-600">
             Desayuno, almuerzo, cena y snack para los 7 días, respetando tus alérgenos, tu presupuesto y tu
-            objetivo. Después podés cambiar cualquier comida.
+            objetivo. Después puedes cambiar cualquier comida.
           </p>
-          <BotonPrimario className="mt-4 w-full" onClick={() => void generar('Plan generado. Cambiá lo que quieras.')}>
+          <BotonPrimario className="mt-4 w-full" onClick={() => void generar('Plan generado. Cambia lo que quieras.')}>
             Generar mi plan
           </BotonPrimario>
         </Tarjeta>
@@ -141,7 +141,7 @@ export default function Plan() {
               {mostrandoCompras ? 'Ocultar compras' : 'Compras'}
             </BotonSecundario>
             <BotonPrimario className="px-2 text-sm" disabled={generandoPdf} onClick={() => void descargar()}>
-              {generandoPdf ? 'Generando…' : 'PDF'}
+              {generandoPdf ? 'Generando…' : '📄 Descargar en PDF'}
             </BotonPrimario>
           </div>
 
@@ -212,6 +212,8 @@ export default function Plan() {
         Macros aproximados (USDA FoodData Central). El plan es orientativo y no reemplaza el consejo de
         profesionales de la salud.
       </p>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

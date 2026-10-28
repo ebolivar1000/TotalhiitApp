@@ -66,7 +66,7 @@ export default function DetalleReceta() {
   const preparar = async () => {
     await registrarPreparacion({ userId: perfil.id, recetaId: receta.id, fecha: fechaHoyIso(), porciones });
     setHistorial(await preparacionesDeReceta(perfil.id, receta.id));
-    setMensaje('¡Registrada! Disfrutá tu plato 💜');
+    setMensaje('¡Registrada! Disfruta tu plato 💜');
   };
 
   const alternarFav = async () => {
@@ -90,7 +90,7 @@ export default function DetalleReceta() {
   };
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-32 pt-6">
+    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       <Link to="/nutricion" className="text-sm font-semibold text-marca-magenta">
         ← Nutrición
       </Link>
@@ -204,7 +204,7 @@ export default function DetalleReceta() {
       {mensaje && <p className="text-center text-sm font-semibold text-green-700">{mensaje}</p>}
 
       <BotonSecundario onClick={() => void descargar()} disabled={generandoPdf} className="w-full">
-        {generandoPdf ? 'Generando PDF…' : '⬇ Descargar PDF con marca de agua'}
+        {generandoPdf ? 'Generando PDF…' : '📄 Descargar en PDF'}
       </BotonSecundario>
 
       {historial.length > 0 && (
@@ -213,7 +213,7 @@ export default function DetalleReceta() {
           <ul className="space-y-1.5">
             {historial.map((p) => (
               <li key={p.id} className="flex items-center justify-between text-sm text-zinc-700">
-                <span>✓ {new Date(p.fecha).toLocaleDateString('es-AR')}</span>
+                <span>✓ {new Date(p.fecha).toLocaleDateString()}</span>
                 <span className="text-xs text-zinc-500">{p.porciones} porciones</span>
               </li>
             ))}
@@ -234,8 +234,10 @@ export default function DetalleReceta() {
 
       <p className="text-center text-xs text-zinc-400">
         Valores aproximados elaborados con tablas de dominio público (USDA FoodData Central). No constituyen
-        indicación clínica; consultá a un profesional para planes personalizados.
+        indicación clínica; consulta a un profesional para planes personalizados.
       </p>
+
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );
 }

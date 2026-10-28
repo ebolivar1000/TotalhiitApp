@@ -66,7 +66,7 @@ export function ReproductorVideo({ youtubeId, titulo }: { youtubeId: string; tit
                 <p className="text-2xl" aria-hidden="true">
                   ⚠️
                 </p>
-                <p className="text-sm font-semibold text-white">No pudimos cargar el video acá</p>
+                <p className="text-sm font-semibold text-white">No pudimos cargar el video aquí</p>
                 <a
                   href={`https://www.youtube.com/watch?v=${youtubeId}`}
                   target="_blank"

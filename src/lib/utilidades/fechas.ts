@@ -16,6 +16,13 @@ export function isoAFecha(iso: string): Date {
   return new Date(y, m - 1, d);
 }
 
+/** Formato corto de fecha DD/MM/YYYY */
+export function fechaCorta(iso: string): string {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
 /**
  * Edad cumplida a partir de una fecha de nacimiento YYYY-MM-DD.
  * Referencia inyectable para pruebas.

@@ -61,6 +61,14 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
 - **HOTFIX ONBOARDING & UI MÓVIL ✅** — resuelto y desplegado:
   1. Espacio inferior en móviles: corrección de regla CSS en `.safe-area-inferior` y espaciadores de seguridad en `<main>` para evitar que la barra fija tape el último campo en navegadores móviles (ej. país en paso 2).
   2. Bucle infinito en paso 5: sincronización reactiva global de `usePerfil` (`useSyncExternalStore`) y bandera persistente `LLAVE_ONBOARDING_COMPLETADO`, evitando que `App.tsx` desvíe de nuevo a `/onboarding` tras finalizar. 182/182 pruebas en verde.
+- **AJUSTES UX, ESPAÑOL NEUTRO Y APK ANDROID COMPILADO ✅** — resuelto y desplegado:
+  1. Compilación nativa y empaquetado del APK de Android con Gradle 8.14.3, OpenJDK 21 y Android SDK 35/36 (`totalhiit.apk`, ~5 MB), desplegado directamente en Cloudflare para descarga directa en el móvil.
+  2. Ciclo Menstrual flexible: calendario posicionado arriba, registro por día y por período completo con selector de fechas de inicio y fin.
+  3. Español neutro latinoamericano en todos los módulos (reemplazo integral de formas argentinas).
+  4. Entrenamientos organizados por semana (Semana 1..4 y Estiramientos) con las 14 clases completas y visibles.
+  5. Botones simplificados a "Descargar en PDF" con marca de agua interna conservada.
+  6. Progreso con fecha personalizable (pasado y futuro) y borrado de registros diarios.
+  7. Espaciado inferior holgado (`pb-48` / `pb-52`) en todas las vistas. 183/183 pruebas en verde.
 - **FASE 12 (evolución post-MVP): próxima** — IA opcional, panel admin, nuevas
   métricas, accesibilidad e internacionalización.
 

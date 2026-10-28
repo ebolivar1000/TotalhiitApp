@@ -37,6 +37,7 @@ import {
   preparacionesDeReceta,
   guardarEntradaDiaria,
   obtenerEntradaDiaria,
+  borrarEntradaDiaria,
   entradasDiarias,
   entradasEntre,
   guardarRegistroCiclo,
@@ -288,6 +289,14 @@ describe('registro diario (FASE 7)', () => {
     expect(rango).toHaveLength(2);
     expect((await obtenerEntradaDiaria(perfil.id, '2026-10-28'))?.vasosAgua).toBe(5);
     expect(await obtenerEntradaDiaria(perfil.id, '2026-10-30')).toBeUndefined();
+  });
+
+  it('borra una entrada diaria por id', async () => {
+    const perfil = await guardarPerfil(entradaPerfil);
+    const entrada = await guardarEntradaDiaria(perfil.id, '2026-10-28', { vasosAgua: 5 });
+    expect(await obtenerEntradaDiaria(perfil.id, '2026-10-28')).toBeDefined();
+    await borrarEntradaDiaria(entrada.id);
+    expect(await obtenerEntradaDiaria(perfil.id, '2026-10-28')).toBeUndefined();
   });
 });
 
