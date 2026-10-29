@@ -1,5 +1,26 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-29 (sesión 18) — Renovación Integral del Ciclo Menstrual (Estilo Flo/Clue), Autocarga del Menú Semanal y Banners Temáticos de Valentina
+- **Incorporación y Optimización de las 6 Fotografías de Valentina:**
+  - Archivos procesados con bicubic interpolation a 1600px y 85% de calidad JPEG, reduciendo el peso de ~2.5 MB por archivo a ~145 KB sin pérdida perceptible de nitidez.
+  - Banners actualizados en toda la app:
+    * `banner-salud.jpg` y `valen-salud-agua.jpg`: Valentina bebiendo agua junto a la ventana.
+    * `banner-objetivo.jpg` y `valen-objetivo-rutina.jpg`: Valentina atándose las zapatillas lista para entrenar con preparación saludable.
+    * `banner-progreso.jpg` y `valen-progreso-metricas.jpg`: Smartwatch, libreta de registro y cinta métrica en estudio de fitness.
+    * `banner-nutricion.jpg` y `valen-nutricion-salmon.jpg`: Valentina con plato de salmón a la plancha y vegetales al vapor.
+    * `banner-entrenamiento.jpg` y `valen-entrenamiento-gym.jpg`: Valentina en el gimnasio estirando cuádriceps con mancuernas y bandas.
+    * `banner-plan.jpg` y `valen-plan-comidas.jpg`: Composición cenital de superalimentos (quinua, garbanzos, palta, aceite de oliva, frutos secos).
+- **Corrección de "Ver mi plan semanal" en Inicio:**
+  - En `Plan.tsx` y `repositorio.ts`, se eliminó el bloqueo de pantalla en blanco (`return null;`) reemplazándolo por un indicador visual animado de carga.
+  - Se implementó auto-generación inicial determinista del plan: al ingresar a `/plan`, si aún no existe menú para la semana en curso, se genera y persiste automáticamente respetando alérgenos y objetivos, evitando pantallas vacías.
+  - Fallback defensivo en consulta IndexedDB (`db.planes.where`) para evitar excepciones no controladas.
+- **Módulo de Ciclo Menstrual Renovado (Funcionalidad y UX estilo Flo / Clue):**
+  - **Hero Card "¿En qué semana estás hoy?":** Widget destacado que indica el día exacto del ciclo (`Día X de tu ciclo`), nombre de la fase fisiológica (`Fase Menstrual`, `Fase Folicular`, `Fase Ovulatoria`, `Fase Lútea`), ícono representativo, descripción y barra de progreso de las 4 semanas.
+  - **Conexión Directa con Entrenamientos de Totalhiit:** Recomendación de entrenamiento adaptada a la energía de la fase y botón directo `▶️ Ir a videos de la Semana {X}` que abre `/entrenamientos?semana={X}` filtrando de inmediato los videos correspondientes.
+  - **Panel de Métricas y Estimaciones:** Próximo período con cuenta regresiva (*"Faltan X días"*, *"Mañana"*, *"Hoy"* o *"Retraso de X días"*), duración promedio del ciclo, variación promedio en días (`± X días`) y duración habitual de sangrado.
+  - **Seguimiento Mes a Mes:** Historial estructurado mes a mes con fechas de inicio y fin de sangrado, duración total del ciclo entre períodos y badge de regularidad.
+- **Verificación:** 196/196 pruebas unitarias pasando (`npm test`), build web sincronizado y APK Android compilado (`18.6 MB`). Desplegado en Cloudflare Workers y respaldado en Git.
+
 ## 2026-10-29 (sesión 17) — Validación y Cumplimiento Integral para Amazon Appstore (Fire OS y Tablets)
 - **Auditoría Técnica y de Políticas para Amazon Appstore:**
   evaluación exhaustiva contra la documentación oficial de Amazon Appstore Submission (`developer.amazon.com/docs/app-submission/getting-started.html`).
