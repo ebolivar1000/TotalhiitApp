@@ -27,6 +27,12 @@ export const esquemaPerfilFormulario = z.object({
   experiencia: userProfileSchema.shape.experiencia,
   equipamiento: z.array(userProfileSchema.shape.equipamiento.unwrap().element),
   paisRegion: userProfileSchema.shape.paisRegion,
+  emailGoogle: z
+    .string()
+    .trim()
+    .email('Ingresa un correo electrónico válido')
+    .optional()
+    .or(z.literal('')),
   tipo: z.enum(OBJETIVOS, { message: 'Elige un objetivo para personalizar la app' }),
   alergenos: nutritionPreferencesSchema.shape.alergenos,
   exclusiones: nutritionPreferencesSchema.shape.exclusiones,
@@ -49,6 +55,7 @@ export const valoresInicialesPerfil: FormPerfil = {
   experiencia: 'principiante',
   equipamiento: [],
   paisRegion: '',
+  emailGoogle: '',
   tipo: undefined as unknown as FormPerfil['tipo'],
   alergenos: [],
   exclusiones: [],

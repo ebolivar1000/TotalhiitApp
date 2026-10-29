@@ -116,6 +116,19 @@ export function SeccionDatos({ form }: { form: FormPerfilApi }) {
       <Campo etiqueta="País o región (opcional)" htmlFor="paisRegion" ayuda="Para adaptar ingredientes a tu zona.">
         <EntradaTexto id="paisRegion" placeholder="Ej: México, Colombia, Argentina" {...register('paisRegion')} />
       </Campo>
+      <Campo
+        etiqueta="Correo de Google / Gmail (@gmail.com)"
+        htmlFor="emailGoogle"
+        error={errores.emailGoogle?.message}
+        ayuda="Tu correo de Gmail para tener acceso a los videos privados en YouTube. Opcional (puedes agregarlo luego)."
+      >
+        <EntradaTexto
+          id="emailGoogle"
+          type="email"
+          placeholder="tu.correo@gmail.com"
+          {...register('emailGoogle')}
+        />
+      </Campo>
     </div>
   );
 }

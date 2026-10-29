@@ -6,6 +6,7 @@ import { VERSIONES_CONSENTIMIENTO } from '../lib/datos/entidades';
 import { fechaHoyIso } from '../lib/utilidades/fechas';
 import { LLAVE_ONBOARDING_COMPLETADO, LLAVE_ONBOARDING_SALTADO, usePerfil } from '../hooks/usePerfil';
 import { obtenerSesionActual, type SesionAuth } from '../lib/auth/auth';
+import { consultarActualizacion, VERSION_ACTUAL, type ResultadoActualizacion } from '../lib/version/actualizador';
 
 export default function Ajustes() {
   const { cargando, perfil, recargar } = usePerfil();
@@ -14,6 +15,15 @@ export default function Ajustes() {
   const [sesion] = useState<SesionAuth>(() => obtenerSesionActual());
   const [syncNube, setSyncNube] = useState(false);
   const [cicloSoloLocal, setCicloSoloLocal] = useState(true);
+  const [estadoActualizacion, setEstadoActualizacion] = useState<ResultadoActualizacion | null>(null);
+  const [buscandoActualizacion, setBuscandoActualizacion] = useState(false);
+
+  const verificarVersion = async () => {
+    setBuscandoActualizacion(true);
+    const res = await consultarActualizacion();
+    setEstadoActualizacion(res);
+    setBuscandoActualizacion(false);
+  };
 
   const exportar = async () => {
     const datos = await exportarDatos();
@@ -118,17 +128,61 @@ export default function Ajustes() {
       </Tarjeta>
 
       <Tarjeta>
-        <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-marca-magenta">Aplicación Android</h2>
-        <p className="mb-3 text-sm text-zinc-600">
-          Descarga e instala la app directamente en tu teléfono Android (archivo APK).
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-marca-magenta">
+            Actualización de la App
+          </h2>
+          <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-bold text-marca-magenta">
+            v{VERSION_ACTUAL}
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-zinc-600">
+          Puedes actualizar la app con un solo clic sin perder tus datos, entrenamientos ni configuraciones.
         </p>
-        <a
-          href="/totalhiit.apk"
-          download="totalhiit.apk"
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-5 py-3 font-semibold text-white transition-colors hover:bg-marca-magenta-oscuro"
-        >
-          📱 Descargar APK para Android
-        </a>
+
+        <div className="mt-3 space-y-2">
+          {estadoActualizacion && (
+            <div
+              className={`rounded-xl p-3 text-xs ${
+                estadoActualizacion.disponible
+                  ? 'border border-green-200 bg-green-50 text-green-900'
+                  : 'border border-zinc-200 bg-zinc-50 text-zinc-700'
+              }`}
+            >
+              <p className="font-semibold">{estadoActualizacion.mensaje}</p>
+              {estadoActualizacion.versionRemota?.novedades &&
+                estadoActualizacion.versionRemota.novedades.length > 0 && (
+                  <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-[11px] text-zinc-600">
+                    {estadoActualizacion.versionRemota.novedades.map((n, i) => (
+                      <li key={i}>{n}</li>
+                    ))}
+                  </ul>
+                )}
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <BotonSecundario
+              onClick={() => void verificarVersion()}
+              disabled={buscandoActualizacion}
+              className="flex-1 text-xs"
+            >
+              {buscandoActualizacion ? 'Verificando…' : '🔍 Buscar actualización'}
+            </BotonSecundario>
+
+            <a
+              href="/totalhiit.apk"
+              download="totalhiit.apk"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-marca-magenta px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-marca-magenta-oscuro text-center"
+            >
+              🔄 Actualizar APK
+            </a>
+          </div>
+
+          <p className="text-[11px] text-zinc-400">
+            💡 Nota: Android instalará la actualización directamente sobre tu versión actual, conservando todos tus datos.
+          </p>
+        </div>
       </Tarjeta>
 
       <Tarjeta>

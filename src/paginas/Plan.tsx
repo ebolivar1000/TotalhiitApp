@@ -95,8 +95,8 @@ export default function Plan() {
       const { generarPdfPlan, descargarPdf, nombreArchivoPdfPlan, cargarLogoPdf } = await import('../lib/nutricion/pdf');
       const logo = await cargarLogoPdf();
       const bytes = await generarPdfPlan(plan, obtenerReceta, { logoBytes: logo });
-      descargarPdf(bytes, nombreArchivoPdfPlan(plan.semanaInicio));
-      setMensaje('PDF del plan descargado.');
+      await descargarPdf(bytes, nombreArchivoPdfPlan(plan.semanaInicio));
+      setMensaje('¡PDF del plan descargado con éxito! Revisa tus descargas o archivos.');
     } catch {
       setMensaje('No se pudo generar el PDF. Intenta de nuevo.');
     } finally {

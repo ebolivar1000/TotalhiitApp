@@ -63,6 +63,10 @@ export default function Perfil() {
           valor={perfil.equipamiento.map(etiquetaEquipamiento).join(', ') || '—'}
         />
         {perfil.paisRegion && <EtiquetaDato rotulo="Región" valor={perfil.paisRegion} />}
+        <EtiquetaDato
+          rotulo="Cuenta Google"
+          valor={perfil.emailGoogle || 'No configurada (necesaria para videos privados)'}
+        />
       </Tarjeta>
 
       <Tarjeta>

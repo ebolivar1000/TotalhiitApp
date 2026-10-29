@@ -76,14 +76,16 @@ export default function DetalleReceta() {
 
   const descargar = async () => {
     setGenerandoPdf(true);
+    setMensaje('');
     try {
       // Import dinámico: pdf-lib (~1 MB) solo se descarga cuando se genera el PDF.
       const { generarPdfReceta, descargarPdf, nombreArchivoPdf, cargarLogoPdf } = await import('../lib/nutricion/pdf');
       const logo = await cargarLogoPdf();
       const bytes = await generarPdfReceta(receta, porciones, { logoBytes: logo });
-      descargarPdf(bytes, nombreArchivoPdf(receta));
+      await descargarPdf(bytes, nombreArchivoPdf(receta));
+      setMensaje('¡PDF descargado con éxito! Revisa tus descargas o archivos.');
     } catch {
-      setMensaje('No se pudo generar el PDF. Intentá de nuevo.');
+      setMensaje('No se pudo generar o descargar el PDF. Intenta de nuevo.');
     } finally {
       setGenerandoPdf(false);
     }

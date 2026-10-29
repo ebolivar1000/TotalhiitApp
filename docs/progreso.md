@@ -1,5 +1,14 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-28 (sesión 14) — Descarga Nativa de PDFs, Acceso a Videos Privados con Gmail y Actualizador In-App
+- **Descarga y guardado de PDFs nativo y multiplataforma:**
+  integración de `@capacitor/filesystem` (v8.1.5) y `@capacitor/share` (v8.0.3). En Android APK, el PDF se escribe en caché y se comparte directamente mediante la hoja nativa del sistema (Guardar en Descargas, Drive, Abrir con PDF viewer, etc.). En navegadores móviles se usa Web Share con `new File(...)`, y en escritorio descarga directa con revocado diferido de Blob URL (60s). Mensajes claros de confirmación en `DetalleReceta.tsx` y `Plan.tsx`.
+- **Acceso a videos privados de YouTube con cuenta Google (@gmail.com):**
+  campo `emailGoogle` añadido al perfil (`userProfileSchema`, `esquemaPerfilFormulario`, `Secciones.tsx`, `Onboarding.tsx`, `EditarPerfil.tsx`, `Perfil.tsx`). Reproductor de video actualizado a `youtube.com/embed` con panel de autorización y botón de acción directa `▶️ Abrir en la app de YouTube con Google`, permitiendo que la usuaria aproveche su sesión activa de Google para visualizar videos privados autorizados.
+- **Sistema de actualización in-app sin reinstalar ni perder datos:**
+  manifiesto `public/version.json` (`v1.0.1`, build 2), módulo `src/lib/version/actualizador.ts` con comprobación sin caché y pruebas unitarias (3/3). Tarjeta "Actualización de la App" en `/ajustes` con botón "Buscar actualización" y descarga directa del APK. En Android, la instalación sobre la app existente preserva intacta la base de datos local (Dexie), sin desinstalar ni perder avances.
+- **Verificación:** 186/186 pruebas unitarias en verde (`npm test`) y build `tsc -b && vite build` impecable. APK Android compilado (`17.7 MB`) y desplegado en Cloudflare Workers.
+
 ## 2026-10-28 (sesión 13) — Ajustes UX, Español Neutro, Ciclo Flexible, Catálogo Completo y Compilación Nativa APK
 - **Compilación Nativa de Android APK:**
   compilación exitosa en local con Gradle 8.14.3, OpenJDK 21 y Android SDK 35/36 (`android/app/build/outputs/apk/debug/app-debug.apk`, ~5 MB).

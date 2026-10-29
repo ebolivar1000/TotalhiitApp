@@ -112,6 +112,7 @@ export default function Onboarding() {
           experiencia: d.experiencia,
           equipamiento: d.equipamiento,
           paisRegion: d.paisRegion || undefined,
+          emailGoogle: d.emailGoogle?.trim() || undefined,
         });
         await registrarObjetivo(perfil.id, d.tipo);
         await guardarPreferencias(perfil.id, {

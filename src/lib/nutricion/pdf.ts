@@ -382,15 +382,84 @@ export async function cargarLogoPdf(): Promise<Uint8Array | undefined> {
   }
 }
 
-/** Descarga el PDF en el navegador (Android WebView y Safari lo muestran/comparten). */
-export function descargarPdf(bytes: Uint8Array, nombreArchivo: string): void {
+/**
+ * Descarga o comparte el PDF generado según la plataforma:
+ * 1. En Capacitor (APK Android nativo): Guarda en caché y abre el diálogo nativo de Android (Guardar en Descargas, Drive, etc.).
+ * 2. En Navegador móvil (Web Share API): Abre la hoja de compartir del sistema con el archivo adjunto.
+ * 3. En Navegador de escritorio: Descarga directa mediante Blob URL con retardo de revocación.
+ */
+export async function descargarPdf(bytes: Uint8Array, nombreArchivo: string): Promise<boolean> {
+  // 1. Si estamos en Capacitor nativo (Android APK)
+  if (
+    typeof window !== 'undefined' &&
+    (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()
+  ) {
+    try {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem');
+      const { Share } = await import('@capacitor/share');
+
+      let binary = '';
+      const len = bytes.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]!);
+      }
+      const base64Data = btoa(binary);
+
+      const resultado = await Filesystem.writeFile({
+        path: nombreArchivo,
+        data: base64Data,
+        directory: Directory.Cache,
+      });
+
+      await Share.share({
+        title: nombreArchivo,
+        url: resultado.uri,
+        dialogTitle: 'Guardar o abrir PDF',
+      });
+      return true;
+    } catch (err) {
+      console.warn('Error al guardar o compartir en Capacitor nativo, recurriendo a web fallback:', err);
+    }
+  }
+
   const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
-  const url = URL.createObjectURL(blob);
-  const enlace = document.createElement('a');
-  enlace.href = url;
-  enlace.download = nombreArchivo;
-  document.body.appendChild(enlace);
-  enlace.click();
-  enlace.remove();
-  URL.revokeObjectURL(url);
+
+  // 2. Si el navegador soporta Web Share con archivos (Chrome Android, Safari iOS)
+  if (typeof navigator !== 'undefined' && typeof navigator.canShare === 'function') {
+    try {
+      const archivo = new File([blob], nombreArchivo, { type: 'application/pdf' });
+      if (navigator.canShare({ files: [archivo] })) {
+        await navigator.share({
+          files: [archivo],
+          title: nombreArchivo,
+          text: 'Descarga tu documento de TOTALHIIT en PDF',
+        });
+        return true;
+      }
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') return true;
+      console.warn('Web Share no disponible o falló:', error);
+    }
+  }
+
+  // 3. Descarga web tradicional (Chrome, Firefox, Safari de escritorio)
+  try {
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = nombreArchivo;
+    enlace.target = '_blank';
+    enlace.rel = 'noopener noreferrer';
+    document.body.appendChild(enlace);
+    enlace.click();
+
+    setTimeout(() => {
+      enlace.remove();
+      URL.revokeObjectURL(url);
+    }, 60000);
+    return true;
+  } catch (error) {
+    console.error('Error al descargar PDF:', error);
+    return false;
+  }
 }

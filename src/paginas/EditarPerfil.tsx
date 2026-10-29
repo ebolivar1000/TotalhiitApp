@@ -41,6 +41,7 @@ export default function EditarPerfil() {
       experiencia: perfil.experiencia,
       equipamiento: [...perfil.equipamiento],
       paisRegion: perfil.paisRegion ?? '',
+      emailGoogle: perfil.emailGoogle ?? '',
       tipo: objetivo?.tipo,
       alergenos: preferencias?.alergenos ?? [],
       exclusiones: preferencias?.exclusiones ?? [],
@@ -68,6 +69,7 @@ export default function EditarPerfil() {
           experiencia: d.experiencia,
           equipamiento: d.equipamiento,
           paisRegion: d.paisRegion || undefined,
+          emailGoogle: d.emailGoogle?.trim() || undefined,
         },
         perfil.id,
       );

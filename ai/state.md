@@ -69,6 +69,10 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
   5. Botones simplificados a "Descargar en PDF" con marca de agua interna conservada.
   6. Progreso con fecha personalizable (pasado y futuro) y borrado de registros diarios.
   7. Espaciado inferior holgado (`pb-48` / `pb-52`) en todas las vistas. 183/183 pruebas en verde.
+- **DESCARGA DE PDFS NATIVA, VIDEOS PRIVADOS CON GMAIL Y ACTUALIZADOR IN-APP ✅** — resuelto y desplegado:
+  1. Descarga de PDF corregida y multiplataforma con `@capacitor/filesystem` y `@capacitor/share`: diálogo nativo del sistema en Android para guardar o abrir, Web Share en móviles y descarga con revocado diferido en web. Mensaje de éxito visible.
+  2. Videos privados de YouTube: solicitud del correo de Google (`@gmail.com`) en Onboarding, Perfil y Edición de Perfil. Reproductor con panel de autorización y botón de acción directa `▶️ Abrir en la app de YouTube con Google`.
+  3. Actualización de versión con un clic: manifest `/version.json` (v1.0.1), tarjeta en `/ajustes` con "Buscar actualización" y descarga de actualización in-place sobre la app existente sin perder datos de la base de datos local. 186/186 pruebas en verde.
 - **FASE 12 (evolución post-MVP): próxima** — IA opcional, panel admin, nuevas
   métricas, accesibilidad e internacionalización.
 

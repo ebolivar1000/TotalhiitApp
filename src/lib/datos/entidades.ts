@@ -55,7 +55,7 @@ export type UserGoal = z.infer<typeof userGoalSchema>;
 
 export const userProfileSchema = z.object({
   id: z.string(),
-  alias: z.string().trim().min(1, 'Ingresá tu nombre o alias').max(40, 'Máximo 40 caracteres'),
+  alias: z.string().trim().min(1, 'Ingresa tu nombre o alias').max(40, 'Máximo 40 caracteres'),
   fechaNacimiento: fechaIso.refine(
     (iso) => edadCumplida(iso) >= 18,
     'La primera versión es solo para personas de 18 años o más',
@@ -67,6 +67,7 @@ export const userProfileSchema = z.object({
   experiencia: z.enum(nivelesExperiencia),
   equipamiento: z.array(z.enum(equipamientos)).default([]),
   paisRegion: z.string().trim().max(60).optional(),
+  emailGoogle: z.string().trim().email('Ingresa un correo electrónico válido').optional(),
   createdAt: z.number(),
   updatedAt: z.number(),
 });

@@ -83,7 +83,11 @@ export default function DetalleEntrenamiento() {
         </div>
       </div>
 
-      <ReproductorVideo youtubeId={sesion.youtubeId} titulo={sesion.titulo} />
+      <ReproductorVideo
+        youtubeId={sesion.youtubeId}
+        titulo={sesion.titulo}
+        emailGoogle={perfil.emailGoogle}
+      />
 
       <Tarjeta>
         <p className="text-sm leading-relaxed text-zinc-600">{sesion.descripcion}</p>
