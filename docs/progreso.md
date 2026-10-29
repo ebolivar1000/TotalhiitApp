@@ -1,5 +1,21 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-29 (sesión 17) — Validación y Cumplimiento Integral para Amazon Appstore (Fire OS y Tablets)
+- **Auditoría Técnica y de Políticas para Amazon Appstore:**
+  evaluación exhaustiva contra la documentación oficial de Amazon Appstore Submission (`developer.amazon.com/docs/app-submission/getting-started.html`).
+- **Compatibilidad con Fire OS (sin dependencias de Google Play Services):**
+  - La aplicación está desacoplada de Google Play Services (`com.google.android.gms`), permitiendo ejecución nativa fluida en Amazon Fire 7, Fire HD 8, Fire HD 10 y Max 11.
+  - Reproductor de video adaptado en `ReproductorVideo.tsx`: reemplazo del intent propietario `vnd.youtube:` por apertura controlada en navegador (`window.open('https://www.youtube.com/watch?v=...')`), asegurando que en tabletas Fire sin la app nativa de YouTube se abra directamente en el navegador Silk sin fallos ni `ERR_UNKNOWN_URL_SCHEME`.
+- **URL Pública y Oficial de Política de Privacidad:**
+  - Creada página accesible y completa en `src/paginas/Privacidad.tsx` con la ruta `/privacidad` (`https://totalhiit-app.caribialabs.workers.dev/privacidad`).
+  - Cumple los requerimientos de Amazon y normativas COPPA/GDPR: describe datos locales en el dispositivo (IndexedDB/Dexie), cifrado de extremo a extremo AES-GCM para ciclo menstrual, ausencia de rastreadores invasivos de terceros y mecanismo de supresión total de datos.
+- **Mecanismo Obligatorio de Eliminación de Datos de Cuenta:**
+  - Amazon exige opción de eliminación de cuenta/datos: implementada y visible en `/ajustes` ("Borrar mis datos").
+- **Versión y Compilación Limpia:**
+  - `versionCode 3` y `versionName "1.0.2"` en `android/app/build.gradle`.
+  - Configurado `ignoreAssetsPattern` en AAPT para evitar empaquetado redundante de archivos `.apk` dentro de los assets nativos, optimizando el tamaño del APK a ~18.6 MB.
+- **Verificación:** 194/194 pruebas en verde (`npm test`), build web sincronizado con Capacitor y APK Android compilado con éxito (`gradlew assembleDebug`). Desplegado en Cloudflare Workers.
+
 ## 2026-10-29 (sesión 16) — Safe Area Superior, Portadas Oficiales en Video, Banners Temáticos, Persistencia de Sincronización y Seguridad Admin
 - **Botones superiores accesibles y ergonomía táctil (Safe Area):**
   reglas CSS `.safe-area-superior` y `.margin-safe-top` incorporadas en `src/index.css` con padding superior generoso adaptativo a notch y barra de estado de Android/iOS. Todos los botones de acción superior (retroceder, ir a la app, ajustes, salir, bienvenida) se aumentaron a dimensiones táctiles cómodas (mínimo 44px de alto) con botones estilo píldora de alto contraste.

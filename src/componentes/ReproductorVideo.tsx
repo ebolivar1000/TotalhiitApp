@@ -51,19 +51,14 @@ export function ReproductorVideo({
     setReproduciendo(true);
   };
 
-  // Abrir en la app de YouTube nativa con fallback al navegador web
+  // Abrir en la app de YouTube o en el navegador con soporte para Fire OS y Android
   const abrirEnAppYouTube = () => {
-    const appUrl = `vnd.youtube:${youtubeId}`;
     const webUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
-
-    const inicio = Date.now();
-    window.location.href = appUrl;
-    setTimeout(() => {
-      // Si a los 500ms no cambió el foco (no tiene app nativa o está en navegador de PC), abrir webUrl
-      if (Date.now() - inicio < 1500) {
-        window.open(webUrl, '_blank', 'noopener,noreferrer');
-      }
-    }, 500);
+    try {
+      window.open(webUrl, '_blank', 'noopener,noreferrer');
+    } catch {
+      window.location.href = webUrl;
+    }
   };
 
   return (

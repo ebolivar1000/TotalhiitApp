@@ -16,6 +16,7 @@ import Nutricion from './paginas/Nutricion';
 import Onboarding from './paginas/Onboarding';
 import Perfil from './paginas/Perfil';
 import Plan from './paginas/Plan';
+import Privacidad from './paginas/Privacidad';
 import Progreso from './paginas/Progreso';
 import Salud from './paginas/Salud';
 
@@ -56,6 +57,7 @@ export default function App() {
         <Route path="/ciclo" element={<Ciclo />} />
         <Route path="/ajustes" element={<Ajustes />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/privacidad" element={<Privacidad />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {!location.pathname.startsWith('/onboarding') && !location.pathname.startsWith('/admin') && <Navegacion />}

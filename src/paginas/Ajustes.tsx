@@ -289,12 +289,17 @@ export default function Ajustes() {
           <li>Consentimientos activos: {VERSIONES_CONSENTIMIENTO.perfil ? 'perfil v1' : '—'}, salud general v1, menstrual v1.</li>
           <li>Al borrar tus datos también se revocan los consentimientos.</li>
         </ul>
+        <div className="mt-3 border-t border-zinc-100 pt-2">
+          <Link to="/privacidad" className="text-xs font-semibold text-marca-magenta hover:underline">
+            Ver Política de Privacidad completa →
+          </Link>
+        </div>
       </Tarjeta>
 
       <Tarjeta>
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-marca-magenta">Acerca de</h2>
         <p className="text-sm text-zinc-600">
-          <strong className="font-marca text-marca-magenta">TOTALHIIT</strong> v0.1.0
+          <strong className="font-marca text-marca-magenta">TOTALHIIT</strong> v{VERSION_ACTUAL}
         </p>
         <p className="mt-1 text-xs text-zinc-500">
           Entrenamiento y nutrición para mujeres +40. Este aviso aplica siempre: consulta a profesionales de la salud
