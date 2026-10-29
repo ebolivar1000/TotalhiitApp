@@ -72,24 +72,27 @@ export default function Nutricion() {
   if (cargando || !perfil) return null;
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      {/* Banner moderno con imagen de Valentina */}
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+      {/* Banner moderno con fotografía gastronómica saludable */}
       <BannerSeccion
         etiqueta="Alimentación +40"
         titulo="Nutrición Antiinflamatoria"
-        subtitulo="Recetas prácticas y balanceadas diseñadas para regular hormonas y darte energía."
-        imagenSrc="/images/valentina/totalhiit_2.jpg"
-        insignia="Recetas de Valentina"
+        subtitulo="Recetas prácticas y deliciosas diseñadas para regular hormonas, saciarte y llenarte de vitalidad."
+        imagenSrc="/images/banner-nutricion.jpg"
+        insignia="Nutrición Saludable"
       />
 
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 pt-1">
         <div>
           <h1 className="text-xl font-bold text-zinc-900">Catálogo de Recetas</h1>
           <p className="text-xs text-zinc-500">
             {objetivo ? `Priorizadas para: ${ETIQUETAS_OBJETIVO[objetivo.tipo]}` : 'Elige tu objetivo para priorizarlas'}
           </p>
         </div>
-        <Link to="/perfil/editar" className="shrink-0 text-xs font-semibold text-marca-magenta">
+        <Link
+          to="/perfil/editar"
+          className="inline-flex min-h-[40px] items-center rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-bold text-marca-magenta shadow-sm transition hover:bg-zinc-50 active:scale-95"
+        >
           Mis preferencias
         </Link>
       </div>

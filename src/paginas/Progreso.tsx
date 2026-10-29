@@ -368,7 +368,7 @@ export default function Progreso() {
     `Semana del ${inicio.slice(5).split('-').reverse().join('/')}`;
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       {/* Banner moderno con imagen de Valentina */}
       <BannerSeccion
         etiqueta="Bienestar Diario"

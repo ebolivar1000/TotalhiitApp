@@ -12,9 +12,9 @@ describe('actualizador de versión', () => {
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-          version: '1.0.2',
+          version: '1.0.3',
           buildNumber: BUILD_ACTUAL + 1,
-          releaseDate: '2026-10-29',
+          releaseDate: '2026-10-30',
           apkUrl: '/totalhiit.apk',
           novedades: ['Mejoras de rendimiento'],
         }),
@@ -23,8 +23,8 @@ describe('actualizador de versión', () => {
 
     const resultado = await consultarActualizacion();
     expect(resultado.disponible).toBe(true);
-    expect(resultado.versionRemota?.version).toBe('1.0.2');
-    expect(resultado.mensaje).toContain('1.0.2');
+    expect(resultado.versionRemota?.version).toBe('1.0.3');
+    expect(resultado.mensaje).toContain('1.0.3');
   });
 
   it('informa que ya está al día si la versión es la misma', async () => {

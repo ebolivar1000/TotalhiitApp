@@ -67,10 +67,16 @@ export default function DetalleEntrenamiento() {
   const etiquetaEquipo = (valor: string) => EQUIPAMIENTO_OPCIONES.find((o) => o.valor === valor)?.etiqueta ?? valor;
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      <button type="button" onClick={() => navigate('/entrenamientos')} className="text-sm font-semibold text-marca-magenta">
-        ← Entrenamientos
-      </button>
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+      <div>
+        <button
+          type="button"
+          onClick={() => navigate('/entrenamientos')}
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 active:scale-95"
+        >
+          ← Volver a Entrenamientos
+        </button>
+      </div>
 
       <div>
         <h1 className="text-xl font-bold text-zinc-900">{sesion.titulo}</h1>
@@ -113,6 +119,8 @@ export default function DetalleEntrenamiento() {
           youtubeId={sesion.youtubeId}
           titulo={sesion.titulo}
           emailGoogle={perfil.emailGoogle}
+          imagenPortada={sesion.imagen}
+          duracionMin={sesion.duracionMin}
         />
       )}
 

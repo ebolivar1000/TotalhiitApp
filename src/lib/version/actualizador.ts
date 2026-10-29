@@ -1,5 +1,7 @@
-export const VERSION_ACTUAL = '1.0.1';
-export const BUILD_ACTUAL = 2;
+export const VERSION_ACTUAL = '1.0.2';
+export const BUILD_ACTUAL = 3;
+
+export const URL_REMOTA_VERSION = 'https://totalhiit-app.caribialabs.workers.dev/version.json';
 
 export interface InfoVersion {
   version: string;
@@ -16,12 +18,13 @@ export interface ResultadoActualizacion {
 }
 
 /**
- * Consulta la última versión disponible en el servidor.
- * No requiere store ni servicios externos, solo el manifest estático /version.json.
+ * Consulta la última versión disponible en el servidor remoto.
+ * Compatible tanto con Capacitor (Android nativo) como con la Web.
  */
-export async function consultarActualizacion(): Promise<ResultadoActualizacion> {
+export async function consultarActualizacion(urlCustom?: string): Promise<ResultadoActualizacion> {
+  const url = urlCustom || URL_REMOTA_VERSION;
   try {
-    const respuesta = await fetch(`/version.json?_t=${Date.now()}`, {
+    const respuesta = await fetch(`${url}?_t=${Date.now()}`, {
       cache: 'no-store',
       headers: { Pragma: 'no-cache' },
     });

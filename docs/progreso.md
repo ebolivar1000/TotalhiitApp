@@ -1,5 +1,26 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-29 (sesión 16) — Safe Area Superior, Portadas Oficiales en Video, Banners Temáticos, Persistencia de Sincronización y Seguridad Admin
+- **Botones superiores accesibles y ergonomía táctil (Safe Area):**
+  reglas CSS `.safe-area-superior` y `.margin-safe-top` incorporadas en `src/index.css` con padding superior generoso adaptativo a notch y barra de estado de Android/iOS. Todos los botones de acción superior (retroceder, ir a la app, ajustes, salir, bienvenida) se aumentaron a dimensiones táctiles cómodas (mínimo 44px de alto) con botones estilo píldora de alto contraste.
+- **Portadas oficiales en videos de entrenamiento y reproducción optimizada:**
+  integración de las portadas oficiales (`img_21` a `img_35`) en el catálogo de sesiones (`CATALOGO_SESIONES`) y nuevo reproductor `ReproductorVideo.tsx` con portada de alta resolución, badge de duración, botón de reproducción animado sobre la imagen y acceso directo a la app nativa de YouTube (`vnd.youtube:...`) para reproducir videos privados con la cuenta Google de la usuaria sin trabas. Miniaturas añadidas a las tarjetas de la lista de entrenamientos.
+- **Fotografía gastronómica en Nutrición:**
+  reemplazo de imagen genérica por fotografía culinaria de alta definición (`banner-nutricion.jpg`) con plato antiinflamatorio saludable, colorido y balanceado.
+- **Banners temáticos ilustrativos en pantalla de Inicio:**
+  tarjetas visuales enriquecidas con imágenes temáticas de fondo para cada área clave: Tu Objetivo (`banner-objetivo.jpg`), Salud (`banner-salud.jpg`), Entrenamiento (`banner-entrenamiento.jpg`), Nutrición (`banner-nutricion.jpg`), Progreso (`banner-progreso.jpg`) y Ciclo Menstrual (`banner-ciclo.jpg`).
+- **Persistencia de sincronización en la nube:**
+  resuelto el problema donde el tilde de sincronización se desactivaba al salir de la pantalla; ahora se persiste de forma confiable en `localStorage` tanto para la sincronización general como para la privacidad del ciclo menstrual.
+- **Botón de Cerrar Sesión en Ajustes:**
+  agregado botón visible y seguro de "Cerrar sesión" en la sección de Cuenta y Membresía, restaurando el modo invitado sin borrar ni alterar los datos locales del dispositivo.
+- **Visualización, cambio y recuperación de clave de administración:**
+  - Botón "👁️ Ver clave" / "🙈 Ocultar" en el formulario de acceso para revisar la contraseña que se escribe.
+  - Pestaña "🔐 Clave y Seguridad" dentro del panel de administración para cambiar la contraseña con validación de longitud y confirmación.
+  - Mecanismo de recuperación de contraseña que permite restablecer la clave maestra a la predeterminada validando contra correos autorizados (`caribialabs@gmail.com` y `ebolivar1000@gmail.com`).
+- **Actualizador in-app v1.0.2:**
+  actualizado `actualizador.ts` para consultar la URL remota absoluta en Cloudflare Workers (evitando que Capacitor consulte el archivo local estático empaquetado), manifest `version.json` incrementado a v1.0.2 (build 3) y botón directo de descarga del nuevo APK con instrucciones para sobreescribir la app sin perder datos.
+- **Verificación:** 194/194 pruebas en verde (`npm test`), build web impecable, APK Android compilado (17.76 MB) y desplegado con éxito en Cloudflare Workers.
+
 ## 2026-10-29 (sesión 15) — Branding Oficial, Banners Multimedia, Portada Animada, Panel de Admin y Control Demo
 - **Letras de PDF ampliadas para máxima legibilidad:**
   ajuste tipográfico en `src/lib/nutricion/pdf.ts` incrementando tamaños a 20-22pt en títulos principales, 14pt en encabezados de sección, 11.5pt en listas de ingredientes y pasos (con interlineado generoso de 18pt), 10.5pt en la tabla nutricional (filas de 24pt) y notas aclaratorias a 9.5pt.

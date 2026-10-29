@@ -327,7 +327,7 @@ export default function Ciclo() {
   // Pantalla de consentimiento
   if (!consentimiento) {
     return (
-      <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+      <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
         <Tarjeta>
           <h1 className="text-xl font-bold text-zinc-900">Ciclo menstrual</h1>
           <p className="mt-2 text-sm text-zinc-600">
@@ -350,7 +350,7 @@ export default function Ciclo() {
   }
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       {/* Banner moderno con imagen de Valentina */}
       <BannerSeccion
         etiqueta="Privacidad Estricta"

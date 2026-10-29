@@ -4,10 +4,12 @@ import { db } from '../datos/db';
 import {
   agregarSuscriptor,
   alternarEstadoSuscriptor,
+  cambiarClaveAdmin,
   eliminarSuscriptor,
   esSuscriptorActivo,
   guardarAnuncio,
   obtenerAnuncioActivo,
+  restablecerClaveAdminPorEmail,
   verificarClaveAdmin,
 } from './admin-servicio';
 
@@ -72,5 +74,32 @@ describe('modulo de administracion (FASE 12)', () => {
     const activo = await obtenerAnuncioActivo();
     expect(activo).not.toBeNull();
     expect(activo?.titulo).toBe('¡Promo Mes Aniversario!');
+  });
+
+  it('permite cambiar la clave de administracion y verificar con la nueva clave', () => {
+    expect(verificarClaveAdmin('totalhiit2026')).toBe(true);
+
+    const res = cambiarClaveAdmin('nuevaClaveSegura2026');
+    expect(res.exito).toBe(true);
+    expect(verificarClaveAdmin('totalhiit2026')).toBe(false);
+    expect(verificarClaveAdmin('nuevaClaveSegura2026')).toBe(true);
+
+    // No permite claves demasiado cortas
+    const corto = cambiarClaveAdmin('123');
+    expect(corto.exito).toBe(false);
+  });
+
+  it('permite restablecer la clave a traves de un email maestro autorizado', () => {
+    cambiarClaveAdmin('claveOlvidadaxxx');
+    expect(verificarClaveAdmin('totalhiit2026')).toBe(false);
+
+    // Email no autorizado falla
+    const intentoFallido = restablecerClaveAdminPorEmail('hacker@gmail.com');
+    expect(intentoFallido.exito).toBe(false);
+
+    // Email maestro autorizado restablece la clave por defecto
+    const res = restablecerClaveAdminPorEmail('caribialabs@gmail.com');
+    expect(res.exito).toBe(true);
+    expect(verificarClaveAdmin('totalhiit2026')).toBe(true);
   });
 });

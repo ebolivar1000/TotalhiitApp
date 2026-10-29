@@ -42,11 +42,14 @@ export default function Perfil() {
   }
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      <div className="flex items-center justify-between">
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+      <div className="flex items-center justify-between pb-1">
         <h1 className="text-2xl font-bold text-zinc-900">Mi perfil</h1>
-        <Link to="/perfil/editar" className="text-sm font-semibold text-marca-magenta">
-          Editar
+        <Link
+          to="/perfil/editar"
+          className="inline-flex min-h-[44px] items-center rounded-xl border border-zinc-200 bg-white px-4 py-2 text-xs font-bold text-marca-magenta shadow-sm transition hover:bg-zinc-50 active:scale-95"
+        >
+          ✏️ Editar mis datos
         </Link>
       </div>
 

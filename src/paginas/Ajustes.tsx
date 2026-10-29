@@ -5,16 +5,41 @@ import { borrarDatosPersonales, exportarDatos } from '../lib/datos/repositorio';
 import { VERSIONES_CONSENTIMIENTO } from '../lib/datos/entidades';
 import { fechaHoyIso } from '../lib/utilidades/fechas';
 import { LLAVE_ONBOARDING_COMPLETADO, LLAVE_ONBOARDING_SALTADO, usePerfil } from '../hooks/usePerfil';
-import { obtenerSesionActual, type SesionAuth } from '../lib/auth/auth';
+import { cerrarSesion, obtenerSesionActual, type SesionAuth } from '../lib/auth/auth';
 import { consultarActualizacion, VERSION_ACTUAL, type ResultadoActualizacion } from '../lib/version/actualizador';
+
+const LLAVE_SYNC_NUBE = 'totalhiit_sync_nube';
+const LLAVE_CICLO_SOLO_LOCAL = 'totalhiit_ciclo_solo_local';
 
 export default function Ajustes() {
   const { cargando, perfil, recargar } = usePerfil();
   const navigate = useNavigate();
   const [confirmandoBorrado, setConfirmandoBorrado] = useState(false);
-  const [sesion] = useState<SesionAuth>(() => obtenerSesionActual());
-  const [syncNube, setSyncNube] = useState(false);
-  const [cicloSoloLocal, setCicloSoloLocal] = useState(true);
+  const [sesion, setSesion] = useState<SesionAuth>(() => obtenerSesionActual());
+  const [mensajeSesion, setMensajeSesion] = useState('');
+
+  // Persistencia del estado de sincronización en la nube (Item 7)
+  const [syncNube, setSyncNubeState] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(LLAVE_SYNC_NUBE) === 'true';
+  });
+
+  const [cicloSoloLocal, setCicloSoloLocalState] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    const val = localStorage.getItem(LLAVE_CICLO_SOLO_LOCAL);
+    return val === null ? true : val === 'true';
+  });
+
+  const setSyncNube = (val: boolean) => {
+    setSyncNubeState(val);
+    localStorage.setItem(LLAVE_SYNC_NUBE, String(val));
+  };
+
+  const setCicloSoloLocal = (val: boolean) => {
+    setCicloSoloLocalState(val);
+    localStorage.setItem(LLAVE_CICLO_SOLO_LOCAL, String(val));
+  };
+
   const [estadoActualizacion, setEstadoActualizacion] = useState<ResultadoActualizacion | null>(null);
   const [buscandoActualizacion, setBuscandoActualizacion] = useState(false);
 
@@ -23,6 +48,13 @@ export default function Ajustes() {
     const res = await consultarActualizacion();
     setEstadoActualizacion(res);
     setBuscandoActualizacion(false);
+  };
+
+  const handleCerrarSesion = () => {
+    const sesionInvitada = cerrarSesion();
+    setSesion(sesionInvitada);
+    setMensajeSesion('Has cerrado sesión correctamente. Tus entrenamientos y datos locales siguen a salvo.');
+    setTimeout(() => setMensajeSesion(''), 5000);
   };
 
   const exportar = async () => {
@@ -45,7 +77,17 @@ export default function Ajustes() {
   };
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+      <div className="flex items-center justify-between pb-1">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 active:scale-95"
+        >
+          ← Volver al Inicio
+        </button>
+      </div>
+
       <h1 className="text-2xl font-bold text-zinc-900">Ajustes</h1>
 
       <Tarjeta>
@@ -87,6 +129,21 @@ export default function Ajustes() {
               Las suscripciones premium se habilitarán próximamente sin cobros sorpresa.
             </p>
           </div>
+
+          {mensajeSesion && (
+            <div className="rounded-xl border border-green-200 bg-green-50 p-2.5 text-xs font-semibold text-green-800">
+              ✓ {mensajeSesion}
+            </div>
+          )}
+
+          {/* Botón de Cerrar Sesión (Item 6) */}
+          <button
+            type="button"
+            onClick={handleCerrarSesion}
+            className="mt-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 active:scale-95"
+          >
+            🚪 Cerrar sesión
+          </button>
         </div>
       </Tarjeta>
 
@@ -161,26 +218,26 @@ export default function Ajustes() {
             </div>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2.5 sm:flex-row">
             <BotonSecundario
               onClick={() => void verificarVersion()}
               disabled={buscandoActualizacion}
-              className="flex-1 text-xs"
+              className="min-h-[44px] flex-1 text-xs font-bold"
             >
-              {buscandoActualizacion ? 'Verificando…' : '🔍 Buscar actualización'}
+              {buscandoActualizacion ? '🔍 Verificando en el servidor…' : '🔍 Buscar actualización'}
             </BotonSecundario>
 
             <a
-              href="/totalhiit.apk"
+              href="https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk"
               download="totalhiit.apk"
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-marca-magenta px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-marca-magenta-oscuro text-center"
+              className="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-marca-magenta-oscuro active:scale-95 text-center"
             >
-              🔄 Actualizar APK
+              ⬇️ Descargar APK Oficial
             </a>
           </div>
 
-          <p className="text-[11px] text-zinc-400">
-            💡 Nota: Android instalará la actualización directamente sobre tu versión actual, conservando todos tus datos.
+          <p className="text-[11px] leading-relaxed text-zinc-500">
+            💡 <strong>Instalación segura:</strong> Al descargar el archivo APK y abrirlo en tu celular, Android lo instalará automáticamente sobre la versión existente, conservando intactos tus entrenamientos, recetas y progreso.
           </p>
         </div>
       </Tarjeta>

@@ -52,9 +52,9 @@ export default function PortadaTransicion({ onTerminado }: { onTerminado?: () =>
       {/* Luz ambiental de fondo */}
       <div className="absolute top-1/3 h-72 w-72 -translate-y-1/2 rounded-full bg-marca-magenta/30 blur-3xl filter animate-pulse" />
 
-      {/* Cabecera sutil */}
-      <div className="relative z-10 text-center">
-        <span className="inline-block rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-pink-200 backdrop-blur-md">
+      {/* Cabecera sutil con espacio seguro superior */}
+      <div className="relative z-10 text-center safe-area-superior pt-4">
+        <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-pink-200 backdrop-blur-md">
           Bienvenida
         </span>
       </div>
@@ -85,17 +85,21 @@ export default function PortadaTransicion({ onTerminado }: { onTerminado?: () =>
         </p>
       </div>
 
-      {/* Barra de progreso inferior y aviso para saltar */}
-      <div className="relative z-10 flex w-full max-w-xs flex-col items-center gap-2">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+      {/* Barra de progreso inferior y botón para entrar de inmediato */}
+      <div className="relative z-10 flex w-full max-w-xs flex-col items-center gap-3 pb-8">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
           <div
             className="h-full rounded-full bg-gradient-to-r from-marca-magenta to-pink-400 transition-all duration-[2200ms] ease-out w-full"
             style={{ animation: 'cargaBarra 2.2s ease-out forwards' }}
           />
         </div>
-        <p className="text-[10px] text-zinc-400">
-          Iniciando tu sesión... <span className="opacity-60">(Toca para continuar)</span>
-        </p>
+        <button
+          type="button"
+          onClick={saltar}
+          className="rounded-full bg-white/20 px-6 py-2.5 text-xs font-bold text-white shadow-md backdrop-blur hover:bg-white/30 active:scale-95 transition"
+        >
+          Entrar a la App →
+        </button>
       </div>
 
       <style>{`

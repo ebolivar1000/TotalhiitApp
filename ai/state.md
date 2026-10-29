@@ -83,6 +83,16 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
   7. Banners modernos con Valentina (`totalhiit_1.jpg` .. `8.jpg` y video `entrenamiento.mp4`) en Entrenamientos, Nutrición, Salud, Progreso, Ciclo y Plan.
   8. Icono de Salud (❤️) añadido a la barra de navegación inferior, completando las 5 secciones principales.
   9. Optimización de imágenes y resolución de copias recursivas de APK, reduciendo el APK a 15.13 MB y desplegándolo con éxito en Cloudflare Workers (`https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk`). 192/192 pruebas en verde.
+- **SAFE AREA ERGONÓMICO, PORTADAS OFICIALES, BANNERS TEMÁTICOS Y GESTIÓN DE SEGURIDAD ADMIN ✅** — resuelto y desplegado:
+  1. Safe Area Superior y botones agrandados: `.safe-area-superior` con separación ergonómica para notch/status bar en todas las pantallas. Botones de acción con touch target de mínimo 44px.
+  2. Actualizador in-app v1.0.2: consulta a endpoint absoluto remoto evitando caché de archivos locales en APK, manifest incrementado a build 3 y botón directo de actualización in-place.
+  3. Portadas oficiales de video en alta definición (`img_21` .. `35`) y nuevo reproductor con botón de acción directa a YouTube app (`vnd.youtube:...`) para reproducir videos privados con correo Google sin fricción.
+  4. Fotografía gastronómica de alta definición en Nutrición (`banner-nutricion.jpg`) con plato antiinflamatorio saludable.
+  5. Banners temáticos modernos en la pantalla de Inicio para Objetivo, Salud, Entrenamiento, Nutrición, Progreso y Ciclo Menstrual.
+  6. Botón de "Cerrar sesión" en Ajustes que restaura el modo invitado sin alterar los datos locales.
+  7. Persistencia corregida del tilde de sincronización en la nube y privacidad de ciclo en `localStorage`.
+  8. Opción "Ver clave que se está escribiendo" (toggle 👁️ / 🙈) en el acceso al panel de administración.
+  9. Modificación de clave de administración en pestaña dedicada y sistema de recuperación con correos maestros autorizados (`caribialabs@gmail.com` y `ebolivar1000@gmail.com`). 194/194 pruebas en verde y APK v1.0.2 compilado (17.76 MB).
 - **FASE 12 (evolución post-MVP): próxima** — IA opcional, panel admin, nuevas
   métricas, accesibilidad e internacionalización.
 

@@ -111,9 +111,17 @@ export default function Entrenamientos() {
           onKeyDown={(e) => e.key === 'Enter' && navigate(`/entrenamientos/${s.id}`)}
           className="flex cursor-pointer items-start gap-3"
         >
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-marca-crema to-white text-2xl">
-            <span aria-hidden="true">{ICONO_CATEGORIA[s.categorias[0] ?? 'activacion']}</span>
-          </div>
+          {s.imagen ? (
+            <img
+              src={s.imagen}
+              alt={s.titulo}
+              className="h-16 w-20 shrink-0 rounded-xl object-cover shadow-sm"
+            />
+          ) : (
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-marca-crema to-white text-2xl">
+              <span aria-hidden="true">{ICONO_CATEGORIA[s.categorias[0] ?? 'activacion']}</span>
+            </div>
+          )}
           <div className="min-w-0 flex-1 pr-6">
             <div className="flex items-center gap-2">
               <p className="font-semibold text-zinc-900">{s.titulo}</p>
@@ -167,7 +175,7 @@ export default function Entrenamientos() {
   };
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       {/* Banner moderno con video de entrenamiento de Valentina */}
       <BannerSeccion
         etiqueta="Programa TOTAL+40"

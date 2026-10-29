@@ -18,7 +18,7 @@ export default function Inicio() {
 
   if (!perfil) {
     return (
-      <main className="mx-auto max-w-md px-4 pb-32 pt-6">
+      <main className="safe-area-superior mx-auto max-w-md px-4 pb-32 pt-6">
         <div className="text-center">
           <p className="font-marca text-4xl text-marca-magenta">TOTALHIIT</p>
           <p className="mt-2 text-sm text-zinc-500">Entrenamiento y nutrición para mujeres +40</p>
@@ -40,24 +40,24 @@ export default function Inicio() {
   }
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      <div className="flex items-center justify-between">
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+      <div className="flex items-center justify-between pb-1">
         <div>
           <p className="text-xs font-semibold text-zinc-500">Bienvenida,</p>
           <h1 className="text-2xl font-bold text-zinc-900">{perfil.alias} 👋</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <Link
             to="/admin"
             title="Panel de Administración"
-            className="rounded-xl border border-zinc-200 bg-white p-2 text-sm shadow-sm hover:bg-zinc-50"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-lg shadow-sm transition hover:bg-zinc-50 active:scale-95"
           >
             👑
           </Link>
           <Link
             to="/ajustes"
             title="Ajustes"
-            className="rounded-xl border border-zinc-200 bg-white p-2 text-sm shadow-sm hover:bg-zinc-50"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-lg shadow-sm transition hover:bg-zinc-50 active:scale-95"
           >
             ⚙️
           </Link>
@@ -126,63 +126,165 @@ export default function Inicio() {
         </Tarjeta>
       )}
 
+      {/* 1. Tu Objetivo / Plan */}
       {objetivo && (
-        <Tarjeta className="bg-marca-crema">
-          <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta-oscuro">Tu objetivo</p>
-          <p className="mt-1 text-lg font-bold text-zinc-900">{ETIQUETAS_OBJETIVO[objetivo.tipo]}</p>
-          <p className="mt-1 text-xs text-zinc-600">Se adapta a lo que haces en Nutrición y Entrenamientos.</p>
-        </Tarjeta>
+        <div className="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-900 shadow-sm">
+          <img
+            src="/images/banner-objetivo.jpg"
+            alt="Tu objetivo"
+            className="absolute inset-0 h-full w-full object-cover opacity-40 transition-transform duration-500 hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />
+          <div className="relative z-10 p-4 sm:p-5">
+            <span className="inline-block rounded-full bg-marca-magenta/80 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur">
+              Tu Objetivo Principal
+            </span>
+            <p className="mt-1 text-xl font-bold text-white">{ETIQUETAS_OBJETIVO[objetivo.tipo]}</p>
+            <p className="mt-1 text-xs text-zinc-300">
+              Personalizado para tu ritmo y adaptado a lo que haces en Nutrición y Entrenamientos.
+            </p>
+            <Link
+              to="/plan"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-white/90 px-3.5 py-2 text-xs font-bold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:scale-95"
+            >
+              Ver mi plan semanal →
+            </Link>
+          </div>
+        </div>
       )}
 
-      <Tarjeta>
-        <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Salud</p>
-        <p className="mt-1 text-sm text-zinc-600">
-          IMC, metabolismo, gasto diario, agua y proteína calculados con tus datos.
-        </p>
-        <Link to="/salud" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
-          Ver mis cálculos →
-        </Link>
-      </Tarjeta>
-
-      <Tarjeta>
-        <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Entrenamiento</p>
-        <p className="mt-1 text-sm text-zinc-600">
-          Clases de tu programa TOTAL+40 en video, filtradas por tu equipo y tu objetivo.
-        </p>
-        <Link to="/entrenamientos" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
-          Ver rutinas →
-        </Link>
-      </Tarjeta>
-
-      <Tarjeta>
-        <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Nutrición</p>
-        <p className="mt-1 text-sm text-zinc-600">
-          Recetas filtradas por tus alérgenos, tu tiempo de cocina y tu presupuesto.
-        </p>
-        <div className="mt-3 flex gap-4 text-sm font-semibold">
-          <Link to="/nutricion" className="text-marca-magenta">
-            Ver recetas →
-          </Link>
-          <Link to="/plan" className="text-marca-magenta">
-            Plan semanal →
+      {/* 2. Salud */}
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-900 shadow-sm">
+        <img
+          src="/images/banner-salud.jpg"
+          alt="Salud y Métricas"
+          className="absolute inset-0 h-full w-full object-cover opacity-40 transition-transform duration-500 hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />
+        <div className="relative z-10 p-4 sm:p-5">
+          <span className="inline-block rounded-full bg-purple-600/80 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur">
+            ❤️ Calculadoras de Salud
+          </span>
+          <p className="mt-1 text-xl font-bold text-white">Salud y Composición Corporal</p>
+          <p className="mt-1 text-xs text-zinc-300">
+            IMC, metabolismo basal, gasto calórico diario, agua recomendada y proteína óptima para +40.
+          </p>
+          <Link
+            to="/salud"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-white/90 px-3.5 py-2 text-xs font-bold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:scale-95"
+          >
+            Ver mis cálculos de salud →
           </Link>
         </div>
-      </Tarjeta>
+      </div>
 
-      <Tarjeta>
-        <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Progreso y ciclo</p>
-        <p className="mt-1 text-sm text-zinc-600">
-          Tus rachas, energía, sueño y —si lo activas— un calendario de ciclo privado y cifrado.
-        </p>
-        <div className="mt-3 flex gap-3 text-sm font-semibold">
-          <Link to="/progreso" className="text-marca-magenta">
-            Ver progreso →
-          </Link>
-          <Link to="/ciclo" className="text-zinc-500">
-            Ciclo (privado) →
+      {/* 3. Entrenamiento */}
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-900 shadow-sm">
+        <img
+          src="/images/banner-entrenamiento.jpg"
+          alt="Entrenamientos TOTAL+40"
+          className="absolute inset-0 h-full w-full object-cover opacity-40 transition-transform duration-500 hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />
+        <div className="relative z-10 p-4 sm:p-5">
+          <span className="inline-block rounded-full bg-marca-magenta/80 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur">
+            🔥 Programa TOTAL+40
+          </span>
+          <p className="mt-1 text-xl font-bold text-white">Entrenamiento y Fuerza</p>
+          <p className="mt-1 text-xs text-zinc-300">
+            Clases en video organizadas semana a semana, adaptadas a tus articulaciones y tu equipamiento.
+          </p>
+          <Link
+            to="/entrenamientos"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-white/90 px-3.5 py-2 text-xs font-bold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:scale-95"
+          >
+            Explorar mis rutinas →
           </Link>
         </div>
-      </Tarjeta>
+      </div>
+
+      {/* 4. Nutrición */}
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-900 shadow-sm">
+        <img
+          src="/images/banner-nutricion.jpg"
+          alt="Nutrición Antiinflamatoria"
+          className="absolute inset-0 h-full w-full object-cover opacity-40 transition-transform duration-500 hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />
+        <div className="relative z-10 p-4 sm:p-5">
+          <span className="inline-block rounded-full bg-emerald-600/80 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur">
+            🥗 Nutrición Inteligente
+          </span>
+          <p className="mt-1 text-xl font-bold text-white">Alimentación y Recetas</p>
+          <p className="mt-1 text-xs text-zinc-300">
+            Comidas saludables y balanceadas filtradas por tus alérgenos, tiempo de cocina y presupuesto.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              to="/nutricion"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-white/90 px-3.5 py-2 text-xs font-bold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:scale-95"
+            >
+              Ver recetas →
+            </Link>
+            <Link
+              to="/plan"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-white/20 px-3.5 py-2 text-xs font-bold text-white shadow-sm backdrop-blur transition hover:bg-white/30 active:scale-95"
+            >
+              Plan semanal y compras →
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. Progreso */}
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-900 shadow-sm">
+        <img
+          src="/images/banner-progreso.jpg"
+          alt="Progreso y Hábitos"
+          className="absolute inset-0 h-full w-full object-cover opacity-40 transition-transform duration-500 hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />
+        <div className="relative z-10 p-4 sm:p-5">
+          <span className="inline-block rounded-full bg-amber-500/80 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur">
+            📊 Seguimiento Diario
+          </span>
+          <p className="mt-1 text-xl font-bold text-white">Progreso y Hábitos</p>
+          <p className="mt-1 text-xs text-zinc-300">
+            Rachas de actividad, energía, horas de sueño, hidratación y gráficos de constancia.
+          </p>
+          <Link
+            to="/progreso"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-white/90 px-3.5 py-2 text-xs font-bold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:scale-95"
+          >
+            Ver mi progreso →
+          </Link>
+        </div>
+      </div>
+
+      {/* 6. Ciclo Menstrual */}
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-900 shadow-sm">
+        <img
+          src="/images/banner-ciclo.jpg"
+          alt="Ciclo Menstrual y Bienestar"
+          className="absolute inset-0 h-full w-full object-cover opacity-40 transition-transform duration-500 hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />
+        <div className="relative z-10 p-4 sm:p-5">
+          <span className="inline-block rounded-full bg-pink-500/80 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur">
+            🌸 Bienestar Femenino
+          </span>
+          <p className="mt-1 text-xl font-bold text-white">Ciclo Menstrual</p>
+          <p className="mt-1 text-xs text-zinc-300">
+            Calendario flexible con fechas personalizables, fases hormonales y privacidad estricta.
+          </p>
+          <Link
+            to="/ciclo"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-white/90 px-3.5 py-2 text-xs font-bold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:scale-95"
+          >
+            Abrir calendario de ciclo →
+          </Link>
+        </div>
+      </div>
 
       <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>

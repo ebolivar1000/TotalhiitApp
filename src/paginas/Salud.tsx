@@ -125,7 +125,7 @@ export default function Salud() {
   const proteina = objetivo ? calcularProteinaDiaria(peso, objetivo.tipo) : null;
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       {/* Banner moderno con imagen de Valentina */}
       <BannerSeccion
         etiqueta="Salud y Metabolismo"

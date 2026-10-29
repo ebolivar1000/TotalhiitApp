@@ -99,10 +99,15 @@ export default function DetalleReceta() {
   };
 
   return (
-    <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      <Link to="/nutricion" className="text-sm font-semibold text-marca-magenta">
-        ← Nutrición
-      </Link>
+    <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+      <div>
+        <Link
+          to="/nutricion"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 active:scale-95"
+        >
+          ← Volver a Nutrición
+        </Link>
+      </div>
 
       {!esSuscriptor && !['r-01', 'r-02', 'r-03', 'r-04'].includes(receta.id) && (
         <Tarjeta className="border-purple-200 bg-purple-50">

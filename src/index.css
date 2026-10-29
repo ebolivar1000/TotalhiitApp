@@ -33,3 +33,12 @@ body {
 .safe-area-inferior {
   padding-bottom: max(0.75rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)));
 }
+
+/* Área segura en barras superiores y cabeceras (cámara frontal, notch, status bar Android/iOS) */
+.safe-area-superior {
+  padding-top: max(2rem, calc(1.75rem + env(safe-area-inset-top, 0px)));
+}
+
+.margin-safe-top {
+  margin-top: max(1.5rem, calc(1.25rem + env(safe-area-inset-top, 0px)));
+}

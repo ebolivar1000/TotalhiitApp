@@ -4,12 +4,92 @@ import { fechaHoyIso } from '../utilidades/fechas';
 export const EMAILS_ADMIN_POR_DEFECTO = ['caribialabs@gmail.com', 'ebolivar1000@gmail.com'];
 export const CLAVE_ADMIN_POR_DEFECTO = 'totalhiit2026';
 export const LLAVE_SESION_ADMIN = 'totalhiit_admin_autenticado';
+export const LLAVE_CLAVE_ADMIN = 'totalhiit_admin_clave';
+
+let claveEnMemoria: string | null = null;
+
+function resolverAlmacenClave(): {
+  getItem(k: string): string | null;
+  setItem(k: string, v: string): void;
+  removeItem(k: string): void;
+} {
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage) {
+      return localStorage;
+    }
+  } catch {}
+  return {
+    getItem: () => claveEnMemoria,
+    setItem: (_k: string, v: string) => {
+      claveEnMemoria = v;
+    },
+    removeItem: () => {
+      claveEnMemoria = null;
+    },
+  };
+}
+
+/**
+ * Obtiene la clave actual de administración (almacenada o la clave por defecto).
+ */
+export function obtenerClaveAdminActual(): string {
+  try {
+    const almacen = resolverAlmacenClave();
+    return almacen.getItem(LLAVE_CLAVE_ADMIN) || CLAVE_ADMIN_POR_DEFECTO;
+  } catch {
+    return CLAVE_ADMIN_POR_DEFECTO;
+  }
+}
 
 /**
  * Valida la clave de acceso al panel de administración.
  */
 export function verificarClaveAdmin(clave: string): boolean {
-  return clave.trim() === CLAVE_ADMIN_POR_DEFECTO;
+  return clave.trim() === obtenerClaveAdminActual();
+}
+
+/**
+ * Permite al administrador cambiar su contraseña de acceso.
+ */
+export function cambiarClaveAdmin(nuevaClave: string): { exito: boolean; mensaje: string } {
+  const claveLimpia = nuevaClave.trim();
+  if (claveLimpia.length < 6) {
+    return { exito: false, mensaje: 'La nueva clave debe tener al menos 6 caracteres.' };
+  }
+  try {
+    const almacen = resolverAlmacenClave();
+    almacen.setItem(LLAVE_CLAVE_ADMIN, claveLimpia);
+    return { exito: true, mensaje: '¡Contraseña de administración actualizada correctamente!' };
+  } catch {
+    return { exito: false, mensaje: 'Error al guardar la nueva contraseña en este dispositivo.' };
+  }
+}
+
+/**
+ * Restablece la clave de administración mediante correo maestro autorizado.
+ */
+export function restablecerClaveAdminPorEmail(email: string): { exito: boolean; mensaje: string } {
+  const norm = normalizarEmail(email);
+  if (!norm) {
+    return { exito: false, mensaje: 'Por favor ingresa un correo electrónico de administrador.' };
+  }
+  if (!EMAILS_ADMIN_POR_DEFECTO.includes(norm)) {
+    return {
+      exito: false,
+      mensaje: 'El correo no corresponde a una cuenta autorizada de administración para recuperación.',
+    };
+  }
+
+  try {
+    const almacen = resolverAlmacenClave();
+    almacen.setItem(LLAVE_CLAVE_ADMIN, CLAVE_ADMIN_POR_DEFECTO);
+    return {
+      exito: true,
+      mensaje: `Clave restablecida con éxito a la clave por defecto: "${CLAVE_ADMIN_POR_DEFECTO}". Ya puedes ingresar y cambiarla.`,
+    };
+  } catch {
+    return { exito: false, mensaje: 'Error al restablecer la clave en el dispositivo.' };
+  }
 }
 
 export function estaAutenticadoAdmin(): boolean {

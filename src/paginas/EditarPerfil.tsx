@@ -93,7 +93,16 @@ export default function EditarPerfil() {
   if (cargando || !perfil) return null;
 
   return (
-    <main className="mx-auto max-w-md px-4 pb-48 pt-6">
+    <main className="safe-area-superior mx-auto max-w-md px-4 pb-48 pt-6">
+      <div className="mb-3">
+        <button
+          type="button"
+          onClick={() => navigate('/perfil')}
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 active:scale-95"
+        >
+          ← Volver a Perfil
+        </button>
+      </div>
       <h1 className="mb-4 text-2xl font-bold text-zinc-900">Editar perfil</h1>
       <div className="space-y-4">
         <Tarjeta>

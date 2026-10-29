@@ -157,7 +157,7 @@ export default function Onboarding() {
   );
 
   return (
-    <main className="mx-auto max-w-md px-4 pb-52 pt-6">
+    <main className="safe-area-superior mx-auto max-w-md px-4 pb-52 pt-6">
       <div className="mb-2 text-center">
         <p className="font-marca text-3xl text-marca-magenta">TOTALHIIT</p>
         <p className="mt-1 text-sm text-zinc-500">
