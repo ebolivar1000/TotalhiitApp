@@ -12,6 +12,26 @@ import type {
   WorkoutSession,
 } from './entidades';
 
+export interface Suscriptor {
+  id: string;
+  email: string;
+  nombre?: string;
+  plan: 'mensual' | 'anual' | 'vitalicio' | 'total40';
+  activo: number; // 1 | 0
+  fechaAlta: string;
+  notas?: string;
+}
+
+export interface AnuncioAdmin {
+  id: string;
+  tipo: 'promocion' | 'update' | 'aviso';
+  titulo: string;
+  mensaje: string;
+  enlace?: string;
+  activo: number; // 1 | 0
+  fecha: string;
+}
+
 export const NOMBRE_DB = 'totalhiit-app';
 
 export const db = new Dexie(NOMBRE_DB) as Dexie & {
@@ -25,6 +45,8 @@ export const db = new Dexie(NOMBRE_DB) as Dexie & {
   entradasDiario: EntityTable<EntradaDiario, 'id'>;
   ciclo: EntityTable<CicloRegistro, 'id'>;
   planes: EntityTable<PlanSemanal, 'id'>;
+  suscriptores: EntityTable<Suscriptor, 'id'>;
+  anuncios: EntityTable<AnuncioAdmin, 'id'>;
 };
 
 db.version(1).stores({
@@ -58,4 +80,10 @@ db.version(5).stores({
 /** FASE 9: planes semanales de comidas. */
 db.version(6).stores({
   planes: 'id, userId, semanaInicio, [userId+semanaInicio]',
+});
+
+/** FASE 12: módulo de administración de suscriptores y anuncios del sistema. */
+db.version(7).stores({
+  suscriptores: 'id, email, activo',
+  anuncios: 'id, tipo, activo, fecha',
 });

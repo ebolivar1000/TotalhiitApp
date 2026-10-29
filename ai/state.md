@@ -73,6 +73,16 @@ vitest + vite-plugin-pwa. Capacitor 8 recién en la fase Android.
   1. Descarga de PDF corregida y multiplataforma con `@capacitor/filesystem` y `@capacitor/share`: diálogo nativo del sistema en Android para guardar o abrir, Web Share en móviles y descarga con revocado diferido en web. Mensaje de éxito visible.
   2. Videos privados de YouTube: solicitud del correo de Google (`@gmail.com`) en Onboarding, Perfil y Edición de Perfil. Reproductor con panel de autorización y botón de acción directa `▶️ Abrir en la app de YouTube con Google`.
   3. Actualización de versión con un clic: manifest `/version.json` (v1.0.1), tarjeta en `/ajustes` con "Buscar actualización" y descarga de actualización in-place sobre la app existente sin perder datos de la base de datos local. 186/186 pruebas en verde.
+- **BRANDING OFICIAL, BANNERS MULTIMEDIA, SPLASH ANIMADO, PANEL ADMIN Y CONTROL DEMO ✅** — resuelto y desplegado:
+  1. Letra de PDFs aumentada sustancialmente (títulos 20-22pt, secciones 14pt, ingredientes y pasos 11.5pt, tabla 10.5pt con alto de 24pt, notas 9.5pt) para lectura óptima.
+  2. Banner de instalación inteligente: se oculta automáticamente si la aplicación se ejecuta dentro de la app instalada (Capacitor nativo o PWA standalone).
+  3. Banner hero con logos y video en bucle en pantalla de Inicio (`intro-totalhiit.mp4`).
+  4. Logotipo oficial de TOTALHIIT en la pantalla principal del celular: generación de iconos adaptativos Android (`mipmap-*` para mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) y PWA (192 y 512px).
+  5. Módulo de Admin (`/admin`) protegido con clave (`totalhiit2026`), CRUD de suscriptores y anuncios de promociones/actualizaciones. Las usuarias sin suscripción tienen acceso a Modo Demo (clases 0 y 1, recetas iniciales) y candado informativo en el resto.
+  6. Portada de transición animada (Splash screen) de 2 segundos al abrir la app con logo pulsante, anillos radiantes y barra de carga.
+  7. Banners modernos con Valentina (`totalhiit_1.jpg` .. `8.jpg` y video `entrenamiento.mp4`) en Entrenamientos, Nutrición, Salud, Progreso, Ciclo y Plan.
+  8. Icono de Salud (❤️) añadido a la barra de navegación inferior, completando las 5 secciones principales.
+  9. Optimización de imágenes y resolución de copias recursivas de APK, reduciendo el APK a 15.13 MB y desplegándolo con éxito en Cloudflare Workers (`https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk`). 192/192 pruebas en verde.
 - **FASE 12 (evolución post-MVP): próxima** — IA opcional, panel admin, nuevas
   métricas, accesibilidad e internacionalización.
 

@@ -12,9 +12,12 @@ import {
 } from '../lib/nutricion/recetas';
 import { filtrarRecetas, ordenarPorObjetivo } from '../lib/nutricion/motor';
 import { usePerfil } from '../hooks/usePerfil';
+import { useSuscripcion } from '../hooks/useSuscripcion';
+import BannerSeccion from '../componentes/BannerSeccion';
 
 export default function Nutricion() {
   const { cargando, perfil, preferencias, objetivo } = usePerfil();
+  const { esSuscriptor } = useSuscripcion();
   const navigate = useNavigate();
   const [categoria, setCategoria] = useState<CategoriaReceta | null>(null);
   const [soloFavoritas, setSoloFavoritas] = useState(false);
@@ -70,11 +73,20 @@ export default function Nutricion() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+      {/* Banner moderno con imagen de Valentina */}
+      <BannerSeccion
+        etiqueta="Alimentación +40"
+        titulo="Nutrición Antiinflamatoria"
+        subtitulo="Recetas prácticas y balanceadas diseñadas para regular hormonas y darte energía."
+        imagenSrc="/images/valentina/totalhiit_2.jpg"
+        insignia="Recetas de Valentina"
+      />
+
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Nutrición</h1>
-          <p className="text-sm text-zinc-500">
-            {objetivo ? `Ordenadas para: ${ETIQUETAS_OBJETIVO[objetivo.tipo]}` : 'Elige tu objetivo para priorizarlas'}
+          <h1 className="text-xl font-bold text-zinc-900">Catálogo de Recetas</h1>
+          <p className="text-xs text-zinc-500">
+            {objetivo ? `Priorizadas para: ${ETIQUETAS_OBJETIVO[objetivo.tipo]}` : 'Elige tu objetivo para priorizarlas'}
           </p>
         </div>
         <Link to="/perfil/editar" className="shrink-0 text-xs font-semibold text-marca-magenta">
@@ -129,42 +141,56 @@ export default function Nutricion() {
       </div>
 
       <div className="space-y-3">
-        {filtradas.map((r) => (
-          <Tarjeta key={r.id} className="relative">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate(`/nutricion/${r.id}`)}
-              onKeyDown={(e) => e.key === 'Enter' && navigate(`/nutricion/${r.id}`)}
-              className="flex cursor-pointer items-start gap-3"
-            >
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-marca-crema to-white text-2xl">
-                <span aria-hidden="true">{ICONO_CATEGORIA_RECETA[r.categoria]}</span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-zinc-900">{r.nombre}</p>
-                <p className="mt-0.5 line-clamp-2 text-xs text-zinc-500">{r.descripcion}</p>
-                <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-semibold text-zinc-600">
-                    {r.macrosPorPorcion.kcal} kcal
-                  </span>
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-600">
-                    {r.macrosPorPorcion.proteinaG} g prot.
-                  </span>
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-600">{r.tiempoMin} min</span>
-                  {objetivo && r.objetivosCompatibles.includes(objetivo.tipo) && (
-                    <span className="rounded-full bg-marca-crema px-2 py-0.5 font-semibold text-marca-magenta-oscuro">
-                      Para tu objetivo
+        {filtradas.map((r, idx) => {
+          const esDemo = idx < 4;
+          const bloqueada = !esSuscriptor && !esDemo;
+
+          return (
+            <Tarjeta key={r.id} className="relative">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/nutricion/${r.id}`)}
+                onKeyDown={(e) => e.key === 'Enter' && navigate(`/nutricion/${r.id}`)}
+                className="flex cursor-pointer items-start gap-3"
+              >
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-marca-crema to-white text-2xl">
+                  <span aria-hidden="true">{ICONO_CATEGORIA_RECETA[r.categoria]}</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold text-zinc-900">{r.nombre}</p>
+                  <p className="mt-0.5 line-clamp-2 text-xs text-zinc-500">{r.descripcion}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
+                    {esDemo && (
+                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-bold text-emerald-800">
+                        ⭐ Demo
+                      </span>
+                    )}
+                    {bloqueada && (
+                      <span className="rounded-full bg-purple-100 px-2 py-0.5 font-bold text-marca-magenta">
+                        🔒 Suscriptoras
+                      </span>
+                    )}
+                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-semibold text-zinc-600">
+                      {r.macrosPorPorcion.kcal} kcal
                     </span>
-                  )}
-                  {(conteoPreparadas.get(r.id) ?? 0) > 0 && (
-                    <span className="rounded-full bg-green-100 px-2 py-0.5 font-semibold text-green-700">
-                      ✓ Preparada {conteoPreparadas.get(r.id)}×
+                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-600">
+                      {r.macrosPorPorcion.proteinaG} g prot.
                     </span>
-                  )}
+                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-600">{r.tiempoMin} min</span>
+                    {objetivo && r.objetivosCompatibles.includes(objetivo.tipo) && (
+                      <span className="rounded-full bg-marca-crema px-2 py-0.5 font-semibold text-marca-magenta-oscuro">
+                        Para tu objetivo
+                      </span>
+                    )}
+                    {(conteoPreparadas.get(r.id) ?? 0) > 0 && (
+                      <span className="rounded-full bg-green-100 px-2 py-0.5 font-semibold text-green-700">
+                        ✓ Preparada {conteoPreparadas.get(r.id)}×
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
             <button
               type="button"
               aria-label={favoritas.has(r.id) ? 'Quitar de favoritas' : 'Agregar a favoritas'}
@@ -173,8 +199,9 @@ export default function Nutricion() {
             >
               {favoritas.has(r.id) ? '⭐' : '☆'}
             </button>
-          </Tarjeta>
-        ))}
+            </Tarjeta>
+          );
+        })}
         {filtradas.length === 0 && (
           <Tarjeta className="text-center">
             <p className="text-sm text-zinc-500">No hay recetas con esos filtros. Prueba quitando alguno.</p>

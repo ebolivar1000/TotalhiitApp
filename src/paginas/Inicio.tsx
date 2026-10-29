@@ -1,10 +1,18 @@
 import { Link } from 'react-router';
 import { BotonPrimario, Tarjeta } from '../componentes/ui';
+import BannerSeccion from '../componentes/BannerSeccion';
 import { ETIQUETAS_OBJETIVO } from '../lib/datos/entidades';
 import { usePerfil } from '../hooks/usePerfil';
+import { useSuscripcion } from '../hooks/useSuscripcion';
 
 export default function Inicio() {
   const { cargando, perfil, objetivo } = usePerfil();
+  const { anuncio } = useSuscripcion();
+
+  const esAppInstalada =
+    typeof window !== 'undefined' &&
+    (Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) ||
+      window.matchMedia('(display-mode: standalone)').matches);
 
   if (cargando) return null;
 
@@ -33,29 +41,90 @@ export default function Inicio() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      <div>
-        <p className="text-sm text-zinc-500">Hola,</p>
-        <h1 className="text-2xl font-bold text-zinc-900">{perfil.alias} 👋</h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-semibold text-zinc-500">Bienvenida,</p>
+          <h1 className="text-2xl font-bold text-zinc-900">{perfil.alias} 👋</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/admin"
+            title="Panel de Administración"
+            className="rounded-xl border border-zinc-200 bg-white p-2 text-sm shadow-sm hover:bg-zinc-50"
+          >
+            👑
+          </Link>
+          <Link
+            to="/ajustes"
+            title="Ajustes"
+            className="rounded-xl border border-zinc-200 bg-white p-2 text-sm shadow-sm hover:bg-zinc-50"
+          >
+            ⚙️
+          </Link>
+        </div>
       </div>
 
-      <Tarjeta className="border border-purple-200 bg-purple-50">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">App para Android</p>
-            <p className="mt-1 text-sm font-semibold text-zinc-800">
-              Instala TOTALHIIT directamente en tu celular como app nativa.
-            </p>
-          </div>
-          <span className="text-2xl">📱</span>
-        </div>
-        <a
-          href="/totalhiit.apk"
-          download="totalhiit.apk"
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition-colors hover:bg-marca-magenta-oscuro"
+      {/* Banner hero animado de TOTALHIIT */}
+      <BannerSeccion
+        etiqueta="TOTAL+40"
+        titulo="Tu bienestar cada día"
+        subtitulo="Entrenamiento HIIT adaptado, nutrición antiinflamatoria y salud integral guiada por Valentina."
+        videoSrc="/videos/intro-totalhiit.mp4"
+        imagenSrc="/images/valentina/totalhiit_1.jpg"
+        insignia="Coach Valentina"
+        altura="h-44"
+      />
+
+      {/* Aviso o Promoción del Administrador si está activo */}
+      {anuncio && (
+        <div
+          className={`rounded-2xl p-4 text-xs shadow-sm border ${
+            anuncio.tipo === 'promocion'
+              ? 'border-amber-200 bg-amber-50 text-amber-900'
+              : anuncio.tipo === 'update'
+                ? 'border-purple-200 bg-purple-50 text-purple-900'
+                : 'border-blue-200 bg-blue-50 text-blue-900'
+          }`}
         >
-          Descargar APK para Android
-        </a>
-      </Tarjeta>
+          <div className="flex items-center gap-2">
+            <span className="text-base">
+              {anuncio.tipo === 'promocion' ? '🎉' : anuncio.tipo === 'update' ? '📲' : 'ℹ️'}
+            </span>
+            <p className="font-bold">{anuncio.titulo}</p>
+          </div>
+          <p className="mt-1 leading-relaxed text-zinc-700">{anuncio.mensaje}</p>
+          {anuncio.enlace && (
+            <a
+              href={anuncio.enlace}
+              className="mt-2 inline-block font-bold text-marca-magenta underline"
+            >
+              Ver más detalles →
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* Banner de instalación APK SOLO en navegador web cuando NO está instalada */}
+      {!esAppInstalada && (
+        <Tarjeta className="border border-purple-200 bg-purple-50">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">App para Android</p>
+              <p className="mt-1 text-sm font-semibold text-zinc-800">
+                Instala TOTALHIIT directamente en tu celular como app nativa.
+              </p>
+            </div>
+            <span className="text-2xl">📱</span>
+          </div>
+          <a
+            href="/totalhiit.apk"
+            download="totalhiit.apk"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition-colors hover:bg-marca-magenta-oscuro"
+          >
+            Descargar APK para Android
+          </a>
+        </Tarjeta>
+      )}
 
       {objetivo && (
         <Tarjeta className="bg-marca-crema">

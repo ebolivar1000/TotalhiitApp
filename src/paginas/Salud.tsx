@@ -9,6 +9,7 @@ import { calcularAguaDiaria } from '../lib/salud/hidratacion';
 import { calcularProteinaDiaria } from '../lib/salud/proteina';
 import { edadCumplida } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
+import BannerSeccion from '../componentes/BannerSeccion';
 
 const numero = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1 });
 
@@ -125,10 +126,14 @@ export default function Salud() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-900">Mi salud</h1>
-        <p className="text-sm text-zinc-500">Cálculos orientativos con tus datos</p>
-      </div>
+      {/* Banner moderno con imagen de Valentina */}
+      <BannerSeccion
+        etiqueta="Salud y Metabolismo"
+        titulo="Tus Métricas de Salud"
+        subtitulo="Cálculos de metabolismo basal, requerimiento hídrico y balance nutricional adaptados a ti."
+        imagenSrc="/images/valentina/totalhiit_4.jpg"
+        insignia="Bienestar Integral"
+      />
 
       <Tarjeta>
         <div className="flex items-center justify-between">

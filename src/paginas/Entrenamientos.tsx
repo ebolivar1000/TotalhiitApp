@@ -19,6 +19,8 @@ import {
 } from '../lib/entrenamiento/sesiones';
 import { equipoDisponible } from '../lib/entrenamiento/filtros';
 import { usePerfil } from '../hooks/usePerfil';
+import { useSuscripcion } from '../hooks/useSuscripcion';
+import BannerSeccion from '../componentes/BannerSeccion';
 
 const DURACIONES = [null, 15, 25, 35] as const;
 
@@ -35,6 +37,7 @@ const PESTANAS_SEMANA: { id: FiltroSemana; etiqueta: string }[] = [
 
 export default function Entrenamientos() {
   const { cargando, perfil, objetivo } = usePerfil();
+  const { esSuscriptor } = useSuscripcion();
   const navigate = useNavigate();
   const [semanaFiltro, setSemanaFiltro] = useState<FiltroSemana>('todas');
   const [categoria, setCategoria] = useState<CategoriaSesion | null>(null);
@@ -96,6 +99,9 @@ export default function Entrenamientos() {
   // Agrupamiento por semana cuando se muestran todas
   const renderItemSesion = (s: Workout) => {
     const tieneEquipo = equipoDisponible(s, perfil?.equipamiento);
+    const esDemo = s.orden === 0 || s.orden === 1;
+    const bloqueada = !esSuscriptor && !esDemo;
+
     return (
       <Tarjeta key={s.id} className="relative">
         <div
@@ -109,9 +115,21 @@ export default function Entrenamientos() {
             <span aria-hidden="true">{ICONO_CATEGORIA[s.categorias[0] ?? 'activacion']}</span>
           </div>
           <div className="min-w-0 flex-1 pr-6">
-            <p className="font-semibold text-zinc-900">{s.titulo}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold text-zinc-900">{s.titulo}</p>
+            </div>
             <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{s.descripcion}</p>
             <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
+              {esDemo && (
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-bold text-emerald-800">
+                  ⭐ Demo Gratis
+                </span>
+              )}
+              {bloqueada && (
+                <span className="rounded-full bg-purple-100 px-2 py-0.5 font-bold text-marca-magenta">
+                  🔒 Suscriptoras
+                </span>
+              )}
               <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-semibold text-zinc-600">
                 {s.duracionMin} min
               </span>
@@ -150,12 +168,34 @@ export default function Entrenamientos() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-900">Entrenamientos</h1>
-        <p className="text-sm text-zinc-500">
-          Programa completo TOTAL+40: 12 clases por semana y 2 sesiones de estiramiento.
-        </p>
-      </div>
+      {/* Banner moderno con video de entrenamiento de Valentina */}
+      <BannerSeccion
+        etiqueta="Programa TOTAL+40"
+        titulo="Entrenamientos en Video"
+        subtitulo="12 clases progresivas + 2 de estiramiento adaptadas a tu cuerpo y articulaciones."
+        videoSrc="/videos/entrenamiento.mp4"
+        imagenSrc="/images/valentina/totalhiit_3.jpg"
+        insignia="Coach Valentina"
+      />
+
+      {/* Aviso de Modo Demostración si la cuenta no es suscriptora activa */}
+      {!esSuscriptor && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-900 shadow-sm">
+          <p className="font-bold flex items-center gap-1.5">
+            <span>🔒 Modo Demostración</span>
+            <span className="rounded bg-amber-200/80 px-1.5 py-0.5 text-[10px]">Acceso Básico</span>
+          </p>
+          <p className="mt-1 text-amber-800 leading-relaxed">
+            Tienes acceso libre a las clases Demo. Si ya adquiriste tu plan, registra tu correo de Google (@gmail.com) en tu perfil para desbloquear las 14 clases completas.
+          </p>
+          <Link
+            to="/perfil/editar"
+            className="mt-2 inline-block font-bold text-marca-magenta underline text-xs"
+          >
+            Registrar mi correo @gmail.com →
+          </Link>
+        </div>
+      )}
 
       {/* Pestañas de semana */}
       <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1">

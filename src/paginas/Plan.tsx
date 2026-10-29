@@ -17,6 +17,7 @@ import { consolidarCompras } from '../lib/nutricion/compras';
 import { lunesDeSemana, sumarDias } from '../lib/progreso/metricas';
 import { fechaHoyIso } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
+import BannerSeccion from '../componentes/BannerSeccion';
 
 const fechaCorta = (iso: string) => iso.slice(5).split('-').reverse().join('/');
 
@@ -106,11 +107,20 @@ export default function Plan() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+      {/* Banner moderno con imagen de Valentina */}
+      <BannerSeccion
+        etiqueta="Organización Nutricional"
+        titulo="Plan Semanal de Comidas"
+        subtitulo="Menú estructurado para los 7 días adaptado a tus alérgenos y requerimientos."
+        imagenSrc="/images/valentina/totalhiit_7.jpg"
+        insignia="Plan 7 Días"
+      />
+
       <div>
-        <h1 className="text-xl font-bold text-zinc-900">Plan semanal</h1>
+        <h1 className="text-xl font-bold text-zinc-900">Menú Semanal</h1>
         <p className="text-sm text-zinc-500">
           {fechaCorta(semanaInicio)} al {fechaCorta(sumarDias(semanaInicio, 6))} · sugerido por tu objetivo y
-          preferencias (sin IA).
+          preferencias.
         </p>
       </div>
 

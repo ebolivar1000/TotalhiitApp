@@ -245,6 +245,12 @@ export default function Ajustes() {
         </p>
       </Tarjeta>
 
+      <div className="pt-2 text-center">
+        <Link to="/admin" className="text-xs text-zinc-400 hover:text-marca-magenta">
+          👑 Panel de Administración
+        </Link>
+      </div>
+
       <div className="h-20 w-full shrink-0" aria-hidden="true" />
     </main>
   );

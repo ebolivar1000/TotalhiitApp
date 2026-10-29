@@ -7,6 +7,7 @@ import { ETIQUETAS_CATEGORIA_RECETA, ICONO_CATEGORIA_RECETA, obtenerReceta } fro
 import { escalarReceta, formatearCantidad } from '../lib/nutricion/motor';
 import { fechaHoyIso } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
+import { useSuscripcion } from '../hooks/useSuscripcion';
 
 const ETIQUETAS_PRESUPUESTO: Record<string, string> = { bajo: 'Ajustado', medio: 'Medio', alto: 'Flexible' };
 
@@ -25,6 +26,7 @@ function Macro({ valor, unidad, rotulo }: { valor: number; unidad: string; rotul
 export default function DetalleReceta() {
   const { id } = useParams<{ id: string }>();
   const { cargando, perfil, preferencias } = usePerfil();
+  const { esSuscriptor } = useSuscripcion();
   const receta = id ? obtenerReceta(id) : undefined;
   const [porciones, setPorciones] = useState(2);
   const [favorita, setFavorita] = useState(false);
@@ -75,6 +77,11 @@ export default function DetalleReceta() {
   };
 
   const descargar = async () => {
+    if (!esSuscriptor && !['r-01', 'r-02', 'r-03', 'r-04'].includes(receta.id)) {
+      setMensaje('Esta receta requiere suscripción activa para descargar en PDF.');
+      return;
+    }
+
     setGenerandoPdf(true);
     setMensaje('');
     try {
@@ -96,6 +103,21 @@ export default function DetalleReceta() {
       <Link to="/nutricion" className="text-sm font-semibold text-marca-magenta">
         ← Nutrición
       </Link>
+
+      {!esSuscriptor && !['r-01', 'r-02', 'r-03', 'r-04'].includes(receta.id) && (
+        <Tarjeta className="border-purple-200 bg-purple-50">
+          <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Receta Exclusiva</p>
+          <p className="mt-1 text-xs text-zinc-700">
+            Esta receta y su PDF descargable son exclusivos para suscriptoras de TOTALHIIT.
+          </p>
+          <Link
+            to="/perfil/editar"
+            className="mt-2 inline-block text-xs font-bold text-marca-magenta underline"
+          >
+            Registrar mi correo @gmail.com →
+          </Link>
+        </Tarjeta>
+      )}
 
       <div>
         <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">

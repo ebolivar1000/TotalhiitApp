@@ -21,6 +21,7 @@ import {
 import { episodiosSangrado, estimarCiclo, estadoDeHoy, type EstadoHoy } from '../lib/ciclo/estimaciones';
 import { fechaHoyIso, isoAFecha } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
+import BannerSeccion from '../componentes/BannerSeccion';
 
 type RegistroLegible = CicloRegistro & { datos: DatosCiclo };
 
@@ -350,12 +351,14 @@ export default function Ciclo() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900">Ciclo menstrual</h1>
-          <p className="text-sm text-zinc-500">Privado: cifrado en este dispositivo 🔐</p>
-        </div>
-      </div>
+      {/* Banner moderno con imagen de Valentina */}
+      <BannerSeccion
+        etiqueta="Privacidad Estricta"
+        titulo="Ciclo y Bienestar Hormonal"
+        subtitulo="Registros 100% privados y cifrados exclusivamente en tu dispositivo."
+        imagenSrc="/images/valentina/totalhiit_6.jpg"
+        insignia="Cifrado Local"
+      />
 
       {/* 1. CALENDARIO PRIMERO (Requerimiento de usuario) */}
       <Tarjeta>

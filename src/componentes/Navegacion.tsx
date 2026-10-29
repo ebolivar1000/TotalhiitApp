@@ -2,10 +2,10 @@ import { NavLink, useLocation } from 'react-router';
 
 const items = [
   { to: '/', etiqueta: 'Inicio', icono: '🏠' },
-  { to: '/nutricion', etiqueta: 'Nutrición', icono: '🥗' },
   { to: '/entrenamientos', etiqueta: 'Entrenar', icono: '💪' },
+  { to: '/nutricion', etiqueta: 'Nutrición', icono: '🥗' },
+  { to: '/salud', etiqueta: 'Salud', icono: '❤️' },
   { to: '/progreso', etiqueta: 'Progreso', icono: '📈' },
-  { to: '/ajustes', etiqueta: 'Ajustes', icono: '⚙️' },
 ];
 
 export default function Navegacion() {
@@ -25,8 +25,8 @@ export default function Navegacion() {
             to={item.to}
             end={item.to === '/'}
             className={({ isActive }) =>
-              `flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-xs transition-colors ${
-                isActive ? 'text-marca-magenta font-semibold' : 'text-zinc-500'
+              `flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] transition-colors ${
+                isActive ? 'text-marca-magenta font-semibold' : 'text-zinc-500 hover:text-zinc-700'
               }`
             }
           >

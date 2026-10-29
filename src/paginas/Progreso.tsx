@@ -26,6 +26,7 @@ import {
 import { sugerenciasDashboard } from '../lib/progreso/recomendaciones';
 import { fechaCorta, fechaHoyIso, isoAFecha } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
+import BannerSeccion from '../componentes/BannerSeccion';
 
 const formatoNumero = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1 });
 
@@ -368,12 +369,14 @@ export default function Progreso() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      <div>
-        <h1 className="text-xl font-bold text-zinc-900">Progreso y hábitos</h1>
-        <p className="text-sm text-zinc-500">
-          Sin puntuaciones ni culpas: aquí se ve lo que vienes construyendo, día a día.
-        </p>
-      </div>
+      {/* Banner moderno con imagen de Valentina */}
+      <BannerSeccion
+        etiqueta="Bienestar Diario"
+        titulo="Hábitos y Progreso"
+        subtitulo="Sin presiones ni culpas: aquí ves lo que vienes construyendo día a día."
+        imagenSrc="/images/valentina/totalhiit_5.jpg"
+        insignia="Constancia"
+      />
 
       {/* Racha */}
       <Tarjeta className="bg-gradient-to-br from-marca-magenta to-marca-magenta-oscuro text-white">

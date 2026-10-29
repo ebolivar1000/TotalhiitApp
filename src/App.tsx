@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import Navegacion from './componentes/Navegacion';
 import AvisoConexion from './componentes/AvisoConexion';
+import PortadaTransicion from './componentes/PortadaTransicion';
+import Admin from './paginas/Admin';
 import { LLAVE_ONBOARDING_COMPLETADO, LLAVE_ONBOARDING_SALTADO, usePerfil } from './hooks/usePerfil';
 import Ajustes from './paginas/Ajustes';
 import Ciclo from './paginas/Ciclo';
@@ -37,6 +39,7 @@ export default function App() {
 
   return (
     <div className="min-h-dvh bg-neutro-100">
+      <PortadaTransicion />
       <AvisoConexion />
       <Routes>
         <Route path="/" element={<Inicio />} />
@@ -52,9 +55,10 @@ export default function App() {
         <Route path="/progreso" element={<Progreso />} />
         <Route path="/ciclo" element={<Ciclo />} />
         <Route path="/ajustes" element={<Ajustes />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      {!location.pathname.startsWith('/onboarding') && <Navegacion />}
+      {!location.pathname.startsWith('/onboarding') && !location.pathname.startsWith('/admin') && <Navegacion />}
     </div>
   );
 }

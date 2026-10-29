@@ -8,11 +8,13 @@ import { alternarFavorito, esFavorito, registrarSesion, sesionesDeWorkout } from
 import { ETIQUETAS_CATEGORIA, ETIQUETAS_NIVEL_SESION, obtenerSesion } from '../lib/entrenamiento/sesiones';
 import { fechaHoyIso } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
+import { useSuscripcion } from '../hooks/useSuscripcion';
 
 export default function DetalleEntrenamiento() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { cargando, perfil } = usePerfil();
+  const { esSuscriptor } = useSuscripcion();
   const [favorito, setFavorito] = useState(false);
   const [historial, setHistorial] = useState<WorkoutSession[]>([]);
   const [mensaje, setMensaje] = useState('');
@@ -83,11 +85,36 @@ export default function DetalleEntrenamiento() {
         </div>
       </div>
 
-      <ReproductorVideo
-        youtubeId={sesion.youtubeId}
-        titulo={sesion.titulo}
-        emailGoogle={perfil.emailGoogle}
-      />
+      {/* Si la clase está bloqueada por suscripción, muestra el aviso de desbloqueo */}
+      {!esSuscriptor && (sesion.orden ?? 0) > 1 ? (
+        <Tarjeta className="border-purple-200 bg-purple-50 text-center py-8">
+          <span className="text-4xl">🔒</span>
+          <h2 className="mt-3 text-lg font-bold text-zinc-900">Clase Exclusiva para Suscriptoras</h2>
+          <p className="mt-2 text-xs text-zinc-600 max-w-xs mx-auto leading-relaxed">
+            Esta clase es parte del programa completo TOTAL+40. Para acceder, debes tener tu correo de Google (@gmail.com) registrado en tu perfil con suscripción activa.
+          </p>
+          <div className="mt-4 flex flex-col gap-2 max-w-xs mx-auto">
+            <Link
+              to="/perfil/editar"
+              className="rounded-xl bg-marca-magenta px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-marca-magenta-oscuro"
+            >
+              Configurar mi correo @gmail.com
+            </Link>
+            <Link
+              to="/entrenamientos"
+              className="text-xs font-semibold text-zinc-600 hover:text-marca-magenta"
+            >
+              ← Ver clases de demostración
+            </Link>
+          </div>
+        </Tarjeta>
+      ) : (
+        <ReproductorVideo
+          youtubeId={sesion.youtubeId}
+          titulo={sesion.titulo}
+          emailGoogle={perfil.emailGoogle}
+        />
+      )}
 
       <Tarjeta>
         <p className="text-sm leading-relaxed text-zinc-600">{sesion.descripcion}</p>

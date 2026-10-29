@@ -1,5 +1,29 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-29 (sesión 15) — Branding Oficial, Banners Multimedia, Portada Animada, Panel de Admin y Control Demo
+- **Letras de PDF ampliadas para máxima legibilidad:**
+  ajuste tipográfico en `src/lib/nutricion/pdf.ts` incrementando tamaños a 20-22pt en títulos principales, 14pt en encabezados de sección, 11.5pt en listas de ingredientes y pasos (con interlineado generoso de 18pt), 10.5pt en la tabla nutricional (filas de 24pt) y notas aclaratorias a 9.5pt.
+- **Detección inteligente de App Instalada vs Navegador:**
+  en `Inicio.tsx`, el banner con llamado a la acción para instalar o descargar la app se oculta automáticamente si la aplicación se ejecuta dentro de la app nativa instalada (Capacitor) o en modo PWA standalone (`window.matchMedia('(display-mode: standalone)').matches`).
+- **Banner Hero con Branding y Video en Bucle:**
+  incorporación de reproductor de video en bucle en la cabecera de la pantalla de Inicio con `intro-totalhiit.mp4`, degradados oscuros de alto contraste y logotipos oficiales de TOTALHIIT.
+- **Logotipo Oficial de TOTALHIIT en Pantalla Principal del Celular (Iconos Android y PWA):**
+  script `scripts/generar-iconos-android.ps1` que generó los iconos de la app en todas las densidades de Android (`mipmap-mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`) para `ic_launcher.png`, `ic_launcher_round.png` e `ic_launcher_foreground.png`, así como los iconos de PWA (`icon-192.png`, `icon-512.png`), reemplazando el icono genérico de Capacitor por el branding oficial de TOTALHIIT.
+- **Módulo de Administración (`/admin`), Suscriptores Activos y Modo Demo:**
+  - Base de datos Dexie actualizada a versión 7 (`suscriptores` y `anuncios`).
+  - Servicio `admin-servicio.ts` con clave de seguridad (`totalhiit2026`), administradores por defecto (`caribialabs@gmail.com`, `ebolivar1000@gmail.com`), CRUD completo de suscriptores y anuncios de promociones/actualizaciones. 6 pruebas unitarias (`admin-servicio.test.ts`).
+  - Pantalla `/admin` accesible desde Ajustes con protección por contraseña, gestión de suscriptores y editor de anuncios.
+  - Modo Demo implementado: las usuarias que aún no están dadas de alta como suscriptoras activas acceden a una demo funcional (clases 0 y 1 en Entrenamientos, primeras recetas en Nutrición); el resto del catálogo muestra candado informativo 🔒 y recordatorio para vincular su cuenta de Google o suscribirse.
+  - Tablón de anuncios activos en pantalla de Inicio para avisos de promociones y nuevas versiones de la app.
+- **Portada de Transición Animada (Splash Screen):**
+  componente `PortadaTransicion.tsx` que muestra una presentación animada de 2 segundos al abrir la app con logo pulsante, anillos radiantes, lema de marca "Entrenamiento, Nutrición y Salud para Mujeres +40" y barra de progreso fluida.
+- **Banners Modernos con Valentina en Todas las Secciones:**
+  componente reutilizable `BannerSeccion.tsx` con soporte para video en bucle y fotografías optimizadas de Valentina (`totalhiit_1.jpg` a `totalhiit_8.jpg`), degradados de diseño y badges de sección integrados en `Entrenamientos`, `Nutrición`, `Salud`, `Progreso`, `Ciclo` y `Plan`.
+- **Icono de Salud en la Barra Inferior:**
+  barra de navegación actualizada en `Navegacion.tsx` mostrando las 5 secciones principales: Inicio, Entrenar, Nutrición, Salud (❤️) y Progreso.
+- **Optimización y Despliegue en Cloudflare Workers:**
+  optimización de imágenes con `scripts/optimizar-imagenes.ps1` y eliminación de copias recursivas de APK, reduciendo el APK de Android a solo 15.13 MB (muy por debajo del límite de 25 MB de Cloudflare). Despliegue completado con éxito en `https://totalhiit-app.caribialabs.workers.dev` y `totalhiit.apk` disponible para descarga directa. 192/192 pruebas unitarias pasando.
+
 ## 2026-10-28 (sesión 14) — Descarga Nativa de PDFs, Acceso a Videos Privados con Gmail y Actualizador In-App
 - **Descarga y guardado de PDFs nativo y multiplataforma:**
   integración de `@capacitor/filesystem` (v8.1.5) y `@capacitor/share` (v8.0.3). En Android APK, el PDF se escribe en caché y se comparte directamente mediante la hoja nativa del sistema (Guardar en Descargas, Drive, Abrir con PDF viewer, etc.). En navegadores móviles se usa Web Share con `new File(...)`, y en escritorio descarga directa con revocado diferido de Blob URL (60s). Mensajes claros de confirmación en `DetalleReceta.tsx` y `Plan.tsx`.

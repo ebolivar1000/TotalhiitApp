@@ -125,18 +125,18 @@ async function crearMarco(doc: PDFDocument) {
     }
   };
   const seccion = (titulo: string) => {
-    espacio(34);
-    page.drawText(sanitizar(titulo), { x: MARGEN, y: y - 12, size: 12, font: fontBold, color: MAGENTA });
-    y -= 22;
+    espacio(38);
+    page.drawText(sanitizar(titulo), { x: MARGEN, y: y - 14, size: 14, font: fontBold, color: MAGENTA });
+    y -= 24;
   };
   const cabecera = async (subtitulo: string, logoBytes?: Uint8Array) => {
     let x = MARGEN;
     if (logoBytes) x += await incrustarLogo(doc, page, y, logoBytes);
-    page.drawText('TOTALHIIT', { x, y: y - 15, size: 19, font: fontBold, color: MAGENTA });
-    page.drawText('entrenamiento y nutrición +40', { x, y: y - 28, size: 8, font, color: TEXTO_SUAVE });
-    y -= 46;
-    escribir(subtitulo, { size: 9, color: TEXTO_SUAVE });
-    y -= 4;
+    page.drawText('TOTALHIIT', { x, y: y - 17, size: 22, font: fontBold, color: MAGENTA });
+    page.drawText('entrenamiento y nutrición +40', { x, y: y - 32, size: 10, font, color: TEXTO_SUAVE });
+    y -= 52;
+    escribir(subtitulo, { size: 11, color: TEXTO_SUAVE });
+    y -= 6;
   };
 
   return {
@@ -196,44 +196,44 @@ export async function generarPdfReceta(
     opciones.logoBytes,
   );
 
-  marco.escribir(receta.nombre, { size: 17, bold: true });
-  marco.y -= 2;
-  marco.escribir(receta.descripcion, { size: 9.5, color: TEXTO_SUAVE });
-  marco.y -= 6;
+  marco.escribir(receta.nombre, { size: 20, bold: true });
+  marco.y -= 4;
+  marco.escribir(receta.descripcion, { size: 11.5, color: TEXTO_SUAVE });
+  marco.y -= 8;
 
   // Ingredientes escalados
   const escalada = escalarReceta(receta, porciones);
   marco.seccion(`Ingredientes (${porciones} ${porciones === 1 ? 'porción' : 'porciones'})`);
   for (const ing of escalada.ingredientes) {
     const cantidad = ing.cantidad === null ? 'a gusto' : `${formatearCantidad(ing.cantidad)} ${ing.unidad}`;
-    marco.escribir(`• ${ing.nombre} — ${cantidad}`, { size: 10, sangria: 4 });
+    marco.escribir(`• ${ing.nombre} — ${cantidad}`, { size: 11.5, sangria: 4 });
   }
-  marco.y -= 4;
+  marco.y -= 6;
 
   // Preparación
   marco.seccion('Preparación');
   receta.pasos.forEach((paso, indice) => {
-    marco.espacio(16);
-    marco.page.drawText(`${indice + 1}.`, { x: MARGEN, y: marco.y - 10, size: 10, font: marco.fontBold, color: MAGENTA });
-    const lineas = wrapText(paso, marco.font, 10, ANCHO - MARGEN * 2 - 18);
+    marco.espacio(18);
+    marco.page.drawText(`${indice + 1}.`, { x: MARGEN, y: marco.y - 12, size: 12, font: marco.fontBold, color: MAGENTA });
+    const lineas = wrapText(paso, marco.font, 11.5, ANCHO - MARGEN * 2 - 22);
     for (const linea of lineas) {
-      marco.espacio(14);
-      marco.page.drawText(linea, { x: MARGEN + 18, y: marco.y - 10, size: 10, font: marco.font, color: TEXTO });
-      marco.y -= 14;
+      marco.espacio(16);
+      marco.page.drawText(linea, { x: MARGEN + 22, y: marco.y - 12, size: 11.5, font: marco.font, color: TEXTO });
+      marco.y -= 16;
     }
-    marco.y -= 2;
+    marco.y -= 4;
   });
   if (receta.sustituciones) {
-    marco.escribir(`Sustituciones: ${receta.sustituciones}`, { size: 9, color: TEXTO_SUAVE });
-    marco.y -= 2;
+    marco.escribir(`Sustituciones: ${receta.sustituciones}`, { size: 11, color: TEXTO_SUAVE });
+    marco.y -= 4;
   }
   if (receta.conservacion) {
-    marco.escribir(`Conservación: ${receta.conservacion}`, { size: 9, color: TEXTO_SUAVE });
-    marco.y -= 2;
+    marco.escribir(`Conservación: ${receta.conservacion}`, { size: 11, color: TEXTO_SUAVE });
+    marco.y -= 4;
   }
 
   // Tabla nutricional
-  marco.espacio(120);
+  marco.espacio(130);
   marco.seccion('Información nutricional (valores aproximados)');
   const colLabel = 110;
   const colW = (ANCHO - MARGEN * 2 - colLabel) / 5;
@@ -256,7 +256,7 @@ export async function generarPdfReceta(
       String(escalada.macrosTotales.fibraG),
     ],
   ];
-  const altoFila = 20;
+  const altoFila = 24;
   filas.forEach((fila, indiceFila) => {
     marco.espacio(altoFila + 2);
     const yFila = marco.y - altoFila;
@@ -269,23 +269,23 @@ export async function generarPdfReceta(
     fila.forEach((celda, indiceCol) => {
       const cx = MARGEN + (indiceCol === 0 ? 6 : colLabel + (indiceCol - 1) * colW + 5);
       const fuente = indiceFila === 0 || indiceCol === 0 ? marco.fontBold : marco.font;
-      marco.page.drawText(celda, { x: cx, y: yFila + 6, size: 8.5, font: fuente, color: TEXTO });
+      marco.page.drawText(celda, { x: cx, y: yFila + 7, size: 10, font: fuente, color: TEXTO });
       marco.y = yFila;
     });
   });
-  marco.y -= 18;
+  marco.y -= 20;
 
   // Notas legales y de fuentes
   marco.escribir(
     'Los valores nutricionales son aproximados y fueron elaborados con tablas de composición de alimentos de dominio público (USDA FoodData Central).',
-    { size: 8, color: TEXTO_SUAVE },
+    { size: 9.5, color: TEXTO_SUAVE },
   );
   marco.escribir(
     'Este material es orientativo y no reemplaza el consejo, diagnóstico o tratamiento de profesionales de la salud.',
-    { size: 8, color: TEXTO_SUAVE },
+    { size: 9.5, color: TEXTO_SUAVE },
   );
   marco.escribir(`Generado el ${fecha.toLocaleDateString('es-AR')} por la app TOTALHIIT. Uso personal.`, {
-    size: 8,
+    size: 9.5,
     color: TEXTO_SUAVE,
   });
 
@@ -326,11 +326,11 @@ export async function generarPdfPlan(
       if (receta) {
         marco.escribir(
           `${ETIQUETAS_COMIDA_PLAN[slot.comida]}: ${receta.nombre} — ${receta.macrosPorPorcion.kcal} kcal/porción`,
-          { size: 10, sangria: 4 },
+          { size: 11.5, sangria: 4 },
         );
       } else {
         marco.escribir(`${ETIQUETAS_COMIDA_PLAN[slot.comida]}: (receta no disponible en el catálogo)`, {
-          size: 10,
+          size: 11.5,
           sangria: 4,
           color: TEXTO_SUAVE,
         });
@@ -342,14 +342,14 @@ export async function generarPdfPlan(
   marco.espacio(60);
   marco.escribir(
     'Los valores nutricionales de cada receta son aproximados (USDA FoodData Central, dominio público) y los totales de la semana dependen de las porciones que cocines.',
-    { size: 8, color: TEXTO_SUAVE },
+    { size: 9.5, color: TEXTO_SUAVE },
   );
   marco.escribir(
-    'Este plan es orientativo y no reemplaza el consejo de profesionales de la salud. Podés reemplazar cualquier comida desde la app.',
-    { size: 8, color: TEXTO_SUAVE },
+    'Este plan es orientativo y no reemplaza el consejo de profesionales de la salud. Puedes reemplazar cualquier comida desde la app.',
+    { size: 9.5, color: TEXTO_SUAVE },
   );
   marco.escribir(`Generado el ${fecha.toLocaleDateString('es-AR')} por la app TOTALHIIT. Uso personal.`, {
-    size: 8,
+    size: 9.5,
     color: TEXTO_SUAVE,
   });
 
