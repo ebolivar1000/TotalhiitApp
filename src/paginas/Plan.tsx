@@ -41,24 +41,58 @@ export default function Plan() {
   );
 
   useEffect(() => {
+    let activo = true;
     if (!perfil) {
       setCargandoDatos(false);
       return;
     }
-    void (async () => {
-      setPlan(await obtenerPlanSemanal(perfil.id, semanaInicio));
-      setCargandoDatos(false);
+    (async () => {
+      try {
+        const existente = await obtenerPlanSemanal(perfil.id, semanaInicio);
+        if (!activo) return;
+        if (existente && existente.slots && existente.slots.length > 0) {
+          setPlan(existente);
+        } else {
+          // Auto-generación inicial para que la usuaria nunca vea la pantalla vacía
+          const porciones = preferencias?.porcionesHabituales ?? 2;
+          const slots = generarPlan(opciones);
+          const nuevo = await guardarPlanSemanal(perfil.id, semanaInicio, slots, porciones);
+          if (activo) setPlan(nuevo);
+        }
+      } catch (err) {
+        console.error('Error al inicializar plan semanal:', err);
+      } finally {
+        if (activo) setCargandoDatos(false);
+      }
     })();
-  }, [perfil, semanaInicio]);
+    return () => {
+      activo = false;
+    };
+  }, [perfil, semanaInicio, opciones, preferencias]);
 
-  if (cargando || cargandoDatos) return null;
+  if (cargando || cargandoDatos) {
+    return (
+      <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+        <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
+          <div className="h-9 w-9 animate-spin rounded-full border-4 border-marca-magenta border-t-transparent" />
+          <p className="text-sm font-semibold text-zinc-700">Preparando tu menú semanal…</p>
+          <p className="text-xs text-zinc-400">Adaptando recetas a tus objetivos y requerimientos</p>
+        </div>
+      </main>
+    );
+  }
 
   if (!perfil) {
     return (
-      <main className="mx-auto max-w-md px-4 pb-48 pt-6 text-center">
+      <main className="safe-area-superior mx-auto max-w-md px-4 pb-48 pt-6 text-center">
         <Tarjeta>
-          <p className="text-sm text-zinc-600">Completa tu perfil para organizar tu plan.</p>
-          <Link to="/onboarding" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
+          <p className="text-3xl" aria-hidden="true">🥗</p>
+          <h2 className="mt-2 font-bold text-zinc-900">Configura tu perfil</h2>
+          <p className="mt-1 text-sm text-zinc-600">Completa tu perfil para que podamos organizar tu plan semanal personalizado.</p>
+          <Link
+            to="/onboarding"
+            className="mt-4 inline-block rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition hover:bg-marca-magenta-oscuro"
+          >
             Ir al onboarding
           </Link>
         </Tarjeta>
@@ -112,7 +146,7 @@ export default function Plan() {
         etiqueta="Organización Nutricional"
         titulo="Plan Semanal de Comidas"
         subtitulo="Menú estructurado para los 7 días adaptado a tus alérgenos y requerimientos."
-        imagenSrc="/images/valentina/totalhiit_7.jpg"
+        imagenSrc="/images/banner-plan.jpg"
         insignia="Plan 7 Días"
       />
 

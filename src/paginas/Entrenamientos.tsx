@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Tarjeta } from '../componentes/ui';
 import { ETIQUETAS_NIVEL_ACTIVIDAD } from '../lib/datos/entidades';
 import {
@@ -39,7 +39,18 @@ export default function Entrenamientos() {
   const { cargando, perfil, objetivo } = usePerfil();
   const { esSuscriptor } = useSuscripcion();
   const navigate = useNavigate();
-  const [semanaFiltro, setSemanaFiltro] = useState<FiltroSemana>('todas');
+  const [searchParams] = useSearchParams();
+  const semanaQuery = searchParams.get('semana') as FiltroSemana | null;
+  const [semanaFiltro, setSemanaFiltro] = useState<FiltroSemana>(
+    semanaQuery && ['1', '2', '3', '4', 'estiramientos'].includes(semanaQuery) ? semanaQuery : 'todas'
+  );
+
+  useEffect(() => {
+    const sem = searchParams.get('semana') as FiltroSemana | null;
+    if (sem && ['1', '2', '3', '4', 'estiramientos'].includes(sem)) {
+      setSemanaFiltro(sem);
+    }
+  }, [searchParams]);
   const [categoria, setCategoria] = useState<CategoriaSesion | null>(null);
   const [duracionMax, setDuracionMax] = useState<number | null>(null);
   const [favoritos, setFavoritos] = useState<Set<string>>(new Set());
@@ -182,7 +193,7 @@ export default function Entrenamientos() {
         titulo="Entrenamientos en Video"
         subtitulo="12 clases progresivas + 2 de estiramiento adaptadas a tu cuerpo y articulaciones."
         videoSrc="/videos/entrenamiento.mp4"
-        imagenSrc="/images/valentina/totalhiit_3.jpg"
+        imagenSrc="/images/banner-entrenamiento.jpg"
         insignia="Coach Valentina"
       />
 

@@ -405,7 +405,17 @@ export async function guardarPlanSemanal(
 }
 
 export async function obtenerPlanSemanal(userId: string, semanaInicio: string): Promise<PlanSemanal | undefined> {
-  return db.planes.where('[userId+semanaInicio]').equals([userId, semanaInicio]).first();
+  try {
+    return await db.planes.where('[userId+semanaInicio]').equals([userId, semanaInicio]).first();
+  } catch (err) {
+    console.warn('Fallback al buscar plan semanal:', err);
+    try {
+      const todos = await db.planes.where('userId').equals(userId).toArray();
+      return todos.find((p) => p.semanaInicio === semanaInicio);
+    } catch {
+      return undefined;
+    }
+  }
 }
 
 export async function planesDeUsuario(userId: string): Promise<PlanSemanal[]> {

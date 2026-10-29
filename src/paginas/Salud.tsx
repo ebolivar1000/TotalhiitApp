@@ -131,7 +131,7 @@ export default function Salud() {
         etiqueta="Salud y Metabolismo"
         titulo="Tus Métricas de Salud"
         subtitulo="Cálculos de metabolismo basal, requerimiento hídrico y balance nutricional adaptados a ti."
-        imagenSrc="/images/valentina/totalhiit_4.jpg"
+        imagenSrc="/images/banner-salud.jpg"
         insignia="Bienestar Integral"
       />
 

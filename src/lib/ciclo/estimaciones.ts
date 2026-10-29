@@ -45,6 +45,8 @@ export interface EstimacionCiclo {
   duracionPromedio: number;
   duracionMinima: number;
   duracionMaxima: number;
+  /** Variación promedio típica de duración en días (desviación media absoluta). */
+  variacionPromedio: number;
   proximoInicioEstimado: string;
   ventanaDesde: string;
   ventanaHasta: string;
@@ -72,6 +74,8 @@ export function estimarCiclo(registros: DiaLegible[], _hoy: string): ResultadoCi
   const minima = Math.min(...duraciones);
   const maxima = Math.max(...duraciones);
   const desvio = Math.sqrt(duraciones.reduce((a, d) => a + (d - promedio) ** 2, 0) / duraciones.length);
+  const variacionMedia = duraciones.reduce((acc, d) => acc + Math.abs(d - promedio), 0) / duraciones.length;
+  const variacionPromedio = Math.round(variacionMedia * 10) / 10;
 
   let irregular = false;
   let motivoIrregularidad: EstimacionCiclo['motivoIrregularidad'] = null;
@@ -99,6 +103,7 @@ export function estimarCiclo(registros: DiaLegible[], _hoy: string): ResultadoCi
     duracionPromedio: Math.round(promedio * 10) / 10,
     duracionMinima: minima,
     duracionMaxima: maxima,
+    variacionPromedio: variacionPromedio === 0 ? 1 : variacionPromedio,
     proximoInicioEstimado,
     ventanaDesde,
     ventanaHasta,
@@ -116,4 +121,128 @@ export function estadoDeHoy(estimacion: ResultadoCiclo, hoy: string): EstadoHoy 
   if (hoy >= estimacion.ventanaDesde && hoy <= estimacion.ventanaHasta) return 'en_ventana';
   if (hoy < estimacion.ventanaDesde) return 'antes_de_ventana';
   return 'despues_de_ventana';
+}
+
+export type FaseCiclo = 'menstrual' | 'folicular' | 'ovulatoria' | 'lutea';
+
+export interface InfoSemanaCiclo {
+  diaCiclo: number;
+  semana: 1 | 2 | 3 | 4;
+  fase: FaseCiclo;
+  nombreFase: string;
+  icono: string;
+  colorClase: string;
+  colorBorde: string;
+  colorBg: string;
+  descripcionFase: string;
+  recomendacionTotalhiit: string;
+  semanaVideo: '1' | '2' | '3' | '4';
+}
+
+/** Determina la semana y fase del ciclo actual según el último inicio de sangrado. */
+export function calcularSemanaCiclo(ultimoInicio: string, hoy: string): InfoSemanaCiclo {
+  const diff = diasEntre(ultimoInicio, hoy);
+  const diaCiclo = Math.max(1, diff + 1);
+
+  if (diaCiclo <= 7) {
+    return {
+      diaCiclo,
+      semana: 1,
+      fase: 'menstrual',
+      nombreFase: 'Fase Menstrual',
+      icono: '🩸',
+      colorClase: 'text-rose-600',
+      colorBorde: 'border-rose-400',
+      colorBg: 'bg-rose-50',
+      descripcionFase: 'Tus niveles hormonales están bajos y tu cuerpo prioriza regeneración celular.',
+      recomendacionTotalhiit: 'Entrenamientos suaves, bajo impacto o sesiones de estiramientos regenerativos.',
+      semanaVideo: '1',
+    };
+  }
+
+  if (diaCiclo <= 14) {
+    return {
+      diaCiclo,
+      semana: 2,
+      fase: 'folicular',
+      nombreFase: 'Fase Folicular',
+      icono: '🌱',
+      colorClase: 'text-emerald-600',
+      colorBorde: 'border-emerald-400',
+      colorBg: 'bg-emerald-50',
+      descripcionFase: 'Aumento progresivo de estrógenos y energía. Mayor resistencia a la fatiga muscular.',
+      recomendacionTotalhiit: 'Momento óptimo para fuerza progresiva y tonificación muscular.',
+      semanaVideo: '2',
+    };
+  }
+
+  if (diaCiclo <= 21) {
+    return {
+      diaCiclo,
+      semana: 3,
+      fase: 'ovulatoria',
+      nombreFase: 'Fase Ovulatoria',
+      icono: '⚡',
+      colorClase: 'text-amber-600',
+      colorBorde: 'border-amber-400',
+      colorBg: 'bg-amber-50',
+      descripcionFase: 'Pico de vitalidad y fuerza muscular. Tu cuerpo responde con máxima potencia.',
+      recomendacionTotalhiit: 'Máxima energía para sesiones HIIT intensas y estímulo cardiovascular.',
+      semanaVideo: '3',
+    };
+  }
+
+  return {
+    diaCiclo,
+    semana: 4,
+    fase: 'lutea',
+    nombreFase: 'Fase Lútea / Premenstrual',
+    icono: '🌙',
+    colorClase: 'text-purple-600',
+    colorBorde: 'border-purple-400',
+    colorBg: 'bg-purple-50',
+    descripcionFase: 'Aumento de progesterona. El metabolismo se eleva ligeramente; prioriza constancia.',
+    recomendacionTotalhiit: 'Ritmo moderado, ejercicios controlados y descanso reparador.',
+    semanaVideo: '4',
+  };
+}
+
+export interface CicloMesHistorial {
+  mesNombre: string;
+  anio: number;
+  inicio: string;
+  fin: string;
+  diasSangrado: number;
+  duracionCicloDias: number | null;
+  esRegular: boolean;
+}
+
+/** Construye un seguimiento estructurado mes a mes de los ciclos registrados. */
+export function construirHistorialMesAMes(episodios: EpisodioSangrado[]): CicloMesHistorial[] {
+  if (episodios.length === 0) return [];
+  const ordenados = [...episodios].sort((a, b) => b.inicio.localeCompare(a.inicio));
+
+  return ordenados.map((ep, idx) => {
+    const fecha = new Date(ep.inicio + 'T00:00:00');
+    const mesNombre = fecha.toLocaleDateString('es-ES', { month: 'long' });
+    const anio = fecha.getFullYear();
+
+    let duracionCicloDias: number | null = null;
+    const epAnterior = ordenados[idx + 1];
+    if (epAnterior) {
+      duracionCicloDias = diasEntre(epAnterior.inicio, ep.inicio);
+    }
+
+    const esRegular = duracionCicloDias !== null ? duracionCicloDias >= 21 && duracionCicloDias <= 35 : true;
+
+    return {
+      mesNombre: mesNombre.charAt(0).toUpperCase() + mesNombre.slice(1),
+      anio,
+      inicio: ep.inicio,
+      fin: ep.fin,
+      diasSangrado: ep.diasSangrado,
+      duracionCicloDias,
+      esRegular,
+    };
+  });
 }

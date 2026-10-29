@@ -374,7 +374,7 @@ export default function Progreso() {
         etiqueta="Bienestar Diario"
         titulo="Hábitos y Progreso"
         subtitulo="Sin presiones ni culpas: aquí ves lo que vienes construyendo día a día."
-        imagenSrc="/images/valentina/totalhiit_5.jpg"
+        imagenSrc="/images/banner-progreso.jpg"
         insignia="Constancia"
       />
 

@@ -18,7 +18,15 @@ import {
   revocarConsentimiento,
   tieneConsentimiento,
 } from '../lib/datos/repositorio';
-import { episodiosSangrado, estimarCiclo, estadoDeHoy, type EstadoHoy } from '../lib/ciclo/estimaciones';
+import {
+  episodiosSangrado,
+  estimarCiclo,
+  estadoDeHoy,
+  calcularSemanaCiclo,
+  construirHistorialMesAMes,
+  type EstadoHoy,
+} from '../lib/ciclo/estimaciones';
+import { diasEntre, sumarDias } from '../lib/progreso/metricas';
 import { fechaHoyIso, isoAFecha } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
 import BannerSeccion from '../componentes/BannerSeccion';
@@ -290,13 +298,59 @@ export default function Ciclo() {
     setConfirmandoBorrado(0);
   };
 
+  const hoy = useMemo(() => fechaHoyIso(), []);
+
   // Métricas y conjuntos de fechas
   const episodios = useMemo(
     () => episodiosSangrado(registros.map((r) => r.fecha)),
     [registros],
   );
-  const estimacion = useMemo(() => estimarCiclo(registros, fechaHoyIso()), [registros]);
-  const estado = useMemo(() => estadoDeHoy(estimacion, fechaHoyIso()), [estimacion]);
+  const estimacion = useMemo(() => estimarCiclo(registros, hoy), [registros, hoy]);
+  const estado = useMemo(() => estadoDeHoy(estimacion, hoy), [estimacion, hoy]);
+
+  // Episodio más reciente y cálculo de la semana actual
+  const ultimoEpisodio = episodios.length > 0 ? episodios[episodios.length - 1] : undefined;
+  const ultimoInicio = ultimoEpisodio?.inicio;
+
+  const infoSemana = useMemo(() => {
+    if (!ultimoInicio) return null;
+    return calcularSemanaCiclo(ultimoInicio, hoy);
+  }, [ultimoInicio, hoy]);
+
+  // Historial estructurado mes a mes
+  const historialMeses = useMemo(() => construirHistorialMesAMes(episodios), [episodios]);
+
+  // Estimaciones clave para panel rápido
+  const proximoInicio = useMemo(() => {
+    if (estimacion.suficiente) return estimacion.proximoInicioEstimado;
+    if (ultimoInicio) return sumarDias(ultimoInicio, 28);
+    return null;
+  }, [estimacion, ultimoInicio]);
+
+  const cuentaRegresivaTexto = useMemo(() => {
+    if (!proximoInicio) return 'Sin registros';
+    const diff = diasEntre(hoy, proximoInicio);
+    if (diff > 1) return `Faltan ${diff} días`;
+    if (diff === 1) return 'Mañana es el día previsto';
+    if (diff === 0) return 'Hoy es el día previsto';
+    return `${Math.abs(diff)} días de retraso`;
+  }, [hoy, proximoInicio]);
+
+  const duracionPromedioDias = useMemo(() => {
+    if (estimacion.suficiente) return estimacion.duracionPromedio;
+    return 28;
+  }, [estimacion]);
+
+  const variacionPromedioDias = useMemo(() => {
+    if (estimacion.suficiente) return estimacion.variacionPromedio;
+    return 2;
+  }, [estimacion]);
+
+  const diasSangradoPromedio = useMemo(() => {
+    if (episodios.length === 0) return 5;
+    const total = episodios.reduce((acc, ep) => acc + ep.diasSangrado, 0);
+    return Math.round((total / episodios.length) * 10) / 10;
+  }, [episodios]);
 
   const fechasSangrado = useMemo(
     () => new Set(registros.filter((r) => r.datos.flujo !== 'manchado').map((r) => r.fecha)),
@@ -309,14 +363,25 @@ export default function Ciclo() {
 
   const regFechaSeleccionada = registros.find((r) => r.fecha === fechaSeleccionada);
 
-  if (cargando || cargandoDatos || consentimiento === null) return null;
+  if (cargando || cargandoDatos || consentimiento === null) {
+    return (
+      <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
+        <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
+          <div className="h-9 w-9 animate-spin rounded-full border-4 border-marca-magenta border-t-transparent" />
+          <p className="text-sm font-semibold text-zinc-700">Cargando ciclo menstrual…</p>
+        </div>
+      </main>
+    );
+  }
 
   if (!perfil) {
     return (
-      <main className="mx-auto max-w-md px-4 pb-48 pt-6 text-center">
+      <main className="safe-area-superior mx-auto max-w-md px-4 pb-48 pt-6 text-center">
         <Tarjeta>
-          <p className="text-sm text-zinc-600">Completa tu perfil primero.</p>
-          <Link to="/onboarding" className="mt-3 inline-block text-sm font-semibold text-marca-magenta">
+          <p className="text-3xl mb-2">🌸</p>
+          <h2 className="font-bold text-zinc-900 mb-1">Completa tu perfil</h2>
+          <p className="text-sm text-zinc-600">Completa tu perfil primero para activar el seguimiento de tu ciclo.</p>
+          <Link to="/onboarding" className="mt-4 inline-block rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow">
             Ir al onboarding
           </Link>
         </Tarjeta>
@@ -356,11 +421,144 @@ export default function Ciclo() {
         etiqueta="Privacidad Estricta"
         titulo="Ciclo y Bienestar Hormonal"
         subtitulo="Registros 100% privados y cifrados exclusivamente en tu dispositivo."
-        imagenSrc="/images/valentina/totalhiit_6.jpg"
+        imagenSrc="/images/banner-ciclo.jpg"
         insignia="Cifrado Local"
       />
 
-      {/* 1. CALENDARIO PRIMERO (Requerimiento de usuario) */}
+      {/* 1. TARJETA PRINCIPAL ESTILO FLO / CLUE: "¿EN QUÉ SEMANA ESTÁS HOY?" */}
+      {infoSemana ? (
+        <div className={`relative overflow-hidden rounded-3xl border ${infoSemana.colorBorde} ${infoSemana.colorBg} p-5 shadow-sm`}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-bold shadow-xs backdrop-blur">
+                <span>{infoSemana.icono}</span>
+                <span className={infoSemana.colorClase}>Día {infoSemana.diaCiclo} de tu ciclo</span>
+              </span>
+              <h2 className="mt-2 text-2xl font-black text-zinc-900 tracking-tight">
+                {infoSemana.nombreFase}
+              </h2>
+              <p className="mt-1 text-xs font-medium text-zinc-600 max-w-xs">
+                {infoSemana.descripcionFase}
+              </p>
+            </div>
+
+            <div className="flex flex-col items-end shrink-0">
+              <span className="rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                Semana {infoSemana.semana}
+              </span>
+              <span className="mt-1 text-[10px] text-zinc-400 font-semibold uppercase">del ciclo</span>
+            </div>
+          </div>
+
+          {/* Barra de progreso de las 4 fases */}
+          <div className="mt-4 grid grid-cols-4 gap-1.5">
+            {[1, 2, 3, 4].map((s) => {
+              const esActiva = s === infoSemana.semana;
+              const esPasada = s < infoSemana.semana;
+              return (
+                <div key={s} className="flex flex-col gap-1">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      esActiva
+                        ? 'bg-marca-magenta ring-2 ring-marca-magenta/30'
+                        : esPasada
+                        ? 'bg-zinc-400/80'
+                        : 'bg-zinc-200'
+                    }`}
+                  />
+                  <span className={`text-[10px] text-center font-bold ${esActiva ? 'text-marca-magenta font-black' : 'text-zinc-400'}`}>
+                    Sem {s}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Tarjeta de recomendación de Totalhiit y botón directo a los videos de la semana */}
+          <div className="mt-4 rounded-2xl bg-white/95 p-4 shadow-xs backdrop-blur border border-white">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-pink-100 text-sm">
+                🏋️‍♀️
+              </span>
+              <div>
+                <p className="text-xs font-bold text-zinc-900">Tu entrenamiento recomendado para hoy</p>
+                <p className="text-[11px] text-zinc-600">{infoSemana.recomendacionTotalhiit}</p>
+              </div>
+            </div>
+
+            <Link
+              to={`/entrenamientos?semana=${infoSemana.semanaVideo}`}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-zinc-800 active:scale-98"
+            >
+              <span>▶️ Ir a videos de la Semana {infoSemana.semanaVideo}</span>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-3xl border border-pink-200 bg-pink-50/60 p-5 shadow-sm text-center">
+          <p className="text-3xl">🌸</p>
+          <h2 className="mt-2 text-lg font-bold text-zinc-900">¿En qué semana de tu ciclo estás?</h2>
+          <p className="mt-1 text-xs text-zinc-600 max-w-sm mx-auto">
+            Registra la fecha de tu último período abajo para saber en qué semana y fase hormonal te encuentras hoy, y adaptar tus entrenamientos de Totalhiit.
+          </p>
+          <button
+            type="button"
+            onClick={() => setModoRegistro('rango')}
+            className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-marca-magenta px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-marca-magenta-oscuro"
+          >
+            + Registrar último período
+          </button>
+        </div>
+      )}
+
+      {/* 2. PANEL DE MÉTRICAS RÁPIDAS Y ESTIMACIONES (Flo / Clue style) */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {/* Próximo período */}
+        <div className="rounded-2xl border border-zinc-200/80 bg-white p-3.5 shadow-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Próximo ciclo</span>
+          <p className="mt-1 text-base font-extrabold text-zinc-900">
+            {proximoInicio ? fechaCorta(proximoInicio) : 'Sin datos'}
+          </p>
+          <p className="text-[11px] font-semibold text-marca-magenta">
+            {cuentaRegresivaTexto}
+          </p>
+        </div>
+
+        {/* Duración promedio */}
+        <div className="rounded-2xl border border-zinc-200/80 bg-white p-3.5 shadow-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Duración promedio</span>
+          <p className="mt-1 text-base font-extrabold text-zinc-900">
+            {duracionPromedioDias} días
+          </p>
+          <p className="text-[11px] text-zinc-500">
+            {episodios.length > 1 ? `En ${episodios.length} ciclos` : 'Referencia inicial'}
+          </p>
+        </div>
+
+        {/* Variación promedio */}
+        <div className="rounded-2xl border border-zinc-200/80 bg-white p-3.5 shadow-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Variación promedio</span>
+          <p className="mt-1 text-base font-extrabold text-zinc-900">
+            ± {variacionPromedioDias} días
+          </p>
+          <p className="text-[11px] text-zinc-500">
+            {estimacion.suficiente && estimacion.irregular ? 'Variación alta' : 'Rango regular'}
+          </p>
+        </div>
+
+        {/* Días de sangrado habitual */}
+        <div className="rounded-2xl border border-zinc-200/80 bg-white p-3.5 shadow-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Sangrado habitual</span>
+          <p className="mt-1 text-base font-extrabold text-zinc-900">
+            {diasSangradoPromedio} días
+          </p>
+          <p className="text-[11px] text-zinc-500">
+            Duración media
+          </p>
+        </div>
+      </div>
+
+      {/* 3. CALENDARIO INTERACTIVO */}
       <Tarjeta>
         <h2 className="mb-2 font-bold text-zinc-900">Calendario del ciclo</h2>
         <CalendarioCiclo
@@ -368,12 +566,12 @@ export default function Ciclo() {
           onSeleccionarFecha={setFechaSeleccionada}
           fechasSangrado={fechasSangrado}
           fechasManchado={fechasManchado}
-          ventanaDesde={estimacion?.suficiente ? estimacion.ventanaDesde : undefined}
-          ventanaHasta={estimacion?.suficiente ? estimacion.ventanaHasta : undefined}
+          ventanaDesde={estimacion?.suficiente ? estimacion.ventanaDesde : proximoInicio ? sumarDias(proximoInicio, -2) : undefined}
+          ventanaHasta={estimacion?.suficiente ? estimacion.ventanaHasta : proximoInicio ? sumarDias(proximoInicio, 2) : undefined}
         />
       </Tarjeta>
 
-      {/* 2. REGISTRO FLEXIBLE: Por día o por rango de ciclo completo */}
+      {/* 4. REGISTRO FLEXIBLE: Por día o por rango de ciclo completo */}
       <Tarjeta>
         <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
           <h2 className="font-bold text-zinc-900">Registrar ciclo</h2>
@@ -541,18 +739,65 @@ export default function Ciclo() {
         )}
       </Tarjeta>
 
-      {/* 3. ESTIMACIÓN ORIENTATIVA */}
+      {/* 5. SEGUIMIENTO MES A MES (Flo / Clue style history) */}
       <Tarjeta>
-        <h2 className="font-bold text-zinc-900">Estimación (orientativa)</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-zinc-900">Seguimiento mes a mes</h2>
+          <span className="text-xs font-semibold text-zinc-400">
+            {historialMeses.length} {historialMeses.length === 1 ? 'ciclo registrado' : 'ciclos registrados'}
+          </span>
+        </div>
+
+        {historialMeses.length === 0 ? (
+          <p className="mt-2 text-sm text-zinc-500">Todavía no hay períodos registrados para mostrar el historial mes a mes.</p>
+        ) : (
+          <div className="mt-3 space-y-2.5">
+            {historialMeses.map((h, i) => (
+              <div
+                key={`${h.inicio}-${i}`}
+                className="rounded-2xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition hover:bg-zinc-50"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-zinc-900 text-sm">
+                    {h.mesNombre} {h.anio}
+                  </span>
+                  {h.duracionCicloDias !== null ? (
+                    <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-purple-700">
+                      Ciclo: {h.duracionCicloDias} días
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-pink-100 px-2.5 py-0.5 text-xs font-bold text-pink-700">
+                      Ciclo en curso
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-2 flex items-center justify-between text-xs text-zinc-600">
+                  <span className="flex items-center gap-1">
+                    🩸 Sangrado: <strong>{fechaCorta(h.inicio)}</strong> al <strong>{fechaCorta(h.fin)}</strong> ({h.diasSangrado} {h.diasSangrado === 1 ? 'día' : 'días'})
+                  </span>
+                  <span className={`text-[11px] font-semibold ${h.esRegular ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    {h.esRegular ? '✓ Regular' : 'Variación alta'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Tarjeta>
+
+      {/* 6. ESTIMACIÓN ORIENTATIVA DETALLADA */}
+      <Tarjeta>
+        <h2 className="font-bold text-zinc-900">Estimación y diagnóstico orientativo</h2>
         {estimacion && estimacion.suficiente ? (
           <div className="mt-2 space-y-1 text-sm text-zinc-700">
             <p>
-              Tu ciclo promedio: <strong>{estimacion.duracionPromedio} días</strong> (entre {estimacion.duracionMinima} y{' '}
-              {estimacion.duracionMaxima} según tus últimos {estimacion.ciclosContados} ciclos).
+              Tu ciclo promedio es de <strong>{estimacion.duracionPromedio} días</strong> (duraciones registradas entre {estimacion.duracionMinima} y{' '}
+              {estimacion.duracionMaxima} días según tus últimos {estimacion.ciclosContados} ciclos).
             </p>
             <p>
               Próximo posible inicio: <strong>entre {fechaCorta(estimacion.ventanaDesde)} y {fechaCorta(estimacion.ventanaHasta)}</strong>{' '}
-              (centro de la ventana: {fechaCorta(estimacion.proximoInicioEstimado)}).
+              (fecha central proyectada: {fechaCorta(estimacion.proximoInicioEstimado)}).
             </p>
             <p className="text-xs text-zinc-500">{ETIQUETAS_ESTADO[estado]}</p>
             {estimacion.irregular && (
@@ -565,39 +810,17 @@ export default function Ciclo() {
           </div>
         ) : (
           <p className="mt-2 text-sm text-zinc-600">
-            {estimacion && !estimacion.suficiente && estimacion.motivo === 'sin_registros'
+            {episodios.length === 0
               ? 'Registra tus días de sangrado para armar tu primer ciclo.'
-              : 'Con un solo ciclo registrado todavía no hay patrón: sigue registrando y en el próximo aparecerán rangos.'}
+              : 'Con un solo ciclo registrado usamos una estimación inicial de 28 días. Conforme registres tus próximos meses, se adaptará exactamente a tu ritmo biológico.'}
           </p>
         )}
         <p className="mt-3 rounded-lg bg-zinc-50 px-3 py-2 text-[11px] text-zinc-500">
-          Estimación con incertidumbre, no una fecha exacta. No sirve para prevenir ni planificar embarazos y no reemplaza el consejo de profesionales de la salud.
+          Estimación con incertidumbre, no una fecha clínica exacta. No sirve para prevenir ni planificar embarazos y no reemplaza el consejo de profesionales de la salud.
         </p>
       </Tarjeta>
 
-      {/* 4. HISTORIAL */}
-      <Tarjeta>
-        <h2 className="font-bold text-zinc-900">Historial de ciclos</h2>
-        {episodios.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-500">Todavía no hay episodios de sangrado registrados.</p>
-        ) : (
-          <ul className="mt-2 space-y-2 text-sm text-zinc-600">
-            {episodios.map((e, i) => (
-              <li key={e.inicio} className="flex items-center justify-between border-b border-zinc-100 pb-2 last:border-0">
-                <span>
-                  <span className="font-semibold text-zinc-800">Ciclo #{episodios.length - i}</span> · inicio{' '}
-                  {fechaCorta(e.inicio)}
-                </span>
-                <span className="text-xs text-zinc-400">
-                  {e.diasSangrado} {e.diasSangrado === 1 ? 'día' : 'días'} de sangrado
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Tarjeta>
-
-      {/* 5. CONTROL DEL MÓDULO */}
+      {/* 7. CONTROL DEL MÓDULO Y PRIVACIDAD */}
       <Tarjeta>
         <h2 className="text-sm font-bold text-zinc-900">Desactivar el módulo</h2>
         <p className="mt-1 text-xs text-zinc-500">
@@ -614,7 +837,7 @@ export default function Ciclo() {
       </Tarjeta>
 
       <p className="text-center text-[11px] text-zinc-400">
-        Los registros se cifran con una clave que vive solo en este dispositivo y nunca viaja a internet.
+        Los registros se cifran con una clave AES-GCM que vive solo en este dispositivo y nunca viaja a internet.
       </p>
 
       <div className="h-20 w-full shrink-0" aria-hidden="true" />
