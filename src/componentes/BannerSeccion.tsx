@@ -8,6 +8,7 @@ interface BannerSeccionProps {
   imagenSrc?: string;
   insignia?: string;
   altura?: string;
+  velocidad?: number;
 }
 
 export default function BannerSeccion({
@@ -18,19 +19,21 @@ export default function BannerSeccion({
   imagenSrc,
   insignia,
   altura = 'h-40',
+  velocidad,
 }: BannerSeccionProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
+  const tieneTexto = Boolean(titulo || subtitulo);
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 0.85; // Movimiento suave y cinematográfico
+      videoRef.current.playbackRate = velocidad ?? (videoSrc?.includes('presentacion') ? 1.0 : 0.85);
       videoRef.current.play().catch(() => {
         // En navegadores que restrinjan autoplay, se muestra la imagen de respaldo
         setVideoError(true);
       });
     }
-  }, [videoSrc]);
+  }, [videoSrc, velocidad]);
 
   return (
     <div
@@ -46,21 +49,31 @@ export default function BannerSeccion({
           loop
           muted
           playsInline
-          className="absolute inset-0 h-full w-full object-cover object-center filter brightness-[0.75]"
+          className={`absolute inset-0 h-full w-full object-cover object-center filter ${
+            tieneTexto ? 'brightness-[0.75]' : 'brightness-[0.95]'
+          }`}
           onError={() => setVideoError(true)}
         />
       ) : imagenSrc ? (
         <img
           src={imagenSrc}
-          alt={titulo}
-          className="absolute inset-0 h-full w-full object-cover object-top filter brightness-[0.75] transition-transform duration-1000 ease-out hover:scale-105"
+          alt={titulo ?? 'Totalhiit'}
+          className={`absolute inset-0 h-full w-full object-cover object-top filter transition-transform duration-1000 ease-out hover:scale-105 ${
+            tieneTexto ? 'brightness-[0.75]' : 'brightness-[0.95]'
+          }`}
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-purple-950 via-zinc-900 to-pink-950" />
       )}
 
-      {/* Degradado oscuro para máxima legibilidad */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/20" />
+      {/* Degradado sobre el video: más suave si no hay texto */}
+      <div
+        className={`absolute inset-0 ${
+          tieneTexto
+            ? 'bg-gradient-to-t from-black/85 via-black/45 to-black/20'
+            : 'bg-gradient-to-t from-black/40 via-transparent to-black/20'
+        }`}
+      />
 
       {/* Decoración luminosa sutil */}
       <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-marca-magenta/30 blur-2xl" />
@@ -73,27 +86,31 @@ export default function BannerSeccion({
               <span className="h-1.5 w-1.5 rounded-full bg-pink-400 animate-pulse" />
               {etiqueta}
             </span>
-          ) : <span />}
+          ) : (
+            <span />
+          )}
 
           {insignia && (
-            <span className="rounded-full bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold text-zinc-300 backdrop-blur-sm border border-white/10">
+            <span className="ml-auto rounded-full bg-black/60 px-3 py-1 text-[11px] font-bold tracking-wide text-white backdrop-blur-md border border-white/20 shadow-sm">
               {insignia}
             </span>
           )}
         </div>
 
-        <div>
-          {titulo && (
-            <h2 className="text-lg font-black tracking-tight text-white drop-shadow-sm sm:text-xl">
-              {titulo}
-            </h2>
-          )}
-          {subtitulo && (
-            <p className="mt-0.5 max-w-sm text-xs font-medium text-pink-100/90 line-clamp-2">
-              {subtitulo}
-            </p>
-          )}
-        </div>
+        {tieneTexto && (
+          <div>
+            {titulo && (
+              <h2 className="text-lg font-black tracking-tight text-white drop-shadow-sm sm:text-xl">
+                {titulo}
+              </h2>
+            )}
+            {subtitulo && (
+              <p className="mt-0.5 max-w-sm text-xs font-medium text-pink-100/90 line-clamp-2">
+                {subtitulo}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

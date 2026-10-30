@@ -1,5 +1,19 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-30 (sesión 20) — Video de Presentación en Bucle en Entrenamientos y Respaldo de Recursos Multimedia
+- **Video Banner de Entrenamientos:**
+  - Sustituido el video de fondo anterior en `Entrenamientos.tsx` por `public/videos/presentaciondelasclases.mp4`.
+  - Optimizado el video mediante FFmpeg con compresión H.264 CRF 26, `+faststart` y perfil de banner móvil (reducción de 56.2 MB iniciales a 4.68 MB), asegurando reproducción instantánea sin buffering y cumpliendo con el límite de 25 MB por archivo estático en Cloudflare Workers y compatibilidad nativa en Android.
+  - Video configurado en bucle continuo y silencioso (`autoPlay`, `loop`, `muted`, `playsInline`).
+  - Removido todo texto, título y subtítulo del banner en `Entrenamientos.tsx`, dejando de forma exclusiva la insignia en la esquina superior derecha: `"Coach VALENTINA"`.
+  - En `BannerSeccion.tsx`, refinada la visualización: cuando no hay títulos, el degradado es más transparente y el brillo se preserva al 95% para resaltar la calidad visual del video de Valentina, manteniendo la insignia fijada a la esquina superior derecha.
+- **Sincronización y Compilación:**
+  - 196/196 pruebas unitarias aprobadas (`npm test`).
+  - Compilación Web (`dist`) y sincronización nativa de Capacitor con Android ejecutadas con éxito.
+  - Generada nueva compilación nativa de depuración `app-debug.apk` (24.48 MB) y copiada a `public/totalhiit.apk` y `dist/totalhiit.apk`.
+  - Desplegado en Cloudflare Workers (`npx wrangler deploy`).
+  - Todos los videos e imágenes respaldados en Git y listos en GitHub.
+
 ## 2026-10-30 (sesión 19) — Actualización APK v1.0.3 (Build 4), Banner Limpio de Entrenamientos, Vista Dual de Nutrición y Autocarga Resistente de Menú Semanal
 - **Incremento y Sincronización Global de Versión v1.0.3 (Build 4):**
   - Actualizado `versionCode 4` y `versionName "1.0.3"` en `android/app/build.gradle`.

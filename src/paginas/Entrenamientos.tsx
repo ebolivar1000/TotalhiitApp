@@ -187,12 +187,11 @@ export default function Entrenamientos() {
 
   return (
     <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-      {/* Banner moderno con video de entrenamiento de Valentina */}
+      {/* Banner de video en bucle con presentación de las clases */}
       <BannerSeccion
-        subtitulo="12 clases progresivas + 2 de estiramiento adaptadas a tu cuerpo y articulaciones."
-        videoSrc="/videos/entrenamiento.mp4"
+        videoSrc="/videos/presentaciondelasclases.mp4"
         imagenSrc="/images/banner-entrenamiento.jpg"
-        insignia="Coach Valentina"
+        insignia="Coach VALENTINA"
       />
 
       {/* Aviso de Modo Demostración si la cuenta no es suscriptora activa */}
