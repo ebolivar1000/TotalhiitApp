@@ -30,6 +30,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpeg,woff,woff2}'],
+        globIgnores: ['**/totalhiit.apk', '**/version.json'],
+        skipWaiting: true,
+        clientsClaim: true,
         navigateFallback: '/index.html',
       },
     }),

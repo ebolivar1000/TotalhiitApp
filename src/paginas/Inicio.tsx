@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { BotonPrimario, Tarjeta } from '../componentes/ui';
 import BannerSeccion from '../componentes/BannerSeccion';
@@ -9,6 +10,27 @@ import { VERSION_ACTUAL } from '../lib/version/actualizador';
 export default function Inicio() {
   const { cargando, perfil, objetivo } = usePerfil();
   const { anuncio } = useSuscripcion();
+  const [versionRemota, setVersionRemota] = useState<string | null>(null);
+
+  useEffect(() => {
+    let montado = true;
+    fetch(`https://totalhiit-app.caribialabs.workers.dev/version.json?_t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { Pragma: 'no-cache' },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((datos) => {
+        if (montado && datos?.version) {
+          setVersionRemota(datos.version);
+        }
+      })
+      .catch(() => {
+        // En caso de estar sin conexión, conserva VERSION_ACTUAL local
+      });
+    return () => {
+      montado = false;
+    };
+  }, []);
 
   const esAppInstalada =
     typeof window !== 'undefined' &&
@@ -110,7 +132,12 @@ export default function Inicio() {
         <Tarjeta className="border border-purple-200 bg-purple-50">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">App para Android</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">App para Android</p>
+                <span className="rounded-full bg-purple-200/80 px-2 py-0.5 text-[10px] font-black text-marca-magenta">
+                  v{versionRemota || VERSION_ACTUAL}
+                </span>
+              </div>
               <p className="mt-1 text-sm font-semibold text-zinc-800">
                 Instala TOTALHIIT directamente en tu celular como app nativa.
               </p>
@@ -118,11 +145,14 @@ export default function Inicio() {
             <span className="text-2xl">📱</span>
           </div>
           <a
-            href={`/totalhiit.apk?_v=${Date.now()}`}
+            href={`https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk?_v=${Date.now()}`}
             download="totalhiit.apk"
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition-colors hover:bg-marca-magenta-oscuro"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition-colors hover:bg-marca-magenta-oscuro text-center"
           >
-            Descargar APK para Android (v{VERSION_ACTUAL})
+            <span>Descargar última versión APK</span>
+            <span className="rounded-lg bg-white/20 px-1.5 py-0.5 text-xs font-mono font-bold">
+              v{versionRemota || VERSION_ACTUAL}
+            </span>
           </a>
         </Tarjeta>
       )}

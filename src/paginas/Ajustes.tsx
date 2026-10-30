@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { BotonSecundario, Tarjeta } from '../componentes/ui';
 import { borrarDatosPersonales, exportarDatos } from '../lib/datos/repositorio';
@@ -49,6 +49,10 @@ export default function Ajustes() {
     setEstadoActualizacion(res);
     setBuscandoActualizacion(false);
   };
+
+  useEffect(() => {
+    void verificarVersion();
+  }, []);
 
   const handleCerrarSesion = () => {
     const sesionInvitada = cerrarSesion();
@@ -235,7 +239,7 @@ export default function Ajustes() {
               }}
               className="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-marca-magenta-oscuro active:scale-95 text-center"
             >
-              ⬇️ Descargar APK Oficial (v{VERSION_ACTUAL})
+              ⬇️ Descargar última versión APK (v{estadoActualizacion?.versionRemota?.version || VERSION_ACTUAL})
             </button>
           </div>
 

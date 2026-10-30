@@ -1,5 +1,17 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-30 (sesión 23) — Detección Dinámica de Versión en Web, Invalidation de Service Worker y Versión v1.0.6 (Build 7)
+- **Detección Dinámica de Versión en la Web:**
+  - En `Inicio.tsx`, el botón de descarga del APK ahora busca asíncronamente en segundo plano `/version.json` con `cache: 'no-store'`.
+  - El botón web ahora indica explícitamente: `"📲 Descargar última versión APK"` acompañado de una píldora con la versión remota en vivo (`v1.0.6`), garantizando que los usuarios en navegador siempre vean y descarguen la última versión sin importar si abrieron una pestaña antigua.
+  - En `Ajustes.tsx`, implementada la verificación automática de versión al cargar la pantalla mediante `useEffect`, mostrando la versión remota en el botón de descarga.
+- **Invalidación Inmediata de Service Worker (PWA):**
+  - En `vite.config.ts`, configuradas las opciones `skipWaiting: true` y `clientsClaim: true` en Workbox, asegurando que cuando se despliega una nueva versión web, el navegador active inmediatamente el nuevo Service Worker sin exigir cerrar todas las pestañas ni limpiar datos manualmente.
+  - Se configuró `globIgnores: ['**/totalhiit.apk', '**/version.json']` para que el Service Worker nunca intercepte ni almacene en caché el APK ni el archivo de versión.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.6 (Build 7)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 196/196 pruebas unitarias exitosas, APK v1.0.6 compilado y desplegado.
+
 ## 2026-10-30 (sesión 22) — Corrección Integral de Actualizaciones Over-The-Air y Generación/Impresión de PDFs (v1.0.5 Build 6)
 - **Corrección de Actualizaciones Remotas:**
   - En `src/lib/version/actualizador.ts`, añadido soporte nativo con `CapacitorHttp` para consultas en dispositivos Android, evitando bloqueos de CORS y cachés del WebView.
