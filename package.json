@@ -1,7 +1,7 @@
 {
   "name": "totalhiit-app",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "description": "App TOTALHIIT: entrenamiento HIIT adaptado, nutrición y bienestar para mujeres +40. Un solo código (React + TypeScript), dos distribuciones (APK Android con Capacitor y PWA para iOS/web).",
   "license": "UNLICENSED",

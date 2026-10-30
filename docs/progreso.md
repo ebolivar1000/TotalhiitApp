@@ -1,5 +1,14 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-30 (sesión 21) — Incremento a Versión v1.0.4 (Build 5) para Activación de Actualizaciones Over-The-Air
+- **Sincronización de Versión v1.0.4 (Build 5):**
+  - Actualizado `versionCode 5` y `versionName "1.0.4"` en `android/app/build.gradle`.
+  - Actualizado `VERSION_ACTUAL = '1.0.4'` y `BUILD_ACTUAL = 5` en `src/lib/version/actualizador.ts`.
+  - Actualizado `public/version.json` con `version: "1.0.4"`, `buildNumber: 5` y novedades destacadas.
+  - Actualizado `package.json` a `v1.0.4`.
+  - Con este incremento, cualquier usuario con una versión anterior instalada (v1.0.3 o previa) que pulse "Buscar actualización" en la pantalla de Ajustes detectará de forma inmediata la nueva versión `v1.0.4` disponible y podrá instalarla directamente.
+- **Verificación:** 196/196 pruebas en verde (`npm test`), build web sincronizado y nuevo APK generado.
+
 ## 2026-10-30 (sesión 20) — Video de Presentación en Bucle en Entrenamientos y Respaldo de Recursos Multimedia
 - **Video Banner de Entrenamientos:**
   - Sustituido el video de fondo anterior en `Entrenamientos.tsx` por `public/videos/presentaciondelasclases.mp4`.
