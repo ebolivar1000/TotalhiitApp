@@ -1,5 +1,19 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-30 (sesión 22) — Corrección Integral de Actualizaciones Over-The-Air y Generación/Impresión de PDFs (v1.0.5 Build 6)
+- **Corrección de Actualizaciones Remotas:**
+  - En `src/lib/version/actualizador.ts`, añadido soporte nativo con `CapacitorHttp` para consultas en dispositivos Android, evitando bloqueos de CORS y cachés del WebView.
+  - En `public/_headers`, habilitadas cabeceras `Access-Control-Allow-Origin: *` y métodos asociados para `/version.json` y `/totalhiit.apk`.
+  - En `Inicio.tsx`, corregida la etiqueta estática que decía `v1.0.3` reemplazándola por `v{VERSION_ACTUAL}` dinámico.
+  - Incremento de versión a **v1.0.5 (Build 6)** en `build.gradle`, `version.json`, `package.json` y código fuente.
+- **Corrección de Todos los Botones de Descarga e Impresión de PDF:**
+  - En `DetalleReceta.tsx`, corregido el identificador de recetas demo (`r1`, `r2`, `r3`, `r4` en lugar de `r-01`..`r-04`), el cual bloqueaba la generación de PDF para todas las recetas en modo libre/demostración.
+  - En `pdf.ts`, reemplazada la concatenación pesada en bucle de `Uint8Array` por `FileReader.readAsDataURL` nativo, eliminando bloqueos de memoria en navegadores móviles.
+  - Mejorado el diálogo de compartir nativo en Capacitor (`Share.share`) para abrir con opciones de impresión y guardado sin que el cierre del diálogo dispare falsos errores.
+  - En entorno web, añadido soporte para apertura simultánea en pestaña nueva (`window.open`) facilitando la impresión directa del navegador mediante el visor de PDFs.
+  - En `file_paths.xml`, añadidas las rutas `files-path`, `external-files-path` y `external-cache-path` para compatibilidad universal con FileProvider en Android.
+- **Verificación:** 196/196 pruebas unitarias exitosas, APK v1.0.5 compilado y desplegado.
+
 ## 2026-10-30 (sesión 21) — Incremento a Versión v1.0.4 (Build 5) para Activación de Actualizaciones Over-The-Air
 - **Sincronización de Versión v1.0.4 (Build 5):**
   - Actualizado `versionCode 5` y `versionName "1.0.4"` en `android/app/build.gradle`.

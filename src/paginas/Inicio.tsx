@@ -4,6 +4,7 @@ import BannerSeccion from '../componentes/BannerSeccion';
 import { ETIQUETAS_OBJETIVO } from '../lib/datos/entidades';
 import { usePerfil } from '../hooks/usePerfil';
 import { useSuscripcion } from '../hooks/useSuscripcion';
+import { VERSION_ACTUAL } from '../lib/version/actualizador';
 
 export default function Inicio() {
   const { cargando, perfil, objetivo } = usePerfil();
@@ -121,7 +122,7 @@ export default function Inicio() {
             download="totalhiit.apk"
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition-colors hover:bg-marca-magenta-oscuro"
           >
-            Descargar APK para Android (v1.0.3)
+            Descargar APK para Android (v{VERSION_ACTUAL})
           </a>
         </Tarjeta>
       )}

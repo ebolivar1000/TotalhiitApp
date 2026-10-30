@@ -6,6 +6,9 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-XSS-Protection: 1; mode=block
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+  Access-Control-Allow-Headers: *
 
 # El Service Worker nunca debe cachearse de forma inmutable para permitir auto-actualizaciones
 /sw.js
@@ -22,9 +25,16 @@
 # Manifiesto de versiones y APK para descargas directas (nunca cachear en CDN o navegador)
 /version.json
   Cache-Control: public, max-age=0, must-revalidate, no-cache
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+  Access-Control-Allow-Headers: *
+  Content-Type: application/json; charset=utf-8
 
 /totalhiit.apk
   Cache-Control: public, max-age=0, must-revalidate, no-cache
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+  Access-Control-Allow-Headers: *
   Content-Disposition: attachment; filename="totalhiit.apk"
 
 # Assets versionados con hash (seguros para caché inmutable de 1 año)

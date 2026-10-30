@@ -1,13 +1,12 @@
 {
-  "version": "1.0.4",
-  "buildNumber": 5,
+  "version": "1.0.5",
+  "buildNumber": 6,
   "releaseDate": "2026-10-30",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Nuevo video de presentación de clases en bucle continuo y alta definición.",
-    "Banner de entrenamientos ultra limpio con Coach VALENTINA en esquina superior derecha.",
-    "Optimización y alto contraste visual en reproducción de video.",
-    "Nuevo módulo de ciclo menstrual estilo Flo/Clue con semana del ciclo y enlaces a clases.",
-    "Nutrición con vista rápida de 'Recetas para hoy' y menú semanal rotativo de 7 días."
+    "Reparados todos los botones para imprimir y guardar PDFs de recetas y del plan semanal.",
+    "Buscador de actualizaciones reforzado con petición nativa (CapacitorHttp) y soporte CORS total.",
+    "Presentación en bucle con Coach VALENTINA en módulo de Entrenamientos.",
+    "Módulo de ciclo menstrual renovado y vista de recetas para hoy."
   ]
 }

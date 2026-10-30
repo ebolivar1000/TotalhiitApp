@@ -77,8 +77,8 @@ export default function DetalleReceta() {
   };
 
   const descargar = async () => {
-    if (!esSuscriptor && !['r-01', 'r-02', 'r-03', 'r-04'].includes(receta.id)) {
-      setMensaje('Esta receta requiere suscripción activa para descargar en PDF.');
+    if (!esSuscriptor && !['r1', 'r2', 'r3', 'r4'].includes(receta.id)) {
+      setMensaje('Esta receta requiere suscripción activa para descargar o imprimir en PDF.');
       return;
     }
 
@@ -90,7 +90,7 @@ export default function DetalleReceta() {
       const logo = await cargarLogoPdf();
       const bytes = await generarPdfReceta(receta, porciones, { logoBytes: logo });
       await descargarPdf(bytes, nombreArchivoPdf(receta));
-      setMensaje('¡PDF descargado con éxito! Revisa tus descargas o archivos.');
+      setMensaje('¡PDF listo! El archivo se abrió para guardar o imprimir.');
     } catch {
       setMensaje('No se pudo generar o descargar el PDF. Intenta de nuevo.');
     } finally {
@@ -109,7 +109,7 @@ export default function DetalleReceta() {
         </Link>
       </div>
 
-      {!esSuscriptor && !['r-01', 'r-02', 'r-03', 'r-04'].includes(receta.id) && (
+      {!esSuscriptor && !['r1', 'r2', 'r3', 'r4'].includes(receta.id) && (
         <Tarjeta className="border-purple-200 bg-purple-50">
           <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Receta Exclusiva</p>
           <p className="mt-1 text-xs text-zinc-700">
@@ -233,7 +233,7 @@ export default function DetalleReceta() {
       {mensaje && <p className="text-center text-sm font-semibold text-green-700">{mensaje}</p>}
 
       <BotonSecundario onClick={() => void descargar()} disabled={generandoPdf} className="w-full">
-        {generandoPdf ? 'Generando PDF…' : '📄 Descargar en PDF'}
+        {generandoPdf ? 'Generando PDF…' : '📄 Descargar o Imprimir PDF'}
       </BotonSecundario>
 
       {historial.length > 0 && (

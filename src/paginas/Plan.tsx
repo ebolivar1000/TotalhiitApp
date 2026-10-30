@@ -137,7 +137,7 @@ export default function Plan() {
       const logo = await cargarLogoPdf();
       const bytes = await generarPdfPlan(plan, obtenerReceta, { logoBytes: logo });
       await descargarPdf(bytes, nombreArchivoPdfPlan(plan.semanaInicio));
-      setMensaje('¡PDF del plan descargado con éxito! Revisa tus descargas o archivos.');
+      setMensaje('¡PDF del plan listo! El documento se abrió para guardar o imprimir.');
     } catch {
       setMensaje('No se pudo generar el PDF. Intenta de nuevo.');
     } finally {
@@ -232,7 +232,7 @@ export default function Plan() {
               {mostrandoCompras ? 'Ocultar compras' : '🛒 Compras'}
             </BotonSecundario>
             <BotonPrimario className="px-2 text-xs font-bold" disabled={generandoPdf} onClick={() => void descargar()}>
-              {generandoPdf ? 'Generando…' : '📄 Descargar PDF'}
+              {generandoPdf ? 'Generando…' : '📄 Descargar / Imprimir'}
             </BotonPrimario>
           </div>
 
