@@ -1,13 +1,13 @@
 {
-  "version": "1.0.2",
-  "buildNumber": 3,
-  "releaseDate": "2026-10-29",
+  "version": "1.0.3",
+  "buildNumber": 4,
+  "releaseDate": "2026-10-30",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Botones superiores con mayor espacio táctil (safe area) y tamaño ergonómico.",
-    "Banners visuales temáticos en Inicio y fotografía gastronómica en Nutrición.",
-    "Portadas oficiales en videos de entrenamiento con botón directo a YouTube.",
-    "Gestión de clave de administrador: visualización, cambio y recuperación.",
-    "Persistencia de sincronización en la nube y opción de cerrar sesión en Ajustes."
+    "Nuevo módulo de ciclo menstrual estilo Flo/Clue con semana del ciclo, fases y enlace a entrenamientos.",
+    "Nutrición con vista rápida de 'Recetas para hoy' y menú semanal rotativo de 7 días.",
+    "Banner de entrenamientos simplificado y limpio con Coach Valentina y detalle de clases.",
+    "Autocarga y diseño visual enriquecido en el plan semanal (nunca se queda en blanco).",
+    "Fotografías optimizadas de Valentina en alta resolución en todos los módulos de la app."
   ]
 }

@@ -1,5 +1,5 @@
-export const VERSION_ACTUAL = '1.0.2';
-export const BUILD_ACTUAL = 3;
+export const VERSION_ACTUAL = '1.0.3';
+export const BUILD_ACTUAL = 4;
 
 export const URL_REMOTA_VERSION = 'https://totalhiit-app.caribialabs.workers.dev/version.json';
 

@@ -40,27 +40,47 @@ export default function Plan() {
     [preferencias, objetivo],
   );
 
+  const userId = perfil?.id ?? 'usuario_invitado';
+
   useEffect(() => {
     let activo = true;
-    if (!perfil) {
-      setCargandoDatos(false);
-      return;
-    }
     (async () => {
       try {
-        const existente = await obtenerPlanSemanal(perfil.id, semanaInicio);
+        const existente = await obtenerPlanSemanal(userId, semanaInicio);
         if (!activo) return;
         if (existente && existente.slots && existente.slots.length > 0) {
           setPlan(existente);
         } else {
-          // Auto-generación inicial para que la usuaria nunca vea la pantalla vacía
+          // Generación automática inicial para que la usuaria siempre vea su plan de inmediato
           const porciones = preferencias?.porcionesHabituales ?? 2;
           const slots = generarPlan(opciones);
-          const nuevo = await guardarPlanSemanal(perfil.id, semanaInicio, slots, porciones);
+          const nuevo: PlanSemanal = {
+            id: `plan_${userId}_${semanaInicio}`,
+            userId,
+            semanaInicio,
+            slots,
+            porciones,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          };
           if (activo) setPlan(nuevo);
+          void guardarPlanSemanal(userId, semanaInicio, slots, porciones).catch(() => {});
         }
       } catch (err) {
         console.error('Error al inicializar plan semanal:', err);
+        // Fallback en memoria si IndexedDB tiene algún inconveniente
+        const slots = generarPlan(opciones);
+        if (activo) {
+          setPlan({
+            id: `plan_mem_${semanaInicio}`,
+            userId,
+            semanaInicio,
+            slots,
+            porciones: 2,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          });
+        }
       } finally {
         if (activo) setCargandoDatos(false);
       }
@@ -68,51 +88,37 @@ export default function Plan() {
     return () => {
       activo = false;
     };
-  }, [perfil, semanaInicio, opciones, preferencias]);
-
-  if (cargando || cargandoDatos) {
-    return (
-      <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
-        <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
-          <div className="h-9 w-9 animate-spin rounded-full border-4 border-marca-magenta border-t-transparent" />
-          <p className="text-sm font-semibold text-zinc-700">Preparando tu menú semanal…</p>
-          <p className="text-xs text-zinc-400">Adaptando recetas a tus objetivos y requerimientos</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!perfil) {
-    return (
-      <main className="safe-area-superior mx-auto max-w-md px-4 pb-48 pt-6 text-center">
-        <Tarjeta>
-          <p className="text-3xl" aria-hidden="true">🥗</p>
-          <h2 className="mt-2 font-bold text-zinc-900">Configura tu perfil</h2>
-          <p className="mt-1 text-sm text-zinc-600">Completa tu perfil para que podamos organizar tu plan semanal personalizado.</p>
-          <Link
-            to="/onboarding"
-            className="mt-4 inline-block rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition hover:bg-marca-magenta-oscuro"
-          >
-            Ir al onboarding
-          </Link>
-        </Tarjeta>
-      </main>
-    );
-  }
+  }, [userId, semanaInicio, opciones, preferencias]);
 
   const generar = async (etiqueta: string) => {
     const porciones = preferencias?.porcionesHabituales ?? 2;
     const slots = generarPlan(opciones);
-    const guardado = await guardarPlanSemanal(perfil.id, semanaInicio, slots, porciones);
-    setPlan(guardado);
+    try {
+      const guardado = await guardarPlanSemanal(userId, semanaInicio, slots, porciones);
+      setPlan(guardado);
+    } catch {
+      setPlan({
+        id: `plan_mem_${semanaInicio}`,
+        userId,
+        semanaInicio,
+        slots,
+        porciones,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+    }
     setMensaje(etiqueta);
   };
 
   const cambiar = async (dia: number, comida: ComidaPlan, recetaId: string) => {
     if (!plan || !recetaId) return;
     const slots = reemplazarSlot(plan.slots, dia, comida, recetaId);
-    const guardado = await guardarPlanSemanal(perfil.id, plan.semanaInicio, slots, plan.porciones);
-    setPlan(guardado);
+    try {
+      const guardado = await guardarPlanSemanal(userId, plan.semanaInicio, slots, plan.porciones);
+      setPlan(guardado);
+    } catch {
+      setPlan({ ...plan, slots });
+    }
     setMensaje('Comida actualizada.');
   };
 
@@ -150,6 +156,15 @@ export default function Plan() {
         insignia="Plan 7 Días"
       />
 
+      {!perfil && (
+        <div className="flex items-center justify-between gap-2 rounded-2xl border border-pink-200 bg-pink-50/80 p-3 text-xs text-pink-900 shadow-sm">
+          <span>✨ Modo invitado: viendo menú sugerido. Puedes personalizar alérgenos al completar tu perfil.</span>
+          <Link to="/onboarding" className="shrink-0 font-bold text-marca-magenta underline">
+            Perfil →
+          </Link>
+        </div>
+      )}
+
       <div>
         <h1 className="text-xl font-bold text-zinc-900">Menú Semanal</h1>
         <p className="text-sm text-zinc-500">
@@ -158,38 +173,70 @@ export default function Plan() {
         </p>
       </div>
 
-      {!plan ? (
-        <Tarjeta className="text-center">
-          <p className="text-3xl" aria-hidden="true">
-            🍽️
-          </p>
-          <h2 className="mt-2 font-bold text-zinc-900">Organiza tu menú de la semana</h2>
-          <p className="mt-1 text-sm text-zinc-600">
-            Desayuno, almuerzo, cena y snack para los 7 días, respetando tus alérgenos, tu presupuesto y tu
-            objetivo. Después puedes cambiar cualquier comida.
-          </p>
-          <BotonPrimario className="mt-4 w-full" onClick={() => void generar('Plan generado. Cambia lo que quieras.')}>
-            Generar mi plan
-          </BotonPrimario>
-        </Tarjeta>
+      {cargando || cargandoDatos ? (
+        <div className="flex h-56 flex-col items-center justify-center gap-3 rounded-2xl border border-zinc-200 bg-white p-6 text-center shadow-sm">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-marca-magenta border-t-transparent" />
+          <p className="text-sm font-semibold text-zinc-700">Preparando tu menú semanal…</p>
+          <p className="text-xs text-zinc-400">Distribuyendo las mejores recetas para los 7 días</p>
+        </div>
+      ) : !plan ? (
+        /* Estado sin plan con imagen y tarjeta visual rica (NUNCA pantalla en blanco) */
+        <div className="overflow-hidden rounded-3xl border border-zinc-200/80 bg-white shadow-sm">
+          <div className="relative h-44 w-full overflow-hidden bg-zinc-900">
+            <img
+              src="/images/valentina/valen-plan-comidas.jpg"
+              alt="Plan Semanal de Nutrición"
+              className="h-full w-full object-cover filter brightness-[0.85]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-3 left-4 right-4 text-white">
+              <span className="rounded-full bg-marca-magenta px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider">
+                Nutrición Antiinflamatoria
+              </span>
+              <h2 className="mt-1 text-base font-black">Planifica tu semana de comidas</h2>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5">
+            <p className="text-xs text-zinc-600 leading-relaxed">
+              Desayuno, almuerzo, cena y snack organizados para los 7 días de la semana, respetando tus alérgenos y tus metas físicas.
+            </p>
+
+            <ul className="mt-3 space-y-1.5 text-xs text-zinc-700">
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">✓</span> 7 días con 4 comidas diarias balanceadas
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">✓</span> Lista de compras automática consolidada
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">✓</span> Descarga del plan en PDF para guardar o imprimir
+              </li>
+            </ul>
+
+            <BotonPrimario className="mt-4 w-full" onClick={() => void generar('¡Tu menú semanal ha sido generado con éxito! 🥗')}>
+              ✨ Generar mi menú de 7 días
+            </BotonPrimario>
+          </div>
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-3 gap-2">
             <BotonSecundario
-              className="px-2 text-sm"
+              className="px-2 text-xs font-bold"
               onClick={() => void generar('Plan regenerado (los cambios manuales se rehicieron).')}
             >
-              Regenerar
+              🔄 Regenerar
             </BotonSecundario>
-            <BotonSecundario className="px-2 text-sm" onClick={() => setMostrandoCompras((v) => !v)}>
-              {mostrandoCompras ? 'Ocultar compras' : 'Compras'}
+            <BotonSecundario className="px-2 text-xs font-bold" onClick={() => setMostrandoCompras((v) => !v)}>
+              {mostrandoCompras ? 'Ocultar compras' : '🛒 Compras'}
             </BotonSecundario>
-            <BotonPrimario className="px-2 text-sm" disabled={generandoPdf} onClick={() => void descargar()}>
-              {generandoPdf ? 'Generando…' : '📄 Descargar en PDF'}
+            <BotonPrimario className="px-2 text-xs font-bold" disabled={generandoPdf} onClick={() => void descargar()}>
+              {generandoPdf ? 'Generando…' : '📄 Descargar PDF'}
             </BotonPrimario>
           </div>
 
-          {mensaje && <p className="text-center text-sm font-semibold text-green-700">{mensaje}</p>}
+          {mensaje && <p className="text-center text-xs font-semibold text-green-700">{mensaje}</p>}
 
           {mostrandoCompras && (
             <Tarjeta>

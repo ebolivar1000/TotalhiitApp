@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface BannerSeccionProps {
-  titulo: string;
+  titulo?: string;
   subtitulo?: string;
   etiqueta?: string;
   videoSrc?: string;
@@ -83,9 +83,11 @@ export default function BannerSeccion({
         </div>
 
         <div>
-          <h2 className="text-lg font-black tracking-tight text-white drop-shadow-sm sm:text-xl">
-            {titulo}
-          </h2>
+          {titulo && (
+            <h2 className="text-lg font-black tracking-tight text-white drop-shadow-sm sm:text-xl">
+              {titulo}
+            </h2>
+          )}
           {subtitulo && (
             <p className="mt-0.5 max-w-sm text-xs font-medium text-pink-100/90 line-clamp-2">
               {subtitulo}

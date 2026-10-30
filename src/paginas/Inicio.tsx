@@ -117,11 +117,11 @@ export default function Inicio() {
             <span className="text-2xl">📱</span>
           </div>
           <a
-            href="/totalhiit.apk"
+            href={`/totalhiit.apk?_v=${Date.now()}`}
             download="totalhiit.apk"
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition-colors hover:bg-marca-magenta-oscuro"
           >
-            Descargar APK para Android
+            Descargar APK para Android (v1.0.3)
           </a>
         </Tarjeta>
       )}

@@ -19,6 +19,14 @@
   Cache-Control: public, max-age=0, must-revalidate
   Content-Type: application/manifest+json; charset=utf-8
 
+# Manifiesto de versiones y APK para descargas directas (nunca cachear en CDN o navegador)
+/version.json
+  Cache-Control: public, max-age=0, must-revalidate, no-cache
+
+/totalhiit.apk
+  Cache-Control: public, max-age=0, must-revalidate, no-cache
+  Content-Disposition: attachment; filename="totalhiit.apk"
+
 # Assets versionados con hash (seguros para caché inmutable de 1 año)
 /assets/*
   Cache-Control: public, max-age=31536000, immutable

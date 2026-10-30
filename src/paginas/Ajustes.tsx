@@ -227,14 +227,30 @@ export default function Ajustes() {
               {buscandoActualizacion ? '🔍 Verificando en el servidor…' : '🔍 Buscar actualización'}
             </BotonSecundario>
 
-            <a
-              href="https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk"
-              download="totalhiit.apk"
+            <button
+              type="button"
+              onClick={() => {
+                const url = `https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk?_t=${Date.now()}`;
+                window.open(url, '_system');
+              }}
               className="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-marca-magenta-oscuro active:scale-95 text-center"
             >
-              ⬇️ Descargar APK Oficial
-            </a>
+              ⬇️ Descargar APK Oficial (v{VERSION_ACTUAL})
+            </button>
           </div>
+
+          {estadoActualizacion?.disponible && (
+            <button
+              type="button"
+              onClick={() => {
+                const url = `https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk?_t=${Date.now()}`;
+                window.open(url, '_system');
+              }}
+              className="mt-2 flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-black text-white shadow transition hover:bg-emerald-700 active:scale-95 text-center"
+            >
+              📲 Descargar e instalar versión v{estadoActualizacion.versionRemota?.version ?? 'nueva'}
+            </button>
+          )}
 
           <p className="text-[11px] leading-relaxed text-zinc-500">
             💡 <strong>Instalación segura:</strong> Al descargar el archivo APK y abrirlo en tu celular, Android lo instalará automáticamente sobre la versión existente, conservando intactos tus entrenamientos, recetas y progreso.

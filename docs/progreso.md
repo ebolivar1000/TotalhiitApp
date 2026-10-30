@@ -1,5 +1,26 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-30 (sesión 19) — Actualización APK v1.0.3 (Build 4), Banner Limpio de Entrenamientos, Vista Dual de Nutrición y Autocarga Resistente de Menú Semanal
+- **Incremento y Sincronización Global de Versión v1.0.3 (Build 4):**
+  - Actualizado `versionCode 4` y `versionName "1.0.3"` en `android/app/build.gradle`.
+  - Actualizado `VERSION_ACTUAL = '1.0.3'` y `BUILD_ACTUAL = 4` en `src/lib/version/actualizador.ts`.
+  - Actualizado `public/version.json` con fecha `2026-10-30` y registro de novedades.
+  - Actualizado `package.json` a `v1.0.3`.
+  - Configurado `public/_headers` con directivas estrictas `no-cache` y `max-age=0, must-revalidate` para `/version.json` y `/totalhiit.apk`, eliminando cachés intermedias en Cloudflare CDN y navegadores móviles.
+  - En `Ajustes.tsx`, botón interactivo mejorado con llamada `window.open(url, '_system')` para descarga nativa directa sin bloqueos en WebView, mostrando el botón destacado "📲 Descargar e instalar versión v1.0.3" al detectar actualización.
+- **Simplificación del Banner de Entrenamientos:**
+  - En `BannerSeccion.tsx`, `titulo` convertido en propiedad opcional.
+  - En `Entrenamientos.tsx`, eliminados los títulos "Programa TOTAL+40" y "Entrenamientos en Video", conservando la insignia destacada "Coach Valentina" arriba y el resumen de "12 clases progresivas + 2 de estiramiento" en la base.
+- **Resiliencia Total y Diseño Visual en "Ver mi plan semanal" (`/plan`):**
+  - Soporte universal para usuarios con perfil o en modo invitado (`usuario_invitado`), garantizando que la pantalla jamás quede en blanco.
+  - Diseño enriquecido si no hubiera plan: tarjeta visual con fotografía de Valentina (`valen-plan-comidas.jpg`), lista de beneficios (7 días balanceados, compras consolidadas, PDF) y botón "✨ Generar mi menú de 7 días".
+  - Corregidos tipos de timestamps (`Date.now()` en lugar de ISO strings) en `createdAt` y `updatedAt`.
+- **Vista Dual en Nutrición ("Recetas para hoy" vs "Catálogo completo"):**
+  - Selector de vista por pestañas en `Nutricion.tsx`:
+    * **☀️ Recetas para hoy:** extrae las 4 comidas programadas para el día de la semana actual (Desayuno, Almuerzo, Cena, Snack) con tiempos de cocción, calorías, macronutrientes y enlace directo a la preparación, más botón para ver el menú semanal completo de 7 días.
+    * **📚 Catálogo completo:** acceso a las 12 recetas antiinflamatorias completas con filtros por categoría, búsqueda por ingrediente y favoritos.
+- **Verificación:** 196/196 pruebas en verde (`npm test`), build web sincronizado y nuevo APK Android compilado (18.6 MB). Desplegado en Cloudflare Workers y respaldado en Git.
+
 ## 2026-10-29 (sesión 18) — Renovación Integral del Ciclo Menstrual (Estilo Flo/Clue), Autocarga del Menú Semanal y Banners Temáticos de Valentina
 - **Incorporación y Optimización de las 6 Fotografías de Valentina:**
   - Archivos procesados con bicubic interpolation a 1600px y 85% de calidad JPEG, reduciendo el peso de ~2.5 MB por archivo a ~145 KB sin pérdida perceptible de nitidez.

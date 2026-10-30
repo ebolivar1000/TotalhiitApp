@@ -189,8 +189,6 @@ export default function Entrenamientos() {
     <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-48 pt-6">
       {/* Banner moderno con video de entrenamiento de Valentina */}
       <BannerSeccion
-        etiqueta="Programa TOTAL+40"
-        titulo="Entrenamientos en Video"
         subtitulo="12 clases progresivas + 2 de estiramiento adaptadas a tu cuerpo y articulaciones."
         videoSrc="/videos/entrenamiento.mp4"
         imagenSrc="/images/banner-entrenamiento.jpg"
