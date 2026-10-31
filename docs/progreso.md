@@ -1,5 +1,19 @@
 # Progreso — TOTALHIIT App
 
+## 2026-10-30 (sesión 24) — Generación y Descarga Robusta de PDFs, Acceso por Email Validado y Versión v1.0.7 (Build 8)
+- **Corrección Definitiva del Sistema de Descarga y Generación de PDFs:**
+  - En `DetalleReceta.tsx` y `Plan.tsx`, sustituida la importación dinámica (`await import('../lib/nutricion/pdf')`) por importaciones estáticas de primer nivel. Esto elimina por completo el fallo de descarga de fragmentos (`Failed to fetch dynamically imported module`) que ocurría en la web y en la app empaquetada debido a discrepancias de caché en los hashes de Vite.
+  - En `src/lib/nutricion/pdf.ts`, reforzada la función `cargarLogoPdf`: ahora valida los bytes mágicos de PNG (`0x89, 0x50, 0x4E, 0x47`) y JPG (`0xFF, 0xD8, 0xFF`). Si el servidor responde con una página HTML de fallback (típica en SPAs ante 404), la función devuelve `undefined` de forma segura en vez de provocar que `pdf-lib` lance una excepción no capturada al intentar incrustar una imagen corrupta.
+  - En `src/lib/nutricion/pdf.ts`, optimizado el flujo de descarga en `descargarPdf`: en navegadores web (tanto móviles como escritorio) se descarga directamente el archivo Blob y se abre opcionalmente en una pestaña para imprimir, evitando errores de permisos y bloqueos de la Web Share API en dispositivos móviles.
+- **Acceso Completo para Usuarios con Email Validado:**
+  - En `src/hooks/useSuscripcion.ts`, se unificó la validación del correo: si el usuario ha configurado un correo válido en su perfil (`perfil.emailGoogle`) o inició sesión, es administrador (`estaAutenticadoAdmin()`) o está en la base de suscriptores, se le concede acceso total para generar e imprimir cualquier PDF de receta (sin limitación a las recetas demo) y del plan semanal de comidas.
+  - Para usuarios sin correo validado ni suscripción, se muestra de forma destacada el mensaje solicitado:
+    `"Para usar esta función debes suscribirte al plan, Contáctanos"`.
+  - Se añadieron accesos directos de acción bajo el mensaje: botón para contactar directamente a la entrenadora Valentina por WhatsApp (`💬 Contáctanos por WhatsApp`) y botón para configurar el correo (`Validar mi correo`).
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.7 (Build 8)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y registro de progreso.
+- **Verificación:** 197/197 pruebas unitarias exitosas (`npm test`), compilación web y sincronización con Capacitor Android.
+
 ## 2026-10-30 (sesión 23) — Detección Dinámica de Versión en Web, Invalidation de Service Worker y Versión v1.0.6 (Build 7)
 - **Detección Dinámica de Versión en la Web:**
   - En `Inicio.tsx`, el botón de descarga del APK ahora busca asíncronamente en segundo plano `/version.json` con `cache: 'no-store'`.

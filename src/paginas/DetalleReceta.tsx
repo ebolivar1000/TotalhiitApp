@@ -5,6 +5,7 @@ import { ETIQUETAS_OBJETIVO, type RecipePreparation } from '../lib/datos/entidad
 import { alternarFavorito, esFavorito, preparacionesDeReceta, registrarPreparacion } from '../lib/datos/repositorio';
 import { ETIQUETAS_CATEGORIA_RECETA, ICONO_CATEGORIA_RECETA, obtenerReceta } from '../lib/nutricion/recetas';
 import { escalarReceta, formatearCantidad } from '../lib/nutricion/motor';
+import { generarPdfReceta, descargarPdf, nombreArchivoPdf, cargarLogoPdf } from '../lib/nutricion/pdf';
 import { fechaHoyIso } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
 import { useSuscripcion } from '../hooks/useSuscripcion';
@@ -77,21 +78,24 @@ export default function DetalleReceta() {
   };
 
   const descargar = async () => {
-    if (!esSuscriptor && !['r1', 'r2', 'r3', 'r4'].includes(receta.id)) {
-      setMensaje('Esta receta requiere suscripción activa para descargar o imprimir en PDF.');
+    if (!esSuscriptor) {
+      setMensaje('Para usar esta función debes suscribirte al plan, Contáctanos');
       return;
     }
 
     setGenerandoPdf(true);
     setMensaje('');
     try {
-      // Import dinámico: pdf-lib (~1 MB) solo se descarga cuando se genera el PDF.
-      const { generarPdfReceta, descargarPdf, nombreArchivoPdf, cargarLogoPdf } = await import('../lib/nutricion/pdf');
       const logo = await cargarLogoPdf();
       const bytes = await generarPdfReceta(receta, porciones, { logoBytes: logo });
-      await descargarPdf(bytes, nombreArchivoPdf(receta));
-      setMensaje('¡PDF listo! El archivo se abrió para guardar o imprimir.');
-    } catch {
+      const exito = await descargarPdf(bytes, nombreArchivoPdf(receta));
+      if (exito) {
+        setMensaje('¡PDF listo! El archivo se abrió para guardar o imprimir.');
+      } else {
+        setMensaje('No se pudo generar o descargar el PDF. Intenta de nuevo.');
+      }
+    } catch (err) {
+      console.error('Error al generar PDF de receta:', err);
       setMensaje('No se pudo generar o descargar el PDF. Intenta de nuevo.');
     } finally {
       setGenerandoPdf(false);
@@ -109,18 +113,28 @@ export default function DetalleReceta() {
         </Link>
       </div>
 
-      {!esSuscriptor && !['r1', 'r2', 'r3', 'r4'].includes(receta.id) && (
+      {!esSuscriptor && (
         <Tarjeta className="border-purple-200 bg-purple-50">
-          <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Receta Exclusiva</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-marca-magenta">Función Exclusiva</p>
           <p className="mt-1 text-xs text-zinc-700">
-            Esta receta y su PDF descargable son exclusivos para suscriptoras de TOTALHIIT.
+            Para descargar o imprimir los PDFs de recetas y planes debes validar tu correo o suscribirte al plan.
           </p>
-          <Link
-            to="/perfil/editar"
-            className="mt-2 inline-block text-xs font-bold text-marca-magenta underline"
-          >
-            Registrar mi correo @gmail.com →
-          </Link>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <Link
+              to="/perfil/editar"
+              className="rounded-lg bg-marca-magenta px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-marca-magenta-oscuro"
+            >
+              Validar mi correo →
+            </Link>
+            <a
+              href="https://wa.me/5491154188296?text=Hola%20Coach%20Valentina%2C%20quiero%20suscribirme%20al%20plan%20TOTALHIIT"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-marca-magenta/30 bg-white px-3 py-1.5 text-xs font-bold text-marca-magenta hover:bg-zinc-50"
+            >
+              💬 Contáctanos por WhatsApp
+            </a>
+          </div>
         </Tarjeta>
       )}
 
@@ -230,7 +244,37 @@ export default function DetalleReceta() {
           {favorita ? '⭐ Favorita' : '☆ Favorita'}
         </BotonSecundario>
       </div>
-      {mensaje && <p className="text-center text-sm font-semibold text-green-700">{mensaje}</p>}
+      {mensaje && (
+        <div
+          className={`rounded-2xl p-3 text-center text-xs font-bold shadow-sm ${
+            mensaje.includes('Contáctanos')
+              ? 'border border-amber-200 bg-amber-50 text-amber-900'
+              : mensaje.includes('No se pudo')
+              ? 'border border-red-200 bg-red-50 text-red-700'
+              : 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+          }`}
+        >
+          <p>{mensaje}</p>
+          {mensaje.includes('Contáctanos') && (
+            <div className="mt-2.5 flex flex-wrap justify-center gap-2">
+              <a
+                href="https://wa.me/5491154188296?text=Hola%20Coach%20Valentina%2C%20quiero%20suscribirme%20al%20plan%20TOTALHIIT"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 active:scale-95"
+              >
+                💬 Contáctanos por WhatsApp
+              </a>
+              <Link
+                to="/perfil/editar"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-marca-magenta px-3 py-2 text-xs font-bold text-white shadow hover:bg-marca-magenta-oscuro active:scale-95"
+              >
+                Validar mi correo
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
 
       <BotonSecundario onClick={() => void descargar()} disabled={generandoPdf} className="w-full">
         {generandoPdf ? 'Generando PDF…' : '📄 Descargar o Imprimir PDF'}

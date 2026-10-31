@@ -136,4 +136,13 @@ describe('generarPdfPlan (FASE 9)', () => {
     expect(String.fromCharCode(bytes[0]!)).toBe('%');
     expect(nombreArchivoPdfPlan('2026-10-26')).toBe('totalhiit-plan-2026-10-26.pdf');
   });
+
+  it('genera correctamente el PDF para cada una de las 12 recetas del catálogo', async () => {
+    for (const r of CATALOGO_RECETAS) {
+      const bytes = await generarPdfReceta(r, 2);
+      expect(bytes.length).toBeGreaterThan(1000);
+      const firma = String.fromCharCode(bytes[0]!, bytes[1]!, bytes[2]!, bytes[3]!);
+      expect(firma).toBe('%PDF');
+    }
+  });
 });

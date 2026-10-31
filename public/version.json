@@ -1,13 +1,13 @@
 {
-  "version": "1.0.6",
-  "buildNumber": 7,
+  "version": "1.0.7",
+  "buildNumber": 8,
   "releaseDate": "2026-10-30",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Detección y descarga dinámica de la última versión APK en la web sin bloqueos de caché.",
-    "Reparados todos los botones de descarga e impresión de PDFs en recetas y planes semanales.",
-    "Buscador de actualizaciones en segundo plano con CapacitorHttp nativo y cabeceras CORS.",
-    "Presentación en bucle con Coach VALENTINA en módulo de Entrenamientos.",
-    "Módulo de ciclo menstrual renovado y vista dual de nutrición."
+    "Descarga e impresión de PDFs directa y confiable para usuarios con email validado.",
+    "Aviso claro y botón de contacto para usuarios que requieran suscripción al plan.",
+    "Importación estática y validación de cabeceras de imagen para garantizar la generación offline de PDFs.",
+    "Buscador dinámico de actualizaciones y descarga directa de última versión APK.",
+    "Video loop oficial con Coach VALENTINA en Entrenamientos y ciclo menstrual integrado."
   ]
 }

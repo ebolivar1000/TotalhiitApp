@@ -1,7 +1,11 @@
 import { db, type AnuncioAdmin, type Suscriptor } from '../datos/db';
 import { fechaHoyIso } from '../utilidades/fechas';
 
-export const EMAILS_ADMIN_POR_DEFECTO = ['caribialabs@gmail.com', 'ebolivar1000@gmail.com'];
+export const EMAILS_ADMIN_POR_DEFECTO = [
+  'caribialabs@gmail.com',
+  'ebolivar1000@gmail.com',
+  'totalhiit1@gmail.com',
+];
 export const CLAVE_ADMIN_POR_DEFECTO = 'totalhiit2026';
 export const LLAVE_SESION_ADMIN = 'totalhiit_admin_autenticado';
 export const LLAVE_CLAVE_ADMIN = 'totalhiit_admin_clave';

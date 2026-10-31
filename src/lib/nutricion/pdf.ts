@@ -371,12 +371,22 @@ export function nombreArchivoPdfPlan(semanaInicio: string): string {
   return `totalhiit-plan-${semanaInicio}.pdf`;
 }
 
-/** Carga el logo para incrustar en los PDF (si falla, se genera sin logo). */
+/** Carga el logo para incrustar en los PDF (si falla o el archivo no es imagen válida, se genera sin logo). */
 export async function cargarLogoPdf(): Promise<Uint8Array | undefined> {
   try {
     const respuesta = await fetch('/images/logo.png');
     if (!respuesta.ok) return undefined;
-    return new Uint8Array(await respuesta.arrayBuffer());
+    const bytes = new Uint8Array(await respuesta.arrayBuffer());
+    if (bytes.length < 8) return undefined;
+    // Validar firma PNG (0x89, 0x50, 0x4E, 0x47)
+    if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) {
+      return bytes;
+    }
+    // O firma JPG (0xFF, 0xD8, 0xFF)
+    if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) {
+      return bytes;
+    }
+    return undefined;
   } catch {
     return undefined;
   }
@@ -401,8 +411,7 @@ function blobToBase64(blob: Blob): Promise<string> {
 /**
  * Descarga, comparte o abre el PDF generado para imprimir según la plataforma:
  * 1. En Capacitor (APK Android nativo): Guarda en caché interna y abre el diálogo nativo de Android (Imprimir, Guardar en Descargas, Drive, etc.).
- * 2. En Navegador móvil (Web Share API): Abre la hoja de compartir del sistema con el archivo adjunto.
- * 3. En Navegador de escritorio / web: Abre en pestaña para previsualización/impresión inmediata y descarga el archivo .pdf.
+ * 2. En Navegadores web (escritorio y móviles): Dispara la descarga del archivo .pdf e intenta abrirlo en pestaña para impresión inmediata.
  */
 export async function descargarPdf(bytes: Uint8Array, nombreArchivo: string): Promise<boolean> {
   const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
@@ -428,58 +437,42 @@ export async function descargarPdf(bytes: Uint8Array, nombreArchivo: string): Pr
         await Share.share({
           title: nombreArchivo,
           url: resultado.uri,
-          dialogTitle: 'Guardar, Imprimir o Abrir PDF',
+          dialogTitle: 'Guardar, Imprimir o Compartir PDF',
         });
       } catch (shareErr) {
-        // El usuario simplemente cerró el menú de compartir de Android
-        console.info('Diálogo de compartir cerrado:', shareErr);
+        // El usuario canceló o cerró el diálogo nativo
+        console.info('Diálogo de compartir cerrado o cancelado:', shareErr);
       }
       return true;
     } catch (err) {
-      console.warn('Error en Filesystem de Capacitor, recurriendo a web fallback:', err);
+      console.warn('Error en Filesystem de Capacitor, recurriendo a descarga web:', err);
     }
   }
 
-  // 2. Si el navegador soporta Web Share con archivos (Chrome Android, Safari iOS)
-  if (typeof navigator !== 'undefined' && typeof navigator.canShare === 'function') {
-    try {
-      const archivo = new File([blob], nombreArchivo, { type: 'application/pdf' });
-      if (navigator.canShare({ files: [archivo] })) {
-        await navigator.share({
-          files: [archivo],
-          title: nombreArchivo,
-          text: 'Documento PDF de TOTALHIIT',
-        });
-        return true;
-      }
-    } catch (error) {
-      if ((error as Error).name === 'AbortError') return true;
-      console.warn('Web Share no disponible o cancelado:', error);
-    }
-  }
-
-  // 3. Descarga web tradicional y apertura para impresión inmediata (Chrome, Firefox, Safari)
+  // 2. Descarga web estándar directa (funciona de forma fiable en todos los navegadores)
   try {
     const url = URL.createObjectURL(blob);
 
-    // Intenta abrir el PDF en una pestaña para permitir imprimir con Ctrl+P o botón de imprimir del navegador
-    const ventana = typeof window !== 'undefined' ? window.open(url, '_blank') : null;
-
-    // Dispara la descarga del archivo al almacenamiento local
+    // Dispara la descarga del archivo local
     const enlace = document.createElement('a');
+    enlace.style.display = 'none';
     enlace.href = url;
     enlace.download = nombreArchivo;
-    enlace.target = '_blank';
-    enlace.rel = 'noopener noreferrer';
     document.body.appendChild(enlace);
     enlace.click();
 
+    // Intentar abrir el PDF en una pestaña para permitir imprimir con Ctrl+P o visor de PDF
+    try {
+      window.open(url, '_blank');
+    } catch {
+      // Si el navegador bloquea la ventana emergente, la descarga ya se inició normalmente
+    }
+
     setTimeout(() => {
       enlace.remove();
-      if (!ventana) {
-        URL.revokeObjectURL(url);
-      }
+      URL.revokeObjectURL(url);
     }, 60000);
+
     return true;
   } catch (error) {
     console.error('Error al descargar PDF:', error);

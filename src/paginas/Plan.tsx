@@ -14,15 +14,18 @@ import {
   type OpcionesPlan,
 } from '../lib/nutricion/planificador';
 import { consolidarCompras } from '../lib/nutricion/compras';
+import { generarPdfPlan, descargarPdf, nombreArchivoPdfPlan, cargarLogoPdf } from '../lib/nutricion/pdf';
 import { lunesDeSemana, sumarDias } from '../lib/progreso/metricas';
 import { fechaHoyIso } from '../lib/utilidades/fechas';
 import { usePerfil } from '../hooks/usePerfil';
+import { useSuscripcion } from '../hooks/useSuscripcion';
 import BannerSeccion from '../componentes/BannerSeccion';
 
 const fechaCorta = (iso: string) => iso.slice(5).split('-').reverse().join('/');
 
 export default function Plan() {
   const { cargando, perfil, preferencias, objetivo } = usePerfil();
+  const { esSuscriptor } = useSuscripcion();
   const semanaInicio = useMemo(() => lunesDeSemana(fechaHoyIso()), []);
   const [plan, setPlan] = useState<PlanSemanal | undefined>();
   const [cargandoDatos, setCargandoDatos] = useState(true);
@@ -131,15 +134,24 @@ export default function Plan() {
 
   const descargar = async () => {
     if (!plan) return;
+    if (!esSuscriptor) {
+      setMensaje('Para usar esta función debes suscribirte al plan, Contáctanos');
+      return;
+    }
     setGenerandoPdf(true);
+    setMensaje('');
     try {
-      const { generarPdfPlan, descargarPdf, nombreArchivoPdfPlan, cargarLogoPdf } = await import('../lib/nutricion/pdf');
       const logo = await cargarLogoPdf();
       const bytes = await generarPdfPlan(plan, obtenerReceta, { logoBytes: logo });
-      await descargarPdf(bytes, nombreArchivoPdfPlan(plan.semanaInicio));
-      setMensaje('¡PDF del plan listo! El documento se abrió para guardar o imprimir.');
-    } catch {
-      setMensaje('No se pudo generar el PDF. Intenta de nuevo.');
+      const exito = await descargarPdf(bytes, nombreArchivoPdfPlan(plan.semanaInicio));
+      if (exito) {
+        setMensaje('¡PDF del plan listo! El documento se abrió para guardar o imprimir.');
+      } else {
+        setMensaje('No se pudo generar o descargar el PDF. Intenta de nuevo.');
+      }
+    } catch (err) {
+      console.error('Error al generar PDF del plan:', err);
+      setMensaje('No se pudo generar o descargar el PDF. Intenta de nuevo.');
     } finally {
       setGenerandoPdf(false);
     }
@@ -236,7 +248,37 @@ export default function Plan() {
             </BotonPrimario>
           </div>
 
-          {mensaje && <p className="text-center text-xs font-semibold text-green-700">{mensaje}</p>}
+          {mensaje && (
+            <div
+              className={`rounded-2xl p-3 text-center text-xs font-bold shadow-sm ${
+                mensaje.includes('Contáctanos')
+                  ? 'border border-amber-200 bg-amber-50 text-amber-900'
+                  : mensaje.includes('No se pudo')
+                  ? 'border border-red-200 bg-red-50 text-red-700'
+                  : 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+              }`}
+            >
+              <p>{mensaje}</p>
+              {mensaje.includes('Contáctanos') && (
+                <div className="mt-2.5 flex flex-wrap justify-center gap-2">
+                  <a
+                    href="https://wa.me/5491154188296?text=Hola%20Coach%20Valentina%2C%20quiero%20suscribirme%20al%20plan%20TOTALHIIT"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 active:scale-95"
+                  >
+                    💬 Contáctanos por WhatsApp
+                  </a>
+                  <Link
+                    to="/perfil/editar"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-marca-magenta px-3 py-2 text-xs font-bold text-white shadow hover:bg-marca-magenta-oscuro active:scale-95"
+                  >
+                    Validar mi correo
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
 
           {mostrandoCompras && (
             <Tarjeta>
