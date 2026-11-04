@@ -19,6 +19,7 @@ import Plan from './paginas/Plan';
 import Privacidad from './paginas/Privacidad';
 import Progreso from './paginas/Progreso';
 import Salud from './paginas/Salud';
+import DescargarApp from './paginas/DescargarApp';
 
 export default function App() {
   const { cargando, perfil } = usePerfil();
@@ -29,14 +30,33 @@ export default function App() {
     if (cargando) return;
     const saltado = localStorage.getItem(LLAVE_ONBOARDING_SALTADO) === '1';
     const completado = localStorage.getItem(LLAVE_ONBOARDING_COMPLETADO) === '1';
-    const enOnboarding = location.pathname.startsWith('/onboarding');
-    if (!perfil && !enOnboarding && !saltado && !completado) navigate('/onboarding', { replace: true });
-    if (perfil && enOnboarding) navigate('/', { replace: true });
+    const ruta = location.pathname;
+    const esRutaExenta =
+      ruta.startsWith('/onboarding') ||
+      ruta.startsWith('/descargar') ||
+      ruta.startsWith('/instalar') ||
+      ruta.startsWith('/apk') ||
+      ruta.startsWith('/download');
+
+    if (!perfil && !esRutaExenta && !saltado && !completado) {
+      navigate('/onboarding', { replace: true });
+    }
+    if (perfil && ruta.startsWith('/onboarding')) {
+      navigate('/', { replace: true });
+    }
   }, [cargando, perfil, location.pathname, navigate]);
 
   if (cargando) {
     return <div className="p-10 text-center text-sm text-zinc-500">Cargando…</div>;
   }
+
+  const ocultarNavegacion =
+    location.pathname.startsWith('/onboarding') ||
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/descargar') ||
+    location.pathname.startsWith('/instalar') ||
+    location.pathname.startsWith('/apk') ||
+    location.pathname.startsWith('/download');
 
   return (
     <div className="min-h-dvh bg-neutro-100">
@@ -44,6 +64,10 @@ export default function App() {
       <AvisoConexion />
       <Routes>
         <Route path="/" element={<Inicio />} />
+        <Route path="/descargar" element={<DescargarApp />} />
+        <Route path="/instalar" element={<DescargarApp />} />
+        <Route path="/apk" element={<DescargarApp />} />
+        <Route path="/download" element={<DescargarApp />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/perfil/editar" element={<EditarPerfil />} />
@@ -60,7 +84,7 @@ export default function App() {
         <Route path="/privacidad" element={<Privacidad />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      {!location.pathname.startsWith('/onboarding') && !location.pathname.startsWith('/admin') && <Navegacion />}
+      {!ocultarNavegacion && <Navegacion />}
     </div>
   );
 }

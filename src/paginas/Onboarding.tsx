@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type Resolver } from 'react-hook-form';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useState } from 'react';
+import { VERSION_ACTUAL } from '../lib/version/actualizador';
 import {
   guardarPerfil,
   guardarPreferencias,
@@ -173,6 +174,37 @@ export default function Onboarding() {
 
       {paso === 0 && (
         <div className="space-y-4">
+          {/* Opción destacada para instalar la App en Android */}
+          <div className="rounded-2xl border-2 border-marca-magenta/30 bg-gradient-to-b from-white to-pink-50/70 p-4 text-center shadow-sm">
+            <span className="rounded-full bg-marca-magenta px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
+              App Oficial Android
+            </span>
+            <h2 className="mt-2 text-base font-bold text-zinc-900">
+              ¿Prefieres instalar la App en tu celular?
+            </h2>
+            <p className="mt-1 text-xs text-zinc-600">
+              Disfruta de videos fluidos, recordatorios y todas las funciones nativas sin depender del navegador.
+            </p>
+            <div className="mt-3 flex flex-col gap-2">
+              <a
+                href={`https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk?_t=${Date.now()}`}
+                download="totalhiit.apk"
+                className="flex w-full min-h-[44px] items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-xs font-black text-white shadow transition hover:bg-marca-magenta-oscuro active:scale-95 text-center"
+              >
+                <span>📲 Descargar última versión APK</span>
+                <span className="rounded-lg bg-white/20 px-1.5 py-0.5 text-xs font-mono font-bold">
+                  v{VERSION_ACTUAL}
+                </span>
+              </a>
+              <Link
+                to="/descargar"
+                className="text-xs font-bold text-marca-magenta underline hover:text-marca-magenta-oscuro"
+              >
+                Ver guía de instalación paso a paso →
+              </Link>
+            </div>
+          </div>
+
           <Tarjeta className="text-center">
             <p className="text-2xl" aria-hidden="true">
               💜

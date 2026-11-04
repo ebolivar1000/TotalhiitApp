@@ -37,24 +37,73 @@ export default function Inicio() {
     (Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) ||
       window.matchMedia('(display-mode: standalone)').matches);
 
+  const iniciarDescargaApk = () => {
+    const timestamp = Date.now();
+    const url = `https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk?_t=${timestamp}`;
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = 'totalhiit.apk';
+    enlace.target = '_blank';
+    enlace.rel = 'noopener noreferrer';
+    document.body.appendChild(enlace);
+    enlace.click();
+    setTimeout(() => enlace.remove(), 1000);
+    try {
+      if (typeof window !== 'undefined' && window.open) {
+        window.open(url, '_system');
+      }
+    } catch {}
+  };
+
   if (cargando) return null;
 
   if (!perfil) {
     return (
-      <main className="safe-area-superior mx-auto max-w-md px-4 pb-32 pt-6">
+      <main className="safe-area-superior mx-auto max-w-md px-4 pb-32 pt-6 space-y-4">
         <div className="text-center">
           <p className="font-marca text-4xl text-marca-magenta">TOTALHIIT</p>
-          <p className="mt-2 text-sm text-zinc-500">Entrenamiento y nutrición para mujeres +40</p>
+          <p className="mt-1 text-sm text-zinc-500">Entrenamiento y nutrición para mujeres +40</p>
         </div>
-        <Tarjeta className="mt-6 text-center">
+
+        {/* Tarjeta destacada de descarga directa APK */}
+        {!esAppInstalada && (
+          <Tarjeta className="border-2 border-marca-magenta/30 bg-gradient-to-b from-white to-pink-50 text-center shadow-md">
+            <span className="rounded-full bg-marca-magenta px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
+              App Oficial Android · v{versionRemota || VERSION_ACTUAL}
+            </span>
+            <h1 className="mt-2 text-lg font-black text-zinc-900">
+              Instala TOTALHIIT en tu celular
+            </h1>
+            <p className="mt-1 text-xs text-zinc-600">
+              Descarga la aplicación oficial para entrenar con videos sin interrupciones y recibir las últimas actualizaciones.
+            </p>
+            <div className="mt-3 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={iniciarDescargaApk}
+                className="flex w-full min-h-[46px] items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-xs font-black text-white shadow transition hover:bg-marca-magenta-oscuro active:scale-95 text-center"
+              >
+                <span>📲 Descargar e Instalar APK (v{versionRemota || VERSION_ACTUAL})</span>
+              </button>
+              <Link
+                to="/descargar"
+                className="text-xs font-bold text-marca-magenta underline hover:text-marca-magenta-oscuro"
+              >
+                Ver novedades y guía de instalación paso a paso →
+              </Link>
+            </div>
+          </Tarjeta>
+        )}
+
+        <Tarjeta className="text-center">
           <p className="text-2xl" aria-hidden="true">
             💜
           </p>
-          <h1 className="mt-2 text-lg font-bold text-zinc-900">Empecemos</h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            Configura tu perfil para recibir entrenamientos y recetas pensadas para ti.
+          <h2 className="mt-1 text-base font-bold text-zinc-900">O usa la versión Web</h2>
+          <p className="mt-1 text-xs text-zinc-600">
+            Configura tu perfil para comenzar a usar la versión web en este navegador.
           </p>
-          <Link to="/onboarding" className="mt-4 inline-block">
+          <Link to="/onboarding" className="mt-3 inline-block">
             <BotonPrimario>Completar mi perfil</BotonPrimario>
           </Link>
         </Tarjeta>
@@ -129,7 +178,7 @@ export default function Inicio() {
 
       {/* Banner de instalación APK SOLO en navegador web cuando NO está instalada */}
       {!esAppInstalada && (
-        <Tarjeta className="border border-purple-200 bg-purple-50">
+        <Tarjeta className="border-2 border-purple-200 bg-purple-50">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
@@ -144,16 +193,24 @@ export default function Inicio() {
             </div>
             <span className="text-2xl">📱</span>
           </div>
-          <a
-            href={`https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk?_v=${Date.now()}`}
-            download="totalhiit.apk"
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-sm font-bold text-white shadow transition-colors hover:bg-marca-magenta-oscuro text-center"
-          >
-            <span>Descargar última versión APK</span>
-            <span className="rounded-lg bg-white/20 px-1.5 py-0.5 text-xs font-mono font-bold">
-              v{versionRemota || VERSION_ACTUAL}
-            </span>
-          </a>
+          <div className="mt-3 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={iniciarDescargaApk}
+              className="flex w-full min-h-[46px] items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-xs font-black text-white shadow transition-colors hover:bg-marca-magenta-oscuro active:scale-95 text-center"
+            >
+              <span>📲 Descargar última versión APK</span>
+              <span className="rounded-lg bg-white/20 px-1.5 py-0.5 text-xs font-mono font-bold">
+                v{versionRemota || VERSION_ACTUAL}
+              </span>
+            </button>
+            <Link
+              to="/descargar"
+              className="text-center text-xs font-bold text-marca-magenta underline hover:text-marca-magenta-oscuro"
+            >
+              Ver página de descarga y guía de instalación →
+            </Link>
+          </div>
         </Tarjeta>
       )}
 

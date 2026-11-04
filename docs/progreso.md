@@ -1,5 +1,22 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-04 (sesión 25) — Nueva Página Oficial de Descarga `/descargar`, Asistencia para In-App Browsers (WhatsApp/Instagram) y Versión v1.0.8 (Build 9)
+- **Página Oficial de Descarga e Instalación (`/descargar`, `/instalar`, `/apk`, `/download`):**
+  - Creada [DescargarApp.tsx](file:///C:/Users/Everth/ProyectosIA/TotalhiitApp/src/paginas/DescargarApp.tsx) como centro unificado de descarga e instalación de la aplicación Android.
+  - Exenta de la redirección obligatoria a onboarding: cualquier usuario (incluso en un celular nuevo o con la app desinstalada) puede acceder directamente y obtener la APK.
+  - Consulta dinámicamente `/version.json` con parámetros anti-caché en tiempo real (`?_t=...`) y expone el botón de actualización en vivo.
+  - Detección automática de navegadores integrados (WhatsApp, Instagram, Facebook): alerta de forma clara e instructiva para abrir el enlace en Chrome (mediante el menú de tres puntos) y evitar que los visores de redes sociales bloqueen la descarga de APKs.
+  - Incorpora guía paso a paso para la instalación en Android (aceptar advertencia de seguridad estándar, abrir notificación e instalar).
+- **Acceso Directo a Descarga para Celulares desde Cero:**
+  - En `Inicio.tsx`, cuando el usuario no tiene perfil cargado todavía, se despliega una tarjeta prominente en la parte superior con el botón de descarga directa de la última versión y acceso a la guía de instalación.
+  - En `Onboarding.tsx` (paso de bienvenida), añadido bloque destacado con botón de descarga para que quienes prefieran la aplicación nativa puedan instalarla antes de completar el formulario en la web.
+- **Políticas de Caché y Cabeceras HTTP Estrictas:**
+  - En `public/_headers`, eliminada la duplicación de cabeceras CORS (`Access-Control-Allow-Origin: *, *`) que provocaba rechazos en navegadores móviles modernos.
+  - Se configuró `Cache-Control: no-cache, no-store, must-revalidate, max-age=0` junto a `Pragma: no-cache` y `Expires: 0` para `/totalhiit.apk` y `/version.json`, garantizando que ningún CDN ni caché móvil sirva versiones obsoletas.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.8 (Build 9)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 197/197 pruebas unitarias exitosas, compilación web y sincronización de Capacitor con Android.
+
 ## 2026-10-30 (sesión 24) — Generación y Descarga Robusta de PDFs, Acceso por Email Validado y Versión v1.0.7 (Build 8)
 - **Corrección Definitiva del Sistema de Descarga y Generación de PDFs:**
   - En `DetalleReceta.tsx` y `Plan.tsx`, sustituida la importación dinámica (`await import('../lib/nutricion/pdf')`) por importaciones estáticas de primer nivel. Esto elimina por completo el fallo de descarga de fragmentos (`Failed to fetch dynamically imported module`) que ocurría en la web y en la app empaquetada debido a discrepancias de caché en los hashes de Vite.

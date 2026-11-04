@@ -1,4 +1,4 @@
-# Headers de seguridad y políticas de caché para Cloudflare Pages (TOTALHIIT PWA)
+# Headers de seguridad y políticas de caché para Cloudflare (TOTALHIIT PWA & APK)
 
 /*
   X-Content-Type-Options: nosniff
@@ -12,29 +12,30 @@
 
 # El Service Worker nunca debe cachearse de forma inmutable para permitir auto-actualizaciones
 /sw.js
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate, max-age=0
+  Pragma: no-cache
 
 /registerSW.js
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate, max-age=0
+  Pragma: no-cache
 
 # El manifiesto PWA
 /manifest.webmanifest
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate, max-age=0
   Content-Type: application/manifest+json; charset=utf-8
 
-# Manifiesto de versiones y APK para descargas directas (nunca cachear en CDN o navegador)
+# Manifiesto de versiones y APK para descargas directas (NUNCA cachear en CDN ni navegador)
 /version.json
-  Cache-Control: public, max-age=0, must-revalidate, no-cache
-  Access-Control-Allow-Origin: *
-  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
-  Access-Control-Allow-Headers: *
+  Cache-Control: no-cache, no-store, must-revalidate, max-age=0
+  Pragma: no-cache
+  Expires: 0
   Content-Type: application/json; charset=utf-8
 
 /totalhiit.apk
-  Cache-Control: public, max-age=0, must-revalidate, no-cache
-  Access-Control-Allow-Origin: *
-  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
-  Access-Control-Allow-Headers: *
+  Cache-Control: no-cache, no-store, must-revalidate, max-age=0
+  Pragma: no-cache
+  Expires: 0
+  Content-Type: application/vnd.android.package-archive
   Content-Disposition: attachment; filename="totalhiit.apk"
 
 # Assets versionados con hash (seguros para caché inmutable de 1 año)

@@ -1,13 +1,13 @@
 {
-  "version": "1.0.7",
-  "buildNumber": 8,
-  "releaseDate": "2026-10-30",
+  "version": "1.0.8",
+  "buildNumber": 9,
+  "releaseDate": "2026-11-04",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Descarga e impresión de PDFs directa y confiable para usuarios con email validado.",
-    "Aviso claro y botón de contacto para usuarios que requieran suscripción al plan.",
-    "Importación estática y validación de cabeceras de imagen para garantizar la generación offline de PDFs.",
-    "Buscador dinámico de actualizaciones y descarga directa de última versión APK.",
-    "Video loop oficial con Coach VALENTINA en Entrenamientos y ciclo menstrual integrado."
+    "Página oficial de descarga /descargar con detección y obtención dinámica de la última versión.",
+    "Aviso y asistencia para usuarios abriendo enlaces dentro de WhatsApp o Instagram.",
+    "Banners de descarga directa de APK en Inicio y Onboarding en celulares desde cero.",
+    "Cabeceras de red anti-caché estrictas (no-store) para garantizar descargas de la versión más reciente.",
+    "Descarga e impresión confiable de PDFs y video bucle oficial con Coach Valentina."
   ]
 }

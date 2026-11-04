@@ -256,6 +256,15 @@ export default function Ajustes() {
             </button>
           )}
 
+          <div className="text-center pt-1">
+            <Link
+              to="/descargar"
+              className="text-xs font-bold text-marca-magenta underline hover:text-marca-magenta-oscuro"
+            >
+              Abrir página oficial de descarga y novedades →
+            </Link>
+          </div>
+
           <p className="text-[11px] leading-relaxed text-zinc-500">
             💡 <strong>Instalación segura:</strong> Al descargar el archivo APK y abrirlo en tu celular, Android lo instalará automáticamente sobre la versión existente, conservando intactos tus entrenamientos, recetas y progreso.
           </p>
