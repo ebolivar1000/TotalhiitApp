@@ -34,6 +34,7 @@ export default function DetalleReceta() {
   const [historial, setHistorial] = useState<RecipePreparation[]>([]);
   const [mensaje, setMensaje] = useState('');
   const [generandoPdf, setGenerandoPdf] = useState(false);
+  const [pdfListo, setPdfListo] = useState<{ url: string; nombre: string } | null>(null);
 
   useEffect(() => {
     if (!perfil || !receta) return;
@@ -88,9 +89,11 @@ export default function DetalleReceta() {
     try {
       const logo = await cargarLogoPdf();
       const bytes = await generarPdfReceta(receta, porciones, { logoBytes: logo });
-      const exito = await descargarPdf(bytes, nombreArchivoPdf(receta));
-      if (exito) {
-        setMensaje('¡PDF listo! El archivo se abrió para guardar o imprimir.');
+      const nombre = nombreArchivoPdf(receta);
+      const res = await descargarPdf(bytes, nombre);
+      if (res.exito && res.url) {
+        setPdfListo({ url: res.url, nombre });
+        setMensaje('¡Tu PDF está listo! Puedes guardarlo o abrirlo a continuación.');
       } else {
         setMensaje('No se pudo generar o descargar el PDF. Intenta de nuevo.');
       }
@@ -273,6 +276,47 @@ export default function DetalleReceta() {
               </Link>
             </div>
           )}
+        </div>
+      )}
+
+      {pdfListo && (
+        <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-50/95 p-4 shadow-md space-y-3">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-xl text-white shadow-sm">
+              📄
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-black uppercase tracking-wider text-emerald-950">
+                ¡Documento PDF Generado!
+              </p>
+              <p className="truncate text-xs font-bold text-emerald-800">
+                {pdfListo.nombre}
+              </p>
+            </div>
+          </div>
+
+          <p className="text-xs text-emerald-900 leading-relaxed">
+            Tu receta está lista. Toca <strong>Guardar archivo</strong> para descargarlo a tu celular o <strong>Abrir / Imprimir</strong> para verlo en pantalla completa:
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <a
+              href={pdfListo.url}
+              download={pdfListo.nombre}
+              className="flex-1 min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-black text-white shadow hover:bg-emerald-700 active:scale-95 text-center"
+            >
+              ⬇️ Guardar archivo PDF
+            </a>
+
+            <a
+              href={pdfListo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-600 bg-white px-4 py-2.5 text-xs font-black text-emerald-800 shadow-sm hover:bg-emerald-50 active:scale-95 text-center"
+            >
+              👀 Abrir y Ver PDF
+            </a>
+          </div>
         </div>
       )}
 

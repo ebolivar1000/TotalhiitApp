@@ -32,6 +32,7 @@ export default function Plan() {
   const [mensaje, setMensaje] = useState('');
   const [mostrandoCompras, setMostrandoCompras] = useState(false);
   const [generandoPdf, setGenerandoPdf] = useState(false);
+  const [pdfListo, setPdfListo] = useState<{ url: string; nombre: string } | null>(null);
 
   const opciones = useMemo<OpcionesPlan>(
     () => ({
@@ -143,9 +144,11 @@ export default function Plan() {
     try {
       const logo = await cargarLogoPdf();
       const bytes = await generarPdfPlan(plan, obtenerReceta, { logoBytes: logo });
-      const exito = await descargarPdf(bytes, nombreArchivoPdfPlan(plan.semanaInicio));
-      if (exito) {
-        setMensaje('¡PDF del plan listo! El documento se abrió para guardar o imprimir.');
+      const nombre = nombreArchivoPdfPlan(plan.semanaInicio);
+      const res = await descargarPdf(bytes, nombre);
+      if (res.exito && res.url) {
+        setPdfListo({ url: res.url, nombre });
+        setMensaje('¡Tu plan semanal en PDF está listo! Puedes guardarlo o abrirlo a continuación.');
       } else {
         setMensaje('No se pudo generar o descargar el PDF. Intenta de nuevo.');
       }
@@ -277,6 +280,47 @@ export default function Plan() {
                   </Link>
                 </div>
               )}
+            </div>
+          )}
+
+          {pdfListo && (
+            <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-50/95 p-4 shadow-md space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-xl text-white shadow-sm">
+                  📄
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-950">
+                    ¡Plan Semanal en PDF Listo!
+                  </p>
+                  <p className="truncate text-xs font-bold text-emerald-800">
+                    {pdfListo.nombre}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-emerald-900 leading-relaxed">
+                Tu plan de comidas está listo. Toca <strong>Guardar archivo</strong> para descargarlo a tu celular o <strong>Abrir / Imprimir</strong> para verlo en pantalla completa:
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <a
+                  href={pdfListo.url}
+                  download={pdfListo.nombre}
+                  className="flex-1 min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-black text-white shadow hover:bg-emerald-700 active:scale-95 text-center"
+                >
+                  ⬇️ Guardar archivo PDF
+                </a>
+
+                <a
+                  href={pdfListo.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-600 bg-white px-4 py-2.5 text-xs font-black text-emerald-800 shadow-sm hover:bg-emerald-50 active:scale-95 text-center"
+                >
+                  👀 Abrir y Ver PDF
+                </a>
+              </div>
             </div>
           )}
 

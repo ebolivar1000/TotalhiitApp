@@ -1,5 +1,23 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-04 (sesión 26) — Corrección Definitiva del Módulo PDF con Tarjetas de Acción Directa y Versión v1.0.9 (Build 10)
+- **Diagnóstico y Corrección Integral del Flujo de PDFs:**
+  - Se identificó la causa de por qué aparecía el mensaje de éxito pero no se abría ni se guardaba el archivo:
+    1. En navegadores móviles (Chrome en Android, Safari en iOS), los clics programáticos en enlaces y llamadas a `window.open` tras operaciones asíncronas son bloqueados silenciosamente por las políticas de expiración del gesto del usuario ("User Activation"), sin lanzar excepciones.
+    2. En Capacitor Android nativo, `@capacitor/share` requiere `files: [uri]` para adjuntar archivos locales. La implementación anterior pasaba únicamente `url: uri`, lo cual Android interpreta como texto plano en lugar de un adjunto binario.
+  - En `src/lib/nutricion/pdf.ts`:
+    - Refactorizado `descargarPdf` para obtener la URI nativa con `Filesystem.getUri` y compartir mediante `files: [uriResult.uri]` y `url: uriResult.uri`.
+    - Devuelve `{ exito: boolean; url: string }` retornando la URL Blob activa.
+    - Exportada la función auxiliar `crearUrlBlobPdf`.
+  - En `DetalleReceta.tsx` y `Plan.tsx`:
+    - Incorporada la nueva **Tarjeta de Acción de PDF**: una vez generado el PDF en memoria, se despliega una interfaz directa con dos botones de interacción física inmediata:
+      - **"⬇️ Guardar archivo PDF"**: enlace `<a>` con atributo `download` para descarga limpia y garantizada en el almacenamiento local.
+      - **"👀 Abrir y Ver PDF"**: enlace `<a>` con `target="_blank"` para visualización completa e impresión en el visor del sistema o navegador.
+    - Se eliminó el mensaje engañoso previo, reemplazándolo por una confirmación verídica con los accesos directos al archivo.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.9 (Build 10)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 197/197 pruebas unitarias exitosas (`npm test`), compilación web y sincronización de Capacitor con Android.
+
 ## 2026-11-04 (sesión 25) — Nueva Página Oficial de Descarga `/descargar`, Asistencia para In-App Browsers (WhatsApp/Instagram) y Versión v1.0.8 (Build 9)
 - **Página Oficial de Descarga e Instalación (`/descargar`, `/instalar`, `/apk`, `/download`):**
   - Creada [DescargarApp.tsx](file:///C:/Users/Everth/ProyectosIA/TotalhiitApp/src/paginas/DescargarApp.tsx) como centro unificado de descarga e instalación de la aplicación Android.

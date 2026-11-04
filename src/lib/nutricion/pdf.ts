@@ -409,12 +409,26 @@ function blobToBase64(blob: Blob): Promise<string> {
 }
 
 /**
- * Descarga, comparte o abre el PDF generado para imprimir según la plataforma:
- * 1. En Capacitor (APK Android nativo): Guarda en caché interna y abre el diálogo nativo de Android (Imprimir, Guardar en Descargas, Drive, etc.).
- * 2. En Navegadores web (escritorio y móviles): Dispara la descarga del archivo .pdf e intenta abrirlo en pestaña para impresión inmediata.
+ * Crea una URL Blob para previsualizar o descargar el PDF en el navegador.
  */
-export async function descargarPdf(bytes: Uint8Array, nombreArchivo: string): Promise<boolean> {
+export function crearUrlBlobPdf(bytes: Uint8Array): string {
   const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
+  return URL.createObjectURL(blob);
+}
+
+export interface ResultadoDescargaPdf {
+  exito: boolean;
+  url: string;
+}
+
+/**
+ * Descarga, comparte o abre el PDF generado para imprimir según la plataforma:
+ * 1. En Capacitor (APK Android nativo): Guarda en caché interna y abre el diálogo nativo de Android con soporte de archivos (Imprimir, Guardar en Descargas, Drive, etc.).
+ * 2. En Navegadores web (escritorio y móviles): Dispara la descarga del archivo .pdf y devuelve la URL del Blob para acciones directas en la interfaz.
+ */
+export async function descargarPdf(bytes: Uint8Array, nombreArchivo: string): Promise<ResultadoDescargaPdf> {
+  const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
 
   // 1. Si estamos en Capacitor nativo (Android APK)
   if (
@@ -427,33 +441,36 @@ export async function descargarPdf(bytes: Uint8Array, nombreArchivo: string): Pr
 
       const base64Data = await blobToBase64(blob);
 
-      const resultado = await Filesystem.writeFile({
+      await Filesystem.writeFile({
         path: nombreArchivo,
         data: base64Data,
         directory: Directory.Cache,
       });
 
+      const uriResult = await Filesystem.getUri({
+        directory: Directory.Cache,
+        path: nombreArchivo,
+      });
+
       try {
         await Share.share({
           title: nombreArchivo,
-          url: resultado.uri,
-          dialogTitle: 'Guardar, Imprimir o Compartir PDF',
+          text: 'Documento PDF de TOTALHIIT',
+          url: uriResult.uri,
+          files: [uriResult.uri],
+          dialogTitle: 'Abrir, Guardar o Imprimir PDF',
         });
       } catch (shareErr) {
-        // El usuario canceló o cerró el diálogo nativo
         console.info('Diálogo de compartir cerrado o cancelado:', shareErr);
       }
-      return true;
+      return { exito: true, url };
     } catch (err) {
       console.warn('Error en Filesystem de Capacitor, recurriendo a descarga web:', err);
     }
   }
 
-  // 2. Descarga web estándar directa (funciona de forma fiable en todos los navegadores)
+  // 2. Descarga web estándar en navegadores (móvil y escritorio)
   try {
-    const url = URL.createObjectURL(blob);
-
-    // Dispara la descarga del archivo local
     const enlace = document.createElement('a');
     enlace.style.display = 'none';
     enlace.href = url;
@@ -461,21 +478,19 @@ export async function descargarPdf(bytes: Uint8Array, nombreArchivo: string): Pr
     document.body.appendChild(enlace);
     enlace.click();
 
-    // Intentar abrir el PDF en una pestaña para permitir imprimir con Ctrl+P o visor de PDF
     try {
       window.open(url, '_blank');
     } catch {
-      // Si el navegador bloquea la ventana emergente, la descarga ya se inició normalmente
+      // Bloqueador de popups en móvil
     }
 
     setTimeout(() => {
       enlace.remove();
-      URL.revokeObjectURL(url);
-    }, 60000);
+    }, 2000);
 
-    return true;
+    return { exito: true, url };
   } catch (error) {
     console.error('Error al descargar PDF:', error);
-    return false;
+    return { exito: false, url };
   }
 }
