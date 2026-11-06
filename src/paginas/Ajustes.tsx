@@ -336,10 +336,20 @@ export default function Ajustes() {
         </p>
       </Tarjeta>
 
-      <div className="pt-2 text-center">
-        <Link to="/admin" className="text-xs text-zinc-400 hover:text-marca-magenta">
-          👑 Panel de Administración
-        </Link>
+      <div className="pt-2 text-center space-y-2">
+        <div>
+          <Link
+            to="/crm"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-marca-magenta px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-marca-magenta-oscuro"
+          >
+            📊 Acceder a TotalHIIT CRM
+          </Link>
+        </div>
+        <div>
+          <Link to="/admin" className="text-xs text-zinc-400 hover:text-marca-magenta">
+            👑 Panel de Administración
+          </Link>
+        </div>
       </div>
 
       <div className="h-20 w-full shrink-0" aria-hidden="true" />

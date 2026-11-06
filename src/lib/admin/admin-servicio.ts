@@ -6,8 +6,9 @@ export const EMAILS_ADMIN_POR_DEFECTO = [
   'ebolivar1000@gmail.com',
   'totalhiit1@gmail.com',
 ];
-export const CLAVE_ADMIN_POR_DEFECTO = 'totalhiit2026';
+export const CLAVE_ADMIN_POR_DEFECTO = 'admin2026';
 export const LLAVE_SESION_ADMIN = 'totalhiit_admin_autenticado';
+export const LLAVE_ADMIN_EMAIL = 'totalhiit_admin_email';
 export const LLAVE_CLAVE_ADMIN = 'totalhiit_admin_clave';
 
 let claveEnMemoria: string | null = null;
@@ -101,12 +102,48 @@ export function estaAutenticadoAdmin(): boolean {
   return sessionStorage.getItem(LLAVE_SESION_ADMIN) === '1';
 }
 
-export function iniciarSesionAdmin(): void {
+export function obtenerEmailAdminAutenticado(): string {
+  if (typeof window === 'undefined') return '';
+  return sessionStorage.getItem(LLAVE_ADMIN_EMAIL) || 'admin@totalhiit.com';
+}
+
+export function iniciarSesionAdmin(email?: string): void {
   sessionStorage.setItem(LLAVE_SESION_ADMIN, '1');
+  if (email) {
+    sessionStorage.setItem(LLAVE_ADMIN_EMAIL, normalizarEmail(email));
+  }
 }
 
 export function cerrarSesionAdmin(): void {
   sessionStorage.removeItem(LLAVE_SESION_ADMIN);
+  sessionStorage.removeItem(LLAVE_ADMIN_EMAIL);
+}
+
+/**
+ * Valida las credenciales de administración requeridas:
+ * Email autorizado (caribialabs@gmail.com, ebolivar1000@gmail.com, totalhiit1@gmail.com)
+ * y clave de acceso (por defecto 'admin2026' o la configurada).
+ */
+export function validarLoginAdmin(email: string, clave: string): { exito: boolean; mensaje: string } {
+  const emailNorm = normalizarEmail(email);
+  if (!emailNorm) {
+    return { exito: false, mensaje: 'Por favor ingresa tu correo de administrador.' };
+  }
+  if (!EMAILS_ADMIN_POR_DEFECTO.includes(emailNorm)) {
+    return {
+      exito: false,
+      mensaje: 'Acceso denegado: El correo no está autorizado como administrador de TotalHIIT.',
+    };
+  }
+  if (!verificarClaveAdmin(clave)) {
+    return {
+      exito: false,
+      mensaje: 'Contraseña de administrador incorrecta. Verifica o usa la recuperación.',
+    };
+  }
+
+  iniciarSesionAdmin(emailNorm);
+  return { exito: true, mensaje: 'Inicio de sesión exitoso.' };
 }
 
 /**

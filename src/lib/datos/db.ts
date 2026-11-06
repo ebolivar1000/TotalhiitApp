@@ -32,6 +32,90 @@ export interface AnuncioAdmin {
   fecha: string;
 }
 
+// -------------------------------------------------------------
+// ENTIDADES TOTALHIIT CRM (Directorio, Ingresos, Egresos, Tasas)
+// -------------------------------------------------------------
+
+export interface PaisCRM {
+  id: number;
+  nombre: string;
+  codigo_iso: string;
+  bandera_emoji: string;
+}
+
+export interface MonedaCRM {
+  codigo: 'USD' | 'EUR' | 'ARS' | string;
+  nombre: string;
+  simbolo: string;
+}
+
+export interface AlumnaCRM {
+  codigo: string; // '0001', '0002'...
+  nombre_completo: string;
+  email?: string;
+  telefono_whatsapp?: string;
+  pais_id: number;
+  moneda_preferida: 'USD' | 'EUR' | 'ARS';
+  fecha_inicio: string; // 'YYYY-MM-DD'
+  dia_de_pago: number; // 1 al 31 (día del mes para ciclo de cobro)
+  activa: number; // 1 | 0
+  notas?: string;
+  creado_en?: string;
+}
+
+export interface IngresoCRM {
+  id: string;
+  tipo_ingreso: 'CUOTA_ALUMNA' | 'CONTRATACION_APP' | 'COLABORACION_MARCA' | 'OTRO_INGRESO';
+  alumna_codigo?: string;
+  cliente_o_marca?: string;
+  concepto: string;
+  fecha_pago: string; // 'YYYY-MM-DD'
+  moneda_original: 'USD' | 'EUR' | 'ARS' | string;
+  monto_original: number;
+  tasa_a_usd: number;
+  tasa_a_ars: number;
+  usd_equivalente: number;
+  ars_equivalente: number;
+  mes_periodo: number; // 1-12
+  anio_periodo: number; // 2026
+  metodo_pago: string; // 'Transferencia', 'PayPal', 'Stripe', 'Efectivo', 'MercadoPago'
+  comprobante_url?: string;
+  estado: 'APROBADO' | 'PENDIENTE' | 'RECHAZADO';
+  cargado_por: 'ADMIN' | 'ALUMNA_FORM';
+  notas?: string;
+  creado_en?: string;
+}
+
+export interface EgresoCRM {
+  id: string;
+  categoria: 'PUBLICIDAD' | 'IMPUESTOS' | 'EQUIPOS' | 'SOFTWARE_HOSTING' | 'OTRO_EGRESO';
+  concepto: string;
+  fecha: string; // 'YYYY-MM-DD'
+  proveedor?: string;
+  moneda_original: 'USD' | 'EUR' | 'ARS' | string;
+  monto_original: number;
+  tasa_a_usd: number;
+  tasa_a_ars: number;
+  usd_equivalente: number;
+  ars_equivalente: number;
+  mes_periodo: number;
+  anio_periodo: number;
+  metodo_pago: string;
+  comprobante_url?: string;
+  notas?: string;
+  creado_en?: string;
+}
+
+export interface TasaCambioHistoricaCRM {
+  id: string;
+  fecha: string;
+  moneda_origen: string;
+  moneda_destino: string;
+  tasa: number;
+  fuente: string;
+  creado_en?: string;
+}
+
 export const NOMBRE_DB = 'totalhiit-app';
 
 export const db = new Dexie(NOMBRE_DB) as Dexie & {
@@ -47,6 +131,11 @@ export const db = new Dexie(NOMBRE_DB) as Dexie & {
   planes: EntityTable<PlanSemanal, 'id'>;
   suscriptores: EntityTable<Suscriptor, 'id'>;
   anuncios: EntityTable<AnuncioAdmin, 'id'>;
+  alumnas_crm: EntityTable<AlumnaCRM, 'codigo'>;
+  ingresos_crm: EntityTable<IngresoCRM, 'id'>;
+  egresos_crm: EntityTable<EgresoCRM, 'id'>;
+  paises_crm: EntityTable<PaisCRM, 'id'>;
+  tasas_crm: EntityTable<TasaCambioHistoricaCRM, 'id'>;
 };
 
 db.version(1).stores({
@@ -86,4 +175,13 @@ db.version(6).stores({
 db.version(7).stores({
   suscriptores: 'id, email, activo',
   anuncios: 'id, tipo, activo, fecha',
+});
+
+/** FASE CRM: Directorio multidivisa de alumnas, ingresos, egresos y tasas históricas */
+db.version(8).stores({
+  alumnas_crm: 'codigo, nombre_completo, pais_id, moneda_preferida, dia_de_pago, activa',
+  ingresos_crm: 'id, tipo_ingreso, alumna_codigo, fecha_pago, mes_periodo, anio_periodo, estado',
+  egresos_crm: 'id, categoria, fecha, mes_periodo, anio_periodo',
+  paises_crm: 'id, nombre, codigo_iso',
+  tasas_crm: 'id, fecha, [fecha+moneda_origen+moneda_destino]',
 });

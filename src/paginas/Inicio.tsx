@@ -118,7 +118,14 @@ export default function Inicio() {
           <p className="text-xs font-semibold text-zinc-500">Bienvenida,</p>
           <h1 className="text-2xl font-bold text-zinc-900">{perfil.alias} 👋</h1>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
+          <Link
+            to="/crm"
+            title="TotalHIIT CRM"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-marca-magenta/30 bg-pink-50 text-base shadow-sm transition hover:bg-pink-100 active:scale-95"
+          >
+            📊
+          </Link>
           <Link
             to="/admin"
             title="Panel de Administración"

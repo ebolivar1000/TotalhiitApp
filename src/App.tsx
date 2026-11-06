@@ -4,6 +4,7 @@ import Navegacion from './componentes/Navegacion';
 import AvisoConexion from './componentes/AvisoConexion';
 import PortadaTransicion from './componentes/PortadaTransicion';
 import Admin from './paginas/Admin';
+import CRM from './paginas/CRM';
 import { LLAVE_ONBOARDING_COMPLETADO, LLAVE_ONBOARDING_SALTADO, usePerfil } from './hooks/usePerfil';
 import Ajustes from './paginas/Ajustes';
 import Ciclo from './paginas/Ciclo';
@@ -36,7 +37,8 @@ export default function App() {
       ruta.startsWith('/descargar') ||
       ruta.startsWith('/instalar') ||
       ruta.startsWith('/apk') ||
-      ruta.startsWith('/download');
+      ruta.startsWith('/download') ||
+      ruta.startsWith('/crm');
 
     if (!perfil && !esRutaExenta && !saltado && !completado) {
       navigate('/onboarding', { replace: true });
@@ -53,6 +55,7 @@ export default function App() {
   const ocultarNavegacion =
     location.pathname.startsWith('/onboarding') ||
     location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/crm') ||
     location.pathname.startsWith('/descargar') ||
     location.pathname.startsWith('/instalar') ||
     location.pathname.startsWith('/apk') ||
@@ -81,6 +84,7 @@ export default function App() {
         <Route path="/ciclo" element={<Ciclo />} />
         <Route path="/ajustes" element={<Ajustes />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/crm" element={<CRM />} />
         <Route path="/privacidad" element={<Privacidad />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

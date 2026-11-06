@@ -333,6 +333,25 @@ export default function Admin() {
         </div>
       </div>
 
+      {/* Acceso Directo al nuevo TotalHIIT CRM */}
+      <Link
+        to="/crm"
+        className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-marca-magenta to-pink-600 p-4 text-white shadow-md hover:opacity-95 transition"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">📊</span>
+          <div>
+            <h2 className="text-sm font-bold">TotalHIIT CRM & Cobros</h2>
+            <p className="text-[11px] text-pink-100">
+              Alumnas, alertas de cobro, ingresos multidivisa y egresos
+            </p>
+          </div>
+        </div>
+        <span className="rounded-xl bg-white/20 px-3 py-1.5 text-xs font-bold backdrop-blur-xs">
+          Abrir CRM →
+        </span>
+      </Link>
+
       {/* Pestañas del Panel */}
       <div className="flex rounded-xl bg-zinc-200/80 p-1 text-xs font-semibold">
         <button
