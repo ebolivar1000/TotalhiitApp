@@ -116,9 +116,13 @@ export interface ProductoEscaneado {
   esLiquido?: boolean;
   puntaje: PuntajeSalud;
   alternativas?: AlternativaSaludable[];
-  fuente: 'openfoodfacts' | 'ocr_manual' | 'local_cache';
+  fuente: 'openfoodfacts' | 'ocr_manual' | 'local_cache' | 'catalogo_local';
   fechaEscaneo: number; // timestamp ms
   favorito?: boolean;
+  datosIncompletos?: boolean;
+  perfilInferido?: boolean;
+  mensajeInferencia?: string;
+  editadoPorUsuario?: boolean;
 }
 
 export interface PreferenciasEscaner {

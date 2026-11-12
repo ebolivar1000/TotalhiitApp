@@ -4,6 +4,7 @@ import AlertaPersonalizada from '../componentes/escaner/AlertaPersonalizada';
 import AlternativasSaludables from '../componentes/escaner/AlternativasSaludables';
 import DetalleExpandible from '../componentes/escaner/DetalleExpandible';
 import ListaMotivos from '../componentes/escaner/ListaMotivos';
+import ModalEditarNutrientes from '../componentes/escaner/ModalEditarNutrientes';
 import OctogonosArgentina from '../componentes/escaner/OctogonosArgentina';
 import SemaforoNutrientes from '../componentes/escaner/SemaforoNutrientes';
 import TarjetaPuntaje from '../componentes/escaner/TarjetaPuntaje';
@@ -23,6 +24,12 @@ export default function DetalleProducto() {
   const [error, setError] = useState<string | null>(null);
   const [esFavorito, setEsFavorito] = useState(false);
   const [escanerPrefs, setEscanerPrefs] = useState<PreferenciasEscaner | undefined>(undefined);
+  const [modalEditar, setModalEditar] = useState(false);
+
+  const manejarGuardarEdicion = async (prodActualizado: ProductoEscaneado) => {
+    await guardarProducto(prodActualizado);
+    setProducto(prodActualizado);
+  };
 
   useEffect(() => {
     let cancelado = false;
@@ -252,7 +259,62 @@ export default function DetalleProducto() {
             </p>
           </div>
         </div>
+
+        <div className="mt-2.5 flex items-center justify-between border-t border-zinc-100 pt-2 text-[11px]">
+          <span className="text-zinc-500 font-medium">
+            {producto.editadoPorUsuario
+              ? '✏️ Personalizado por ti'
+              : `Fuente: ${producto.fuente === 'catalogo_local' ? 'Catálogo Argentino' : 'Open Food Facts'}`}
+          </span>
+          <button
+            type="button"
+            onClick={() => setModalEditar(true)}
+            className="font-bold text-marca-magenta hover:underline cursor-pointer"
+          >
+            ✏️ Editar valores
+          </button>
+        </div>
       </Tarjeta>
+
+      {/* Banner de Aviso: Valores Estimados o Incompletos */}
+      {producto.perfilInferido && (
+        <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-900 shadow-sm space-y-1">
+          <div className="flex items-center gap-2 font-bold">
+            <span className="text-base">💡</span>
+            <span>Valores Nutricionales Estimados</span>
+          </div>
+          <p className="text-[11px] leading-relaxed">
+            {producto.mensajeInferencia ||
+              'Open Food Facts no tenía la tabla cargada. Estimamos los valores típicos de su categoría.'}
+          </p>
+          <button
+            type="button"
+            onClick={() => setModalEditar(true)}
+            className="mt-1 font-bold text-marca-magenta underline text-xs cursor-pointer block"
+          >
+            ✏️ Toca aquí para ajustar los valores según tu envase
+          </button>
+        </div>
+      )}
+
+      {producto.datosIncompletos && !producto.perfilInferido && (
+        <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-900 shadow-sm space-y-1">
+          <div className="flex items-center gap-2 font-bold">
+            <span className="text-base">⚠️</span>
+            <span>Tabla Nutricional No Informada</span>
+          </div>
+          <p className="text-[11px] leading-relaxed">
+            Open Food Facts tiene registrado el producto pero la comunidad aún no completó la tabla nutricional (figura en 0).
+          </p>
+          <button
+            type="button"
+            onClick={() => setModalEditar(true)}
+            className="mt-1 font-bold text-marca-magenta underline text-xs cursor-pointer block"
+          >
+            ✏️ Cargar datos nutricionales de este envase
+          </button>
+        </div>
+      )}
 
       {/* 1. ALERTAS PERSONALIZADAS DE ALÉRGENOS / METAS (POR ENCIMA DE LA NOTA) */}
       <AlertaPersonalizada
@@ -287,6 +349,8 @@ export default function DetalleProducto() {
         nutrientes={producto.nutrientes}
         equivalencias={producto.puntaje.equivalencias}
         esLiquido={producto.esLiquido}
+        datosIncompletos={producto.datosIncompletos}
+        perfilInferido={producto.perfilInferido}
       />
 
       {/* 5. LISTA DE MOTIVOS ("POR QUÉ TIENE ESTE PUNTAJE") */}
@@ -339,6 +403,14 @@ export default function DetalleProducto() {
           </BotonPrimario>
         </Link>
       </div>
+
+      {/* Modal de edición / corrección de tabla nutricional */}
+      <ModalEditarNutrientes
+        abierto={modalEditar}
+        alCerrar={() => setModalEditar(false)}
+        producto={producto}
+        alGuardar={(p) => void manejarGuardarEdicion(p)}
+      />
     </main>
   );
 }

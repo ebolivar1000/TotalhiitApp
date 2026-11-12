@@ -1,14 +1,13 @@
 {
-  "version": "1.0.11",
-  "buildNumber": 12,
+  "version": "1.0.12",
+  "buildNumber": 13,
   "releaseDate": "2026-11-12",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Nuevo módulo de Escáner de Alimentos con cámara en tiempo real y lectura de códigos de barras (EAN-13/EAN-8/UPC).",
-    "Algoritmo transparente de puntaje 0-100 con equivalencias cotidianas (cucharaditas de azúcar y gramos de sal).",
-    "Cálculo automático de octógonos negros y leyendas precautorias según la Ley 27.642 de Argentina.",
-    "Evaluación pedagógica de aditivos con clasificación de riesgo (EFSA/OMS) y nivel de procesamiento NOVA.",
-    "Sugerencia de alternativas más saludables de la misma categoría mediante Open Food Facts.",
-    "Historial y favoritos con funcionamiento 100% offline (IndexedDB Dexie)."
+    "Catálogo local curado de productos argentinos de alta rotación (Fritolím, Cocinero, Natura, La Serenísima, Bagley, etc.) con resolución instantánea offline.",
+    "Corrección de valores en cero: estimación inteligente de nutrientes típicos para aceites y productos con tablas vacías en Open Food Facts.",
+    "Nueva función de Edición / Corrección de tablas nutricionales en la ficha de producto con recálculo en tiempo real.",
+    "Plantillas rápidas de 1 toque (Aceite, Galletitas, Gaseosa, Lácteos, Avena, Queso) para carga manual sin ceros.",
+    "Soporte ampliado para variantes de códigos de barras (EAN-13, EAN-8 y UPC-A de 12 dígitos) y fallback entre endpoints de Open Food Facts."
   ]
 }

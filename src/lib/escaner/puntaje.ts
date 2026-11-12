@@ -34,11 +34,24 @@ export function calcularPuntajeSalud(params: ParametrosPuntaje): PuntajeSalud {
     params.aditivosAnalizados ||
     (params.aditivosCodigos ? analizarListaAditivos(params.aditivosCodigos) : []);
 
-  // Octógonos argentinos
+  // Caso especial: Aceites vegetales puros y rocíos (oliva, girasol, maíz, etc.)
+  const esAceitePuro =
+    grasasTot >= 85 &&
+    ((params.categoriaTags || []).some(
+      (c) =>
+        c.includes('oil') ||
+        c.includes('aceite') ||
+        c.includes('cooking-spray') ||
+        c.includes('fats'),
+    ) ||
+      (params.ingredientesTexto || '').toLowerCase().includes('aceite'));
+
+  // Octógonos argentinos (exceptúa legalmente aceites puros según Decreto 151/2022)
   const { octogonos, leyendas } = calcularOctogonosArgentina(nutrientes, {
     esLiquido,
     aditivosCodigos: params.aditivosCodigos,
     ingredientesTexto: params.ingredientesTexto,
+    esExceptuadoPorLey: esAceitePuro,
   });
 
   // ─── 1. COMPONENTE NUTRICIONAL (0 a 60 pts) ────────────────
@@ -123,12 +136,8 @@ export function calcularPuntajeSalud(params: ParametrosPuntaje): PuntajeSalud {
     }
   }
 
-  // Caso especial: Aceites vegetales puros (oliva, girasol alto oleico, etc.)
-  const esAceitePuro =
-    grasasTot >= 95 &&
-    (params.categoriaTags || []).some((c) => c.includes('oil') || c.includes('aceite'));
   if (esAceitePuro) {
-    // Los aceites de calidad son 100% grasa pero cardiosaludables
+    // Los aceites de calidad y rocíos son cardiosaludables (grasas insaturadas)
     puntosNutricionales = 48;
   }
 

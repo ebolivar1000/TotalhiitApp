@@ -5,6 +5,8 @@ interface SemaforoNutrientesProps {
   nutrientes: NutrientesPor100;
   equivalencias: EquivalenciaCotidiana;
   esLiquido?: boolean;
+  datosIncompletos?: boolean;
+  perfilInferido?: boolean;
 }
 
 interface ItemSemaforo {
@@ -22,6 +24,8 @@ export default function SemaforoNutrientes({
   nutrientes,
   equivalencias,
   esLiquido = false,
+  datosIncompletos = false,
+  perfilInferido = false,
 }: SemaforoNutrientesProps) {
   const unidad = esLiquido ? 'ml' : 'g';
 
@@ -121,6 +125,18 @@ export default function SemaforoNutrientes({
           🔥 {nutrientes.caloriasKcal} kcal
         </span>
       </div>
+
+      {perfilInferido && (
+        <div className="mt-2 rounded-lg bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-800 border border-amber-200">
+          💡 Valores estimados según categoría (Open Food Facts no tenía la tabla cargada).
+        </div>
+      )}
+
+      {datosIncompletos && !perfilInferido && (
+        <div className="mt-2 rounded-lg bg-zinc-100 px-2 py-1 text-[10px] font-semibold text-zinc-600 border border-zinc-200">
+          ⚠️ Tabla no informada en el registro colaborativo (valores en 0).
+        </div>
+      )}
 
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {items.map((item, idx) => (

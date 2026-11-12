@@ -1,5 +1,21 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-12 (sesión 29) — Catálogo Local Argentino Offline, Resolución de Valores en Cero, Edición de Tablas y Versión v1.0.12 (Build 13)
+- **Diagnóstico y Corrección de Problemas en Escáner de Etiquetas:**
+  - **Problema 1 (Códigos no encontrados o incompletos en Open Food Facts):**
+    - Se creó un **Catálogo Curado Local de Alimentos Argentinos** (`catalogoLocal.ts`) con resolución instantánea (0 ms, 100% offline) para productos de alta rotación en supermercados del país (aceites Fritolím, Cocinero, Natura, Cañuelas, Lira; lácteos La Serenísima entera y descremada, Yogurísimo, Casancrem; galletitas Chocolinas, Criollitas, Traviata, Cerealitas, Don Satur, Oreo; bebidas Coca-Cola, Sprite, Levité; almacén Matarazzo, Quaker, Arroz Gallo, etc.).
+    - Se incorporó normalización exhaustiva de códigos (EAN-13, EAN-8 y UPC de 12 dígitos) eliminando caracteres no numéricos y probando automáticamente variantes con o sin cero inicial.
+    - Se añadió fallback resiliente entre endpoints `api/v2` y `api/v0` de Open Food Facts.
+  - **Problema 2 (Productos mostrados con 0% en todos los nutrientes, ej: aceites con 0% grasa):**
+    - Se identificó la causa: en Open Food Facts, colaboradores suben fotos de la portada de productos pero omiten llenar la tabla nutricional (`nutriments: {}`). El algoritmo previo forzaba `undefined` a `0`, mostrando erróneamente aceites con 0 kcal y 0g de grasa.
+    - **Inferencia Inteligente por Categoría:** Si un producto es un aceite o rocío vegetal (`aceite`, `oil`, `fritolim`, etc.) y sus grasas figuran en 0, el sistema estima automáticamente los valores estándar reales (~92g-100g de grasa, ~12g saturadas, ~828-900 kcal), evitando que cualquier aceite figure con 0% de grasa.
+    - **Detección de Tablas Incompletas:** El sistema detecta cuando un producto no tiene nutrientes registrados y despliega un aviso claro en la ficha del producto y en el semáforo nutricional.
+    - **Modal de Edición / Corrección de Tablas (`ModalEditarNutrientes.tsx`):** Se implementó una interfaz intuitiva con plantillas rápidas de 1 toque (Aceite vegetal, Galletitas dulces, Bebida, Leche/Yogur, Cereal/Avena, Queso untable) para que la usuaria pueda ingresar o corregir los valores exactos de su envase, recalculando la nota, octógonos y semáforos en tiempo real y guardándolos en IndexedDB.
+    - **Mejora en Registro Manual:** En `Escaner.tsx`, el formulario manual ahora incluye botones de plantillas rápidas y valida que no se guarde un producto vacío con todos los nutrientes en cero.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.12 (Build 13)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 220/220 pruebas unitarias exitosas (`npm test`), compilación web y sincronización de Capacitor con Android.
+
 ## 2026-11-12 (sesión 28) — Nuevo Módulo "Escáner de Alimentos" (0-100, Octógonos Ley 27.642, Aditivos, Open Food Facts) y Versión v1.0.11 (Build 12)
 - **Implementación del Módulo Escáner de Alimentos:**
   - **Cámara y Detección de Código de Barras en Tiempo Real:** Integrado `VisorCamara.tsx` utilizando la API nativa `BarcodeDetector` (aceleración por hardware en Chrome y WebView de Android) con control de linterna (torch), recuadro guía y respuesta háptica.

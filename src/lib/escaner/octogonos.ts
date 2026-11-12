@@ -12,6 +12,7 @@ export interface OpcionesOctogono {
   contieneCafeina?: boolean;
   ingredientesTexto?: string;
   aditivosCodigos?: string[];
+  esExceptuadoPorLey?: boolean;
 }
 
 const EDULCORANTES_CONOCIDOS = [
@@ -60,6 +61,16 @@ export function calcularOctogonosArgentina(
   leyendas: LeyendaPrecautoria[];
   tieneSellos: boolean;
 } {
+  // Según el art. 9 de la Ley 27.642 y su Decreto Reglamentario 151/2022,
+  // los aceites vegetales y azúcar común están exceptuados del rotulado frontal.
+  if (opciones.esExceptuadoPorLey) {
+    return {
+      octogonos: [],
+      leyendas: [],
+      tieneSellos: false,
+    };
+  }
+
   const { caloriasKcal, azucaresG, grasasTotalesG, grasasSaturadasG, sodioMg } = nutrientes;
   const esLiquido = Boolean(opciones.esLiquido);
   const octogonos: OctogonoArgentina[] = [];

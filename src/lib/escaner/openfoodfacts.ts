@@ -1,10 +1,11 @@
 import { clasificarAditivo } from './aditivos';
+import { buscarEnCatalogoLocal } from './catalogoLocal';
 import { calcularPuntajeSalud } from './puntaje';
 import type { AlternativaSaludable, NutrientesPor100, ProductoEscaneado } from './tipos';
 
 const URL_BASE_OFF = 'https://world.openfoodfacts.org';
-const TIMEOUT_MS = 3500;
-const USER_AGENT_APP = 'TotalHIIT-App/1.0.11 (https://totalhiit.pages.dev; contact@totalhiit.com)';
+const TIMEOUT_MS = 4000;
+const USER_AGENT_APP = 'TotalHIIT-App/1.0.12 (https://totalhiit.pages.dev; contact@totalhiit.com)';
 
 export const ATRIBUCION_OPEN_FOOD_FACTS = {
   nombre: 'Open Food Facts',
@@ -21,16 +22,82 @@ export interface RespuestaOFFProduct {
 }
 
 /**
- * Consulta la API pública de Open Food Facts para un código de barras (EAN-13, EAN-8, UPC).
+ * Extrae un valor numérico de nutrientes buscando en múltiples claves posibles de Open Food Facts.
+ */
+function leerNutriente(
+  nutriments: Record<string, unknown>,
+  claves100g: string[],
+  clavesServing?: string[],
+  porcionG?: number,
+): number {
+  for (const k of claves100g) {
+    const val = nutriments[k];
+    if (val !== undefined && val !== null && val !== '') {
+      const num = Number(val);
+      if (!isNaN(num)) return num;
+    }
+  }
+
+  // Si no está informado por 100g pero sí por porción y conocemos el tamaño de porción
+  if (clavesServing && porcionG && porcionG > 0) {
+    for (const sk of clavesServing) {
+      const val = nutriments[sk];
+      if (val !== undefined && val !== null && val !== '') {
+        const num = Number(val);
+        if (!isNaN(num)) {
+          return Math.round((num / porcionG) * 100 * 10) / 10;
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
+/**
+ * Realiza una petición HTTP a Open Food Facts con timeout.
+ */
+async function peticionOFF(url: string): Promise<RespuestaOFFProduct | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': USER_AGENT_APP,
+      },
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    return (await res.json()) as RespuestaOFFProduct;
+  } catch {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
+/**
+ * Consulta la información nutricional de un código de barras.
+ * 1. Primero verifica el catálogo local curado de Argentina (0 ms, offline).
+ * 2. Si no está en catálogo local, consulta la API de Open Food Facts con reintentos y variantes de código.
  */
 export async function consultarOpenFoodFacts(
   codigoBarras: string,
 ): Promise<{ exito: boolean; producto?: ProductoEscaneado; mensaje?: string }> {
-  const codigoLimpio = codigoBarras.trim().replace(/\s+/g, '');
-  if (!codigoLimpio || !/^\d{6,14}$/.test(codigoLimpio)) {
+  const codigoLimpio = codigoBarras.trim().replace(/\D/g, '');
+  if (!codigoLimpio || codigoLimpio.length < 6 || codigoLimpio.length > 14) {
     return { exito: false, mensaje: 'El código de barras debe ser numérico (EAN-8, EAN-13 o UPC).' };
   }
 
+  // ─── 1. RESOLUCIÓN INSTANTÁNEA EN CATÁLOGO LOCAL CURADO ──────
+  const prodLocal = buscarEnCatalogoLocal(codigoLimpio);
+  if (prodLocal) {
+    return { exito: true, producto: prodLocal };
+  }
+
+  // ─── 2. CONSULTA EN OPEN FOOD FACTS (API v2 / v0) ────────────
   const campos = [
     'code',
     'product_name',
@@ -50,171 +117,221 @@ export async function consultarOpenFoodFacts(
     'additives_tags',
     'nutriments',
     'serving_size',
+    'serving_quantity',
   ].join(',');
 
-  const url = `${URL_BASE_OFF}/api/v2/product/${codigoLimpio}.json?fields=${campos}&app_name=TotalHIIT&app_version=1.0.11`;
+  // Probar variantes de código (directo, con 0 adelante si es 12 dígitos, o sin 0 si es 13)
+  const codigosAProbar = [codigoLimpio];
+  if (codigoLimpio.length === 12) codigosAProbar.push(`0${codigoLimpio}`);
+  if (codigoLimpio.length === 13 && codigoLimpio.startsWith('0')) {
+    codigosAProbar.push(codigoLimpio.slice(1));
+  }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  let data: RespuestaOFFProduct | null = null;
+  let codigoEncontrado = codigoLimpio;
 
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        Accept: 'application/json',
-        'User-Agent': USER_AGENT_APP,
-      },
-    });
-
-    clearTimeout(timer);
-
-    if (!res.ok) {
-      if (res.status === 404) {
-        return {
-          exito: false,
-          mensaje: 'El producto no fue encontrado en la base de Open Food Facts.',
-        };
-      }
-      return {
-        exito: false,
-        mensaje: `Error al conectar con Open Food Facts (código HTTP ${res.status}).`,
-      };
+  for (const cod of codigosAProbar) {
+    const urlV2 = `${URL_BASE_OFF}/api/v2/product/${cod}.json?fields=${campos}&app_name=TotalHIIT&app_version=1.0.12`;
+    data = await peticionOFF(urlV2);
+    if (data && data.status === 1 && data.product) {
+      codigoEncontrado = cod;
+      break;
     }
 
-    const data = (await res.json()) as RespuestaOFFProduct;
-
-    if (data.status !== 1 || !data.product) {
-      return {
-        exito: false,
-        mensaje: 'El producto no está catalogado aún en Open Food Facts.',
-      };
+    // Fallback a endpoint v0 si v2 no lo encontró
+    const urlV0 = `${URL_BASE_OFF}/api/v0/product/${cod}.json`;
+    data = await peticionOFF(urlV0);
+    if (data && data.status === 1 && data.product) {
+      codigoEncontrado = cod;
+      break;
     }
+  }
 
-    const prod = data.product;
-    const nutriments = (prod.nutriments as Record<string, unknown>) || {};
-
-    const caloriasKcal =
-      Number(nutriments['energy-kcal_100g']) ||
-      Number(nutriments['energy-kcal']) ||
-      (Number(nutriments['energy_100g']) ? Math.round(Number(nutriments['energy_100g']) / 4.184) : 0);
-
-    const azucaresG = Number(nutriments['sugars_100g']) || 0;
-    const grasasTotalesG = Number(nutriments['fat_100g']) || 0;
-    const grasasSaturadasG = Number(nutriments['saturated-fat_100g']) || 0;
-    const sodioMg =
-      Number(nutriments['sodium_100g']) !== undefined && nutriments['sodium_100g'] !== null
-        ? Math.round(Number(nutriments['sodium_100g']) * 1000)
-        : Number(nutriments['salt_100g'])
-          ? Math.round((Number(nutriments['salt_100g']) / 2.5) * 1000)
-          : 0;
-
-    const fibraG = Number(nutriments['fiber_100g']) || 0;
-    const proteinasG = Number(nutriments['proteins_100g']) || 0;
-    const salG = Number(nutriments['salt_100g']) || (sodioMg > 0 ? (sodioMg / 1000) * 2.5 : 0);
-
-    const nutrientes: NutrientesPor100 = {
-      caloriasKcal,
-      azucaresG,
-      grasasTotalesG,
-      grasasSaturadasG,
-      sodioMg,
-      fibraG,
-      proteinasG,
-      salG,
-    };
-
-    const categoriaTags = Array.isArray(prod.categories_tags)
-      ? (prod.categories_tags as string[])
-      : [];
-
-    const esLiquido = categoriaTags.some(
-      (c) =>
-        c.includes('beverage') ||
-        c.includes('drink') ||
-        c.includes('soda') ||
-        c.includes('juice') ||
-        c.includes('milk') ||
-        c.includes('water') ||
-        c.includes('bebida'),
-    );
-
-    const additivesTags = Array.isArray(prod.additives_tags)
-      ? (prod.additives_tags as string[])
-      : [];
-
-    const aditivosAnalizados = additivesTags.map((t) => clasificarAditivo(t));
-
-    const novaRaw = Number(prod.nova_group);
-    const novaGroup = (novaRaw >= 1 && novaRaw <= 4 ? novaRaw : undefined) as
-      | 1
-      | 2
-      | 3
-      | 4
-      | undefined;
-
-    const nutriScoreRaw = String(prod.nutriscore_grade || '').toLowerCase();
-    const nutriScoreGrade = ['a', 'b', 'c', 'd', 'e'].includes(nutriScoreRaw)
-      ? (nutriScoreRaw as 'a' | 'b' | 'c' | 'd' | 'e')
-      : undefined;
-
-    const ecoScoreRaw = String(prod.ecoscore_grade || '').toLowerCase();
-    const ecoScoreGrade = ['a', 'b', 'c', 'd', 'e'].includes(ecoScoreRaw)
-      ? (ecoScoreRaw as 'a' | 'b' | 'c' | 'd' | 'e')
-      : undefined;
-
-    const nombre =
-      String(prod.product_name_es || prod.product_name || 'Producto sin nombre').trim();
-    const marca = String(prod.brands || '').trim();
-
-    const puntaje = calcularPuntajeSalud({
-      nutrientes,
-      novaGroup,
-      aditivosAnalizados,
-      categoriaTags,
-      esLiquido,
-      ingredientesTexto: String(prod.ingredients_text_es || prod.ingredients_text || ''),
-    });
-
-    const productoFinal: ProductoEscaneado = {
-      codigoBarras: codigoLimpio,
-      nombre,
-      marca: marca || undefined,
-      categoria: categoriaTags[categoriaTags.length - 1]?.replace(/^en:/, '').replace(/-/g, ' ') || 'Alimento',
-      categoriaTags,
-      imagenUrl: (prod.image_front_url || prod.image_url) as string | undefined,
-      imagenNutricionUrl: prod.image_nutrition_url as string | undefined,
-      nutriScoreGrade,
-      novaGroup,
-      ecoScoreGrade,
-      ingredientesTexto: (prod.ingredients_text_es || prod.ingredients_text) as string | undefined,
-      alergenos: Array.isArray(prod.allergens_tags)
-        ? (prod.allergens_tags as string[]).map((a) => a.replace(/^en:/, '').replace(/-/g, ' '))
-        : [],
-      trazasAlergenos: Array.isArray(prod.traces_tags)
-        ? (prod.traces_tags as string[]).map((t) => t.replace(/^en:/, '').replace(/-/g, ' '))
-        : [],
-      aditivos: aditivosAnalizados,
-      nutrientes,
-      esLiquido,
-      puntaje,
-      fuente: 'openfoodfacts',
-      fechaEscaneo: Date.now(),
-    };
-
-    return { exito: true, producto: productoFinal };
-  } catch (err: unknown) {
-    clearTimeout(timer);
-    if (err instanceof Error && err.name === 'AbortError') {
-      return {
-        exito: false,
-        mensaje: 'La consulta tardó más de 3.5 segundos. Verifica tu conexión a internet o reintenta.',
-      };
-    }
+  if (!data || data.status !== 1 || !data.product) {
     return {
       exito: false,
-      mensaje: 'Sin conexión con el servidor de Open Food Facts. Puedes ingresar los datos manualmente.',
+      mensaje: 'Producto no encontrado en Open Food Facts. Puedes registrar su etiqueta manualmente o con foto.',
     };
   }
+
+  const prod = data.product;
+  const nutriments = (prod.nutriments as Record<string, unknown>) || {};
+  const porcionG = Number(nutriments['serving_quantity']) || parseFloat(String(prod.serving_size || '')) || 0;
+
+  let caloriasKcal = leerNutriente(
+    nutriments,
+    ['energy-kcal_100g', 'energy-kcal_value', 'energy-kcal'],
+    ['energy-kcal_serving'],
+    porcionG,
+  );
+  if (!caloriasKcal && nutriments['energy_100g']) {
+    caloriasKcal = Math.round(Number(nutriments['energy_100g']) / 4.184);
+  }
+
+  let azucaresG = leerNutriente(nutriments, ['sugars_100g', 'sugars_value', 'sugars'], ['sugars_serving'], porcionG);
+  let grasasTotalesG = leerNutriente(nutriments, ['fat_100g', 'fat_value', 'fat'], ['fat_serving'], porcionG);
+  let grasasSaturadasG = leerNutriente(
+    nutriments,
+    ['saturated-fat_100g', 'saturated-fat_value', 'saturated-fat'],
+    ['saturated-fat_serving'],
+    porcionG,
+  );
+
+  let sodioMg = leerNutriente(nutriments, ['sodium_100g', 'sodium_value', 'sodium'], ['sodium_serving'], porcionG);
+  if (sodioMg > 0 && sodioMg < 10) {
+    // Si viene en gramos (ej: 0.4g de sodio), convertir a miligramos
+    sodioMg = Math.round(sodioMg * 1000);
+  } else if (!sodioMg && nutriments['salt_100g']) {
+    const sal = Number(nutriments['salt_100g']) || 0;
+    sodioMg = Math.round((sal / 2.5) * 1000);
+  }
+
+  const fibraG = leerNutriente(nutriments, ['fiber_100g', 'fiber_value', 'fiber'], ['fiber_serving'], porcionG);
+  const proteinasG = leerNutriente(
+    nutriments,
+    ['proteins_100g', 'proteins_value', 'proteins'],
+    ['proteins_serving'],
+    porcionG,
+  );
+  const salG =
+    leerNutriente(nutriments, ['salt_100g', 'salt_value', 'salt'], ['salt_serving'], porcionG) ||
+    (sodioMg > 0 ? (sodioMg / 1000) * 2.5 : 0);
+
+  const nombre = String(prod.product_name_es || prod.product_name || 'Producto sin nombre').trim();
+  const marca = String(prod.brands || '').trim();
+  const categoriaTags = Array.isArray(prod.categories_tags) ? (prod.categories_tags as string[]) : [];
+
+  // ─── 3. DETECCIÓN INTELIGENTE DE PRODUCTOS SIN TABLA CARGADA EN OFF ─
+  // Caso emblemático: Aceites y Rocíos vegetales cargados sin nutriments
+  const textoCompleto = `${nombre} ${marca} ${categoriaTags.join(' ')}`.toLowerCase();
+  const esAceite =
+    textoCompleto.includes('aceite') ||
+    textoCompleto.includes('oil') ||
+    textoCompleto.includes('fritolim') ||
+    textoCompleto.includes('rocio vegetal') ||
+    textoCompleto.includes('rocío vegetal') ||
+    textoCompleto.includes('girasol') ||
+    textoCompleto.includes('oliva') ||
+    textoCompleto.includes('canola');
+
+  let perfilInferido = false;
+  let mensajeInferencia: string | undefined = undefined;
+
+  if (esAceite && grasasTotalesG === 0) {
+    // Un aceite o rocío vegetal es ~92% a 100% lípido; jamás puede tener 0% de grasa.
+    const esSpray =
+      textoCompleto.includes('fritolim') ||
+      textoCompleto.includes('aerosol') ||
+      textoCompleto.includes('spray') ||
+      textoCompleto.includes('rocio');
+
+    grasasTotalesG = esSpray ? 92 : 100;
+    grasasSaturadasG = 12;
+    caloriasKcal = Math.round(grasasTotalesG * 9); // 828 kcal o 900 kcal
+    azucaresG = 0;
+    sodioMg = 0;
+    perfilInferido = true;
+    mensajeInferencia =
+      'Open Food Facts no tenía cargada la tabla de este aceite. Estimamos los valores típicos (~100g de grasa). Puedes editarlos con tu envase.';
+    if (!categoriaTags.some((c) => c.includes('oil') || c.includes('aceite'))) {
+      categoriaTags.push('en:vegetable-oils');
+    }
+  }
+
+  const tieneCalorias = caloriasKcal > 0;
+  const tieneGrasas = grasasTotalesG > 0;
+  const tieneProteinas = proteinasG > 0;
+  const tieneAzucares = azucaresG > 0;
+  const datosIncompletos =
+    (!tieneCalorias && !tieneGrasas && !tieneProteinas && !tieneAzucares) || perfilInferido;
+
+  if (datosIncompletos && !mensajeInferencia) {
+    mensajeInferencia =
+      'Open Food Facts tiene registrado el producto pero la comunidad aún no completó la tabla nutricional (figura en 0). Puedes completarla editando los valores.';
+  }
+
+  const nutrientes: NutrientesPor100 = {
+    caloriasKcal,
+    azucaresG,
+    grasasTotalesG,
+    grasasSaturadasG,
+    sodioMg,
+    fibraG,
+    proteinasG,
+    salG,
+  };
+
+  const esLiquido = categoriaTags.some(
+    (c) =>
+      c.includes('beverage') ||
+      c.includes('drink') ||
+      c.includes('soda') ||
+      c.includes('juice') ||
+      c.includes('milk') ||
+      c.includes('water') ||
+      c.includes('bebida'),
+  );
+
+  const additivesTags = Array.isArray(prod.additives_tags) ? (prod.additives_tags as string[]) : [];
+  const aditivosAnalizados = additivesTags.map((t) => clasificarAditivo(t));
+
+  const novaRaw = Number(prod.nova_group);
+  const novaGroup = (novaRaw >= 1 && novaRaw <= 4 ? novaRaw : esAceite ? 2 : undefined) as
+    | 1
+    | 2
+    | 3
+    | 4
+    | undefined;
+
+  const nutriScoreRaw = String(prod.nutriscore_grade || '').toLowerCase();
+  const nutriScoreGrade = ['a', 'b', 'c', 'd', 'e'].includes(nutriScoreRaw)
+    ? (nutriScoreRaw as 'a' | 'b' | 'c' | 'd' | 'e')
+    : undefined;
+
+  const ecoScoreRaw = String(prod.ecoscore_grade || '').toLowerCase();
+  const ecoScoreGrade = ['a', 'b', 'c', 'd', 'e'].includes(ecoScoreRaw)
+    ? (ecoScoreRaw as 'a' | 'b' | 'c' | 'd' | 'e')
+    : undefined;
+
+  const puntaje = calcularPuntajeSalud({
+    nutrientes,
+    novaGroup,
+    aditivosAnalizados,
+    categoriaTags,
+    esLiquido,
+    ingredientesTexto: String(prod.ingredients_text_es || prod.ingredients_text || ''),
+  });
+
+  const productoFinal: ProductoEscaneado = {
+    codigoBarras: codigoEncontrado,
+    nombre,
+    marca: marca || undefined,
+    categoria: categoriaTags[categoriaTags.length - 1]?.replace(/^en:/, '').replace(/-/g, ' ') || 'Alimento',
+    categoriaTags,
+    imagenUrl: (prod.image_front_url || prod.image_url) as string | undefined,
+    imagenNutricionUrl: prod.image_nutrition_url as string | undefined,
+    nutriScoreGrade,
+    novaGroup,
+    ecoScoreGrade,
+    ingredientesTexto: (prod.ingredients_text_es || prod.ingredients_text) as string | undefined,
+    alergenos: Array.isArray(prod.allergens_tags)
+      ? (prod.allergens_tags as string[]).map((a) => a.replace(/^en:/, '').replace(/-/g, ' '))
+      : [],
+    trazasAlergenos: Array.isArray(prod.traces_tags)
+      ? (prod.traces_tags as string[]).map((t) => t.replace(/^en:/, '').replace(/-/g, ' '))
+      : [],
+    aditivos: aditivosAnalizados,
+    nutrientes,
+    esLiquido,
+    puntaje,
+    fuente: 'openfoodfacts',
+    fechaEscaneo: Date.now(),
+    datosIncompletos,
+    perfilInferido,
+    mensajeInferencia,
+  };
+
+  return { exito: true, producto: productoFinal };
 }
 
 /**
