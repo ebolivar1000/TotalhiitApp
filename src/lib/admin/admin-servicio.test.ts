@@ -5,6 +5,7 @@ import {
   agregarSuscriptor,
   alternarEstadoSuscriptor,
   cambiarClaveAdmin,
+  CLAVE_ADMIN_POR_DEFECTO,
   eliminarSuscriptor,
   esSuscriptorActivo,
   guardarAnuncio,
@@ -20,7 +21,7 @@ beforeEach(async () => {
 
 describe('modulo de administracion (FASE 12)', () => {
   it('valida la clave de acceso de administrador', () => {
-    expect(verificarClaveAdmin('totalhiit2026')).toBe(true);
+    expect(verificarClaveAdmin(CLAVE_ADMIN_POR_DEFECTO)).toBe(true);
     expect(verificarClaveAdmin('clave_incorrecta')).toBe(false);
   });
 
@@ -77,11 +78,11 @@ describe('modulo de administracion (FASE 12)', () => {
   });
 
   it('permite cambiar la clave de administracion y verificar con la nueva clave', () => {
-    expect(verificarClaveAdmin('totalhiit2026')).toBe(true);
+    expect(verificarClaveAdmin(CLAVE_ADMIN_POR_DEFECTO)).toBe(true);
 
     const res = cambiarClaveAdmin('nuevaClaveSegura2026');
     expect(res.exito).toBe(true);
-    expect(verificarClaveAdmin('totalhiit2026')).toBe(false);
+    expect(verificarClaveAdmin(CLAVE_ADMIN_POR_DEFECTO)).toBe(false);
     expect(verificarClaveAdmin('nuevaClaveSegura2026')).toBe(true);
 
     // No permite claves demasiado cortas
@@ -91,7 +92,7 @@ describe('modulo de administracion (FASE 12)', () => {
 
   it('permite restablecer la clave a traves de un email maestro autorizado', () => {
     cambiarClaveAdmin('claveOlvidadaxxx');
-    expect(verificarClaveAdmin('totalhiit2026')).toBe(false);
+    expect(verificarClaveAdmin(CLAVE_ADMIN_POR_DEFECTO)).toBe(false);
 
     // Email no autorizado falla
     const intentoFallido = restablecerClaveAdminPorEmail('hacker@gmail.com');
@@ -100,6 +101,6 @@ describe('modulo de administracion (FASE 12)', () => {
     // Email maestro autorizado restablece la clave por defecto
     const res = restablecerClaveAdminPorEmail('caribialabs@gmail.com');
     expect(res.exito).toBe(true);
-    expect(verificarClaveAdmin('totalhiit2026')).toBe(true);
+    expect(verificarClaveAdmin(CLAVE_ADMIN_POR_DEFECTO)).toBe(true);
   });
 });

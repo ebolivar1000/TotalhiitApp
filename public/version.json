@@ -1,13 +1,13 @@
 {
-  "version": "1.0.9",
-  "buildNumber": 10,
-  "releaseDate": "2026-11-04",
+  "version": "1.0.10",
+  "buildNumber": 11,
+  "releaseDate": "2026-11-12",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
+    "Instalador APK completo e independiente para instalaciones limpias desde cero y actualizaciones.",
+    "Flujo de descarga directa unificada sin duplicación de descargas ni interrupciones.",
+    "Guía clara en pantalla para permisos de instalación y resolución de avisos de seguridad en Android.",
     "Descarga e inspección de PDFs con tarjeta de acción directa (Guardar archivo y Abrir/Ver PDF).",
-    "Soporte nativo para compartir archivos en Android con URI resuelta y lista de archivos.",
-    "Eliminado bloqueo de popups en navegadores móviles durante la generación de PDFs.",
-    "Portal oficial de descarga /descargar con soporte para visores de WhatsApp/Instagram.",
-    "Detección y actualización dinámica en segundo plano."
+    "Soporte dinámico para WhatsApp, Instagram y visores in-app."
   ]
 }

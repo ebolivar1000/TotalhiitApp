@@ -1,5 +1,19 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-12 (sesión 27) — Optimización del Flujo de Descarga Universal de APK (Desde Cero y Actualizaciones) y Versión v1.0.10 (Build 11)
+- **Diagnóstico y Clarificación del Instalador APK:**
+  - Se confirmó que el archivo APK (`totalhiit.apk`) es un instalador Android completo, autónomo e independiente (Full Standalone Package), compilado con Gradle y Capacitor. No es un parche ni un delta, por lo que nunca requiere una versión previa para instalarse en cualquier dispositivo Android 7.0+.
+  - Se identificó la causa de confusión y fallos cuando usuarios instalaban "desde cero":
+    1. **Disparo Doble de Descargas:** La implementación previa ejecutaba `enlace.click()` y acto seguido `window.open(url, '_system')`. En navegadores móviles, esto provocaba dos descargas simultáneas del archivo de ~24 MB, cancelando o corrompiendo la primera (`.crdownload` o archivo incompleto), lo que generaba el error de Android *"Error de análisis: Se ha producido un error al analizar el paquete"*.
+    2. **Filtro de Seguridad de Android en Instalaciones Primerizas:** En celulares nuevos o donde nunca se ha instalado un APK fuera de Google Play, Android muestra el diálogo de seguridad *"Por motivos de seguridad, tu teléfono no tiene permiso para instalar aplicaciones desconocidas de esta fuente"*, lo cual desconcertaba a los usuarios no técnicos haciéndoles pensar que faltaba una versión anterior.
+- **Refactorización de `DescargarApp.tsx`:**
+  - Sustituido el mecanismo de disparo doble por un botón con enlace HTML5 nativo (`<a href={...} download="totalhiit.apk">`), garantizando una descarga limpia, única y sin bloqueos de pop-up.
+  - Añadida sección informativa destacando que la APK es completa e independiente, apta tanto para instalaciones limpias desde cero como para actualizar sin perder datos.
+  - Añadida sección interactiva de solución de dudas y avisos de Android (permiso de fuentes desconocidas, aviso de "archivo dañino" estándar de Google, y prevención de apertura prematura antes de finalizar los 24 MB).
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.10 (Build 11)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 197/197 pruebas unitarias exitosas (`npm test`), compilación web y sincronización de Capacitor con Android.
+
 ## 2026-11-04 (sesión 26) — Corrección Definitiva del Módulo PDF con Tarjetas de Acción Directa y Versión v1.0.9 (Build 10)
 - **Diagnóstico y Corrección Integral del Flujo de PDFs:**
   - Se identificó la causa de por qué aparecía el mensaje de éxito pero no se abría ni se guardaba el archivo:

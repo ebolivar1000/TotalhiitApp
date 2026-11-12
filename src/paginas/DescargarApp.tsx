@@ -3,6 +3,8 @@ import { Link } from 'react-router';
 import { Tarjeta } from '../componentes/ui';
 import { consultarActualizacion, VERSION_ACTUAL, type InfoVersion } from '../lib/version/actualizador';
 
+const URL_DESCARGA_APK = 'https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk';
+
 export default function DescargarApp() {
   const [infoVersion, setInfoVersion] = useState<InfoVersion | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -45,33 +47,13 @@ export default function DescargarApp() {
     void comprobarServidor();
   }, []);
 
-  const iniciarDescarga = () => {
-    setDescargaIniciada(true);
-    const timestamp = Date.now();
-    const url = `https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk?_t=${timestamp}`;
-
-    // Disparar descarga directa mediante elemento anchor HTML5
-    const enlace = document.createElement('a');
-    enlace.href = url;
-    enlace.download = 'totalhiit.apk';
-    enlace.target = '_blank';
-    enlace.rel = 'noopener noreferrer';
-    document.body.appendChild(enlace);
-    enlace.click();
-
-    setTimeout(() => {
-      enlace.remove();
-    }, 1000);
-
-    // Intentar también abrir con _system en caso de estar en WebView
-    try {
-      if (typeof window !== 'undefined' && window.open) {
-        window.open(url, '_system');
-      }
-    } catch {}
-  };
-
   const versionMostrar = infoVersion?.version || VERSION_ACTUAL;
+  const buildMostrar = infoVersion?.buildNumber || 11;
+  const fechaMostrar = infoVersion?.releaseDate || '2026-11-12';
+
+  const manejarClickDescarga = () => {
+    setDescargaIniciada(true);
+  };
 
   return (
     <main className="safe-area-superior mx-auto max-w-md space-y-4 px-4 pb-24 pt-6">
@@ -93,7 +75,7 @@ export default function DescargarApp() {
             <span>Aviso para usuarios de WhatsApp / Instagram</span>
           </div>
           <p className="mt-1.5 leading-relaxed">
-            Estás usando el visor interno de WhatsApp o Instagram, el cual <strong>bloquea las descargas directas de archivos APK</strong>.
+            Estás usando el visor interno de redes sociales, el cual <strong>bloquea las descargas directas de archivos APK</strong>.
           </p>
           <div className="mt-2.5 rounded-xl bg-white/80 p-2.5 border border-amber-200">
             <p className="font-bold text-amber-950">Para descargar sin problemas:</p>
@@ -106,6 +88,31 @@ export default function DescargarApp() {
         </div>
       )}
 
+      {/* Aclaración: Instalación completa e independiente (nueva o actualización) */}
+      <div className="rounded-2xl border border-emerald-300 bg-emerald-50/80 p-3.5 text-xs text-emerald-950 shadow-xs">
+        <div className="flex items-center gap-2 font-bold text-emerald-900">
+          <span className="text-base">✨</span>
+          <span>Instalador Completo e Independiente</span>
+        </div>
+        <p className="mt-1 leading-relaxed text-emerald-900">
+          Este instalador contiene la app completa. <strong>NO necesitas tener ninguna versión previa instalada</strong>:
+        </p>
+        <div className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2 text-[11px]">
+          <div className="rounded-xl bg-white p-2.5 shadow-2xs border border-emerald-200">
+            <p className="font-bold text-zinc-900">🆕 Celular nuevo o desde cero:</p>
+            <p className="text-zinc-600 mt-0.5 leading-relaxed">
+              Instala directamente. Todo el contenido, entrenamientos y menús quedan listos de inmediato.
+            </p>
+          </div>
+          <div className="rounded-xl bg-white p-2.5 shadow-2xs border border-emerald-200">
+            <p className="font-bold text-zinc-900">🔄 Si ya tienes la app instalada:</p>
+            <p className="text-zinc-600 mt-0.5 leading-relaxed">
+              Se actualiza automáticamente sin perder tus progresos, datos ni configuraciones guardadas.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Tarjeta Principal de Descarga */}
       <Tarjeta className="border-2 border-marca-magenta/30 bg-gradient-to-b from-white via-white to-pink-50/50 text-center shadow-md">
         <div className="inline-flex items-center gap-2 rounded-full bg-marca-magenta/10 px-3 py-1 text-xs font-black text-marca-magenta">
@@ -114,45 +121,47 @@ export default function DescargarApp() {
         </div>
 
         <h1 className="mt-3 text-2xl font-black text-zinc-900">
-          App TOTALHIIT para Celulares
+          App TOTALHIIT para Android
         </h1>
         <p className="mt-1 text-xs text-zinc-600 leading-relaxed max-w-xs mx-auto">
-          Instala la aplicación nativa en tu Android para acceder a entrenamientos en video, menús semanales y seguimiento del ciclo femenino.
+          Instala la aplicación en tu celular para acceder a entrenamientos en video, menús semanales, PDF de recetas y seguimiento del ciclo femenino.
         </p>
 
-        {/* Botón Gigante de Descarga */}
+        {/* Botón de Descarga Directa Nativa (Enlace HTML5 estándar) */}
         <div className="mt-5 space-y-2">
-          <button
-            type="button"
-            onClick={iniciarDescarga}
-            className="group relative flex w-full min-h-[54px] items-center justify-center gap-2.5 rounded-2xl bg-marca-magenta px-5 py-3.5 text-sm font-black text-white shadow-lg transition-all hover:bg-marca-magenta-oscuro hover:shadow-xl active:scale-95 text-center"
+          <a
+            href={URL_DESCARGA_APK}
+            download="totalhiit.apk"
+            onClick={manejarClickDescarga}
+            className="group relative flex w-full min-h-[56px] items-center justify-center gap-2.5 rounded-2xl bg-marca-magenta px-5 py-3.5 text-sm font-black text-white shadow-lg transition-all hover:bg-marca-magenta-oscuro hover:shadow-xl active:scale-95 text-center"
           >
             <span className="text-xl">📲</span>
             <span>Descargar e Instalar APK (v{versionMostrar})</span>
-          </button>
+          </a>
 
           <p className="text-[11px] font-medium text-zinc-500">
-            Archivo oficial APK · Libre de virus · Actualizaciones automáticas
+            Archivo oficial APK (~24 MB) · Libre de virus · Actualizaciones automáticas
           </p>
         </div>
 
         {/* Mensaje tras pulsar descarga */}
         {descargaIniciada && (
-          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900 text-left">
+          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-900 text-left">
             <p className="font-bold flex items-center gap-1.5 text-emerald-950">
               <span>✅</span> ¡Descarga iniciada!
             </p>
             <p className="mt-1 text-[11px] leading-relaxed text-emerald-800">
-              Revisa la barra superior de notificaciones o tu carpeta de <strong>Descargas</strong>. Si tu navegador te pregunta <em>&quot;¿Descargar de todos modos?&quot;</em>, pulsa <strong>Aceptar</strong>.
+              Revisa la barra superior de notificaciones o tu carpeta de <strong>Descargas</strong>.
+              Si tu navegador te pregunta <em>&quot;¿Descargar de todos modos?&quot;</em>, pulsa <strong>Descargar de todos modos</strong>.
             </p>
             <div className="mt-2 text-center">
-              <button
-                type="button"
-                onClick={iniciarDescarga}
+              <a
+                href={`${URL_DESCARGA_APK}?_t=${Date.now()}`}
+                download="totalhiit.apk"
                 className="text-[11px] font-bold text-marca-magenta underline hover:text-marca-magenta-oscuro"
               >
                 ¿No inició? Pulsa aquí para reintentar la descarga directa →
-              </button>
+              </a>
             </div>
           </div>
         )}
@@ -177,7 +186,7 @@ export default function DescargarApp() {
         {/* Botón para verificar versión en vivo */}
         <div className="mt-4 border-t border-zinc-100 pt-3 flex items-center justify-between">
           <span className="text-[11px] text-zinc-500 font-medium">
-            Build #{infoVersion?.buildNumber || 9} · {infoVersion?.releaseDate || '2026-11-04'}
+            Build #{buildMostrar} · {fechaMostrar}
           </span>
           <button
             type="button"
@@ -208,7 +217,7 @@ export default function DescargarApp() {
             <div>
               <p className="font-bold text-zinc-900">Descarga el archivo APK</p>
               <p className="text-zinc-600">
-                Toca el botón magenta superior. El archivo se guardará en tu carpeta de Descargas.
+                Toca el botón magenta superior. El archivo se guardará en tu carpeta de <strong>Descargas</strong>.
               </p>
             </div>
           </div>
@@ -232,9 +241,56 @@ export default function DescargarApp() {
             <div>
               <p className="font-bold text-zinc-900">Abre el archivo e instala</p>
               <p className="text-zinc-600">
-                Toca la notificación de descarga completa o búscala en tu app <strong>Descargas / Archivos</strong> y presiona <strong>Instalar</strong>. Si ya tenías la app, tus datos y progresos se conservan intactos.
+                Toca la notificación de descarga completada o búscala en tu app <strong>Descargas / Archivos</strong> y presiona <strong>Instalar</strong>.
               </p>
             </div>
+          </div>
+        </div>
+      </Tarjeta>
+
+      {/* Solución a dudas y avisos frecuentes de Android */}
+      <Tarjeta>
+        <h2 className="text-sm font-bold uppercase tracking-wide text-marca-magenta">
+          Solución a dudas y avisos de Android
+        </h2>
+
+        <div className="mt-3 divide-y divide-zinc-100 text-xs">
+          {/* Duda 1: Requiere versión anterior? */}
+          <div className="pb-2.5">
+            <p className="font-bold text-zinc-900 flex items-center gap-1.5">
+              <span className="text-base">❓</span>
+              <span>¿Necesito tener alguna versión anterior instalada?</span>
+            </p>
+            <p className="mt-1 text-zinc-600 leading-relaxed">
+              <strong>No.</strong> Este paquete es la aplicación completa e independiente. Puedes instalarla desde cero en cualquier celular Android (versión 7.0 o superior) sin ningún requisito previo.
+            </p>
+          </div>
+
+          {/* Duda 2: Permisos de orígenes desconocidos */}
+          <div className="py-2.5">
+            <p className="font-bold text-zinc-900 flex items-center gap-1.5">
+              <span className="text-base">⚙️</span>
+              <span>¿Dice &quot;No tienes permiso para instalar aplicaciones de esta fuente&quot;?</span>
+            </p>
+            <p className="mt-1 text-zinc-600 leading-relaxed">
+              En celulares nuevos donde nunca se ha instalado un APK externo, Android solicita autorizar a tu navegador (Chrome o Samsung Internet). Solo sigue estos pasos una única vez:
+            </p>
+            <ol className="mt-1.5 list-decimal space-y-1 pl-4 text-zinc-700 font-medium">
+              <li>Toca <strong>&quot;Ajustes&quot;</strong> o <strong>&quot;Configuración&quot;</strong> en el mensaje emergente.</li>
+              <li>Activa el interruptor <strong>&quot;Permitir desde esta fuente&quot;</strong> o <strong>&quot;Confiar en esta fuente&quot;</strong>.</li>
+              <li>Toca la flecha atrás y presiona <strong>&quot;Instalar&quot;</strong>.</li>
+            </ol>
+          </div>
+
+          {/* Duda 3: Error de análisis de paquete */}
+          <div className="pt-2.5">
+            <p className="font-bold text-zinc-900 flex items-center gap-1.5">
+              <span className="text-base">📦</span>
+              <span>¿Dice &quot;Error al analizar el paquete&quot; o no abre?</span>
+            </p>
+            <p className="mt-1 text-zinc-600 leading-relaxed">
+              Esto sucede si se intenta abrir el archivo antes de que termine de descargarse al 100% (el archivo pesa ~24 MB) o si la conexión a internet se interrumpió a la mitad. Asegúrate de que la descarga finalizó por completo y ábrelo desde la barra de notificaciones o la carpeta <strong>Descargas</strong>.
+            </p>
           </div>
         </div>
       </Tarjeta>
