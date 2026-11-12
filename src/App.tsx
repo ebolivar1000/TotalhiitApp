@@ -21,6 +21,10 @@ import Privacidad from './paginas/Privacidad';
 import Progreso from './paginas/Progreso';
 import Salud from './paginas/Salud';
 import DescargarApp from './paginas/DescargarApp';
+import Escaner from './paginas/Escaner';
+import DetalleProducto from './paginas/DetalleProducto';
+import HistorialEscaner from './paginas/HistorialEscaner';
+import PreferenciasEscaner from './paginas/PreferenciasEscaner';
 
 export default function App() {
   const { cargando, perfil } = usePerfil();
@@ -75,6 +79,10 @@ export default function App() {
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/perfil/editar" element={<EditarPerfil />} />
         <Route path="/salud" element={<Salud />} />
+        <Route path="/escaner" element={<Escaner />} />
+        <Route path="/escaner/producto/:barcode" element={<DetalleProducto />} />
+        <Route path="/escaner/historial" element={<HistorialEscaner />} />
+        <Route path="/escaner/preferencias" element={<PreferenciasEscaner />} />
         <Route path="/nutricion" element={<Nutricion />} />
         <Route path="/nutricion/:id" element={<DetalleReceta />} />
         <Route path="/plan" element={<Plan />} />

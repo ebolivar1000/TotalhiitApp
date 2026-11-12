@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
+import type { PreferenciasEscaner, ProductoEscaneado } from '../escaner/tipos';
 import type {
   CicloRegistro,
   ConsentRecord,
@@ -136,6 +137,8 @@ export const db = new Dexie(NOMBRE_DB) as Dexie & {
   egresos_crm: EntityTable<EgresoCRM, 'id'>;
   paises_crm: EntityTable<PaisCRM, 'id'>;
   tasas_crm: EntityTable<TasaCambioHistoricaCRM, 'id'>;
+  productos_escaneados: EntityTable<ProductoEscaneado, 'codigoBarras'>;
+  preferencias_escaner: EntityTable<PreferenciasEscaner, 'userId'>;
 };
 
 db.version(1).stores({
@@ -184,4 +187,10 @@ db.version(8).stores({
   egresos_crm: 'id, categoria, fecha, mes_periodo, anio_periodo',
   paises_crm: 'id, nombre, codigo_iso',
   tasas_crm: 'id, fecha, [fecha+moneda_origen+moneda_destino]',
+});
+
+/** FASE ESCÁNER: Historial de alimentos escaneados, favoritos y preferencias nutricionales */
+db.version(9).stores({
+  productos_escaneados: 'codigoBarras, fechaEscaneo, nombre, marca, favorito, categoria',
+  preferencias_escaner: 'userId',
 });

@@ -168,6 +168,29 @@ export default function Nutricion() {
         insignia="Coach Valentina"
       />
 
+      {/* Herramienta de Compras: Escáner de Alimentos */}
+      <Link
+        to="/escaner"
+        className="flex items-center justify-between rounded-2xl border border-marca-magenta/30 bg-gradient-to-r from-pink-50 via-white to-pink-50 p-3.5 shadow-2xs transition hover:border-marca-magenta hover:shadow-sm"
+      >
+        <div className="flex items-center gap-3 min-w-0 pr-2">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-marca-magenta text-xl text-white shadow-xs">
+            📸
+          </span>
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-zinc-900 truncate">
+              Escáner de Supermercado
+            </p>
+            <p className="text-[11px] text-zinc-500 truncate">
+              Lee códigos de barras, octógonos y aditivos al hacer tus compras
+            </p>
+          </div>
+        </div>
+        <span className="text-xs font-bold text-marca-magenta shrink-0">
+          Escanear →
+        </span>
+      </Link>
+
       {/* SELECTOR DE VISTA: RECETAS PARA HOY VS CATÁLOGO COMPLETO */}
       <div className="grid grid-cols-2 rounded-2xl bg-zinc-200/80 p-1 text-xs shadow-inner">
         <button

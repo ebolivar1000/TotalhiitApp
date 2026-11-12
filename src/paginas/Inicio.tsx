@@ -221,6 +221,32 @@ export default function Inicio() {
         </Tarjeta>
       )}
 
+      {/* Botón de Acción Rápida: Escáner de Alimentos (1 toque desde Home) */}
+      <Link
+        to="/escaner"
+        className="group relative flex items-center justify-between overflow-hidden rounded-2xl border-2 border-marca-magenta/30 bg-gradient-to-r from-marca-magenta via-pink-600 to-marca-magenta p-4 text-white shadow-md transition-all hover:shadow-lg active:scale-98"
+      >
+        <div className="flex items-center gap-3.5 min-w-0 pr-2">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-2xl backdrop-blur-xs shadow-inner">
+            📷
+          </div>
+          <div className="min-w-0">
+            <span className="rounded-full bg-white/25 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
+              Escáner de Etiquetas
+            </span>
+            <p className="mt-0.5 text-base font-black leading-tight text-white truncate">
+              Escanear Producto de Supermercado
+            </p>
+            <p className="text-[11px] font-medium text-pink-100 truncate">
+              Apunta la cámara y obtén su nota de salud en 3 segundos
+            </p>
+          </div>
+        </div>
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-marca-magenta font-black text-sm shadow">
+          →
+        </span>
+      </Link>
+
       {/* 1. Tu Objetivo / Plan */}
       {objetivo && (
         <div className="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-900 shadow-sm">

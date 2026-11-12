@@ -1,5 +1,22 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-12 (sesión 28) — Nuevo Módulo "Escáner de Alimentos" (0-100, Octógonos Ley 27.642, Aditivos, Open Food Facts) y Versión v1.0.11 (Build 12)
+- **Implementación del Módulo Escáner de Alimentos:**
+  - **Cámara y Detección de Código de Barras en Tiempo Real:** Integrado `VisorCamara.tsx` utilizando la API nativa `BarcodeDetector` (aceleración por hardware en Chrome y WebView de Android) con control de linterna (torch), recuadro guía y respuesta háptica.
+  - **Manejo de Fallbacks:** Entrada manual de código numérico (EAN-13, EAN-8, UPC) y modo de captura guiada de etiqueta nutricional / OCR heurístico (`ocr.ts`).
+  - **Algoritmo Transparente de Puntaje de Salud (0 a 100):** Diseñado e implementado en `puntaje.ts`, combinando calidad nutricional (hasta 60 pts), nivel de procesamiento NOVA (hasta 25 pts) y seguridad de aditivos (hasta 15 pts), con equivalencias cotidianas (cucharaditas de azúcar y gramos de sal) y 3-5 motivos claros.
+  - **Sellos Oficiales Ley 27.642 (Argentina):** Módulo `octogonos.ts` que calcula automáticamente los octógonos negros (exceso de azúcares, grasas totales, saturadas, sodio y calorías) y leyendas de edulcorantes/cafeína según el perfil de nutrientes de la OPS.
+  - **Catálogo Pedagógico de Aditivos:** Clasificación en `aditivos.ts` (sin riesgo, precaución, evitar) basada en EFSA/OMS, evitando alarmismos infundados.
+  - **Integración con Open Food Facts:** Cliente API v2 optimizado con User-Agent institucional, timeout de 3.5s y búsqueda de alternativas más saludables de la misma categoría.
+  - **Alertas Personalizadas:** Módulo `AlertaPersonalizada.tsx` que evalúa alérgenos registrados por la usuaria (gluten, lactosa, etc.), preferencias de dieta (vegana/vegetariana) y alineación con objetivos de TOTALHIIT (perder grasa / ganar músculo) situadas por encima de la nota.
+  - **Persistencia Offline con Dexie (v9):** Tabla `productos_escaneados` para almacenamiento local inmediato, historial cronológico y pestaña de favoritos.
+  - **Navegación e Integración:** Rutas agregadas en `App.tsx` (`/escaner`, `/escaner/producto/:barcode`, `/escaner/historial`, `/escaner/preferencias`), acceso directo en 1 toque desde la cabecera de `Inicio.tsx` y desde el módulo de `Nutricion.tsx`.
+  - **Permisos de Android:** Añadidos permisos de cámara y linterna en `AndroidManifest.xml`.
+  - **Documentación Técnica:** Creado `docs/escaner_algoritmo.md` con las fórmulas matemáticas, tablas y ponderaciones.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.11 (Build 12)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 211/211 pruebas unitarias exitosas (`npm test`), compilación web y sincronización de Capacitor con Android.
+
 ## 2026-11-12 (sesión 27) — Optimización del Flujo de Descarga Universal de APK (Desde Cero y Actualizaciones) y Versión v1.0.10 (Build 11)
 - **Diagnóstico y Clarificación del Instalador APK:**
   - Se confirmó que el archivo APK (`totalhiit.apk`) es un instalador Android completo, autónomo e independiente (Full Standalone Package), compilado con Gradle y Capacitor. No es un parche ni un delta, por lo que nunca requiere una versión previa para instalarse en cualquier dispositivo Android 7.0+.
