@@ -83,6 +83,18 @@ export function detectarDispositivoIos(): EstadoDispositivoIos {
 export function debeMostrarBannerIos(): boolean {
   if (typeof window === 'undefined') return false;
 
+  // No mostrar durante onboarding, páginas de descarga ni paneles de administración
+  const pathname = window.location?.pathname || '';
+  if (
+    pathname.startsWith('/onboarding') ||
+    pathname.startsWith('/descargar') ||
+    pathname.startsWith('/instalar') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/crm')
+  ) {
+    return false;
+  }
+
   const estado = detectarDispositivoIos();
   if (!estado.esIos || estado.esStandalone) {
     return false;

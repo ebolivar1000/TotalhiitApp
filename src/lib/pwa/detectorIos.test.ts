@@ -85,6 +85,7 @@ describe('detectorIos', () => {
     });
     vi.stubGlobal('window', {
       matchMedia: () => ({ matches: false }),
+      location: { pathname: '/' },
     });
 
     expect(debeMostrarBannerIos()).toBe(true);
@@ -92,5 +93,19 @@ describe('detectorIos', () => {
     expect(debeMostrarBannerIos()).toBe(false);
     restablecerBannerIos();
     expect(debeMostrarBannerIos()).toBe(true);
+  });
+
+  it('no muestra el banner en rutas de onboarding', () => {
+    vi.stubGlobal('navigator', {
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) Mobile/15E148 Safari/604.1',
+      platform: 'iPhone',
+      maxTouchPoints: 5,
+    });
+    vi.stubGlobal('window', {
+      matchMedia: () => ({ matches: false }),
+      location: { pathname: '/onboarding' },
+    });
+
+    expect(debeMostrarBannerIos()).toBe(false);
   });
 });

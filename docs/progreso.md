@@ -1,5 +1,15 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-13 (sesión 35) — Corrección de Layout de Teclado Virtual en Onboarding y Versión v1.0.18 (Build 19)
+- **Corrección de Solapamiento de Teclado en Onboarding (`Onboarding.tsx`):**
+  - **Detección Dinámica de Teclado y Foco:** Integración de listeners reactivos para `focusin`, `focusout` y `visualViewport.resize` para identificar cuándo el teclado virtual de Android o iOS está activo.
+  - **Ocultamiento Automático de la Barra Fija:** La barra inferior fija se oculta suavemente (`translate-y-full opacity-0 pointer-events-none`) en el momento en que la usuaria coloca el cursor en "Nombre" o cualquier otro campo, evitando que salte y tape el texto que se está escribiendo.
+  - **Botones Integrados en el Flujo Natural:** Se agregaron los botones de navegación (`Atrás` y `Siguiente →`) dentro del flujo regular del formulario, de modo que siempre están disponibles al final del paso sin bloquear la visualización en pantallas móviles.
+  - **Aislamiento de Banner PWA:** Se restringió `BannerInstalacionIos` para que nunca se renderice en `/onboarding`, `/descargar` o `/instalar`.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.18 (Build 19)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 34 suites de pruebas (248/248 tests pasados), compilación web Vite, sincronización Capacitor y despliegue a Cloudflare Workers.
+
 ## 2026-11-13 (sesión 34) — Soporte PWA para iOS (iPhone/iPad), Escáner Universal ZXing, Wake Lock y Versión v1.0.17 (Build 18)
 - **Soporte PWA de Alta Calidad para iOS (iPhone y iPad):**
   - **Detección de Entorno iOS (`detectorIos.ts`):** Identificación precisa de dispositivos iPhone, iPad, Safari, modo standalone y visores in-app (WhatsApp, Instagram, etc.).

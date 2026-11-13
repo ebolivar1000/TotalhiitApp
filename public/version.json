@@ -1,13 +1,12 @@
 {
-  "version": "1.0.17",
-  "buildNumber": 18,
+  "version": "1.0.18",
+  "buildNumber": 19,
   "releaseDate": "2026-11-13",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Soporte completo PWA para iOS (iPhone y iPad): instalación en pantalla de inicio con estética y experiencia nativa de Apple sin necesidad de App Store.",
-    "Banner inteligente de instalación en Safari con guía ilustrada de 2 toques y centro multiplataforma en /descargar e /instalar.",
-    "Escaneo universal de códigos de barras con motor ZXing para Safari (iOS) + BarcodeDetector nativo en Android + Foto IA.",
-    "Screen Wake Lock: mantiene la pantalla del celular encendida durante los entrenamientos HIIT sin bloqueos involuntarios.",
-    "Guía paso a paso para Android sobre cómo autorizar la instalación de fuentes desconocidas / desbloqueo de APK."
+    "Corrección de layout de teclado en Onboarding: la barra inferior se oculta automáticamente al enfocar campos de texto para no tapar lo que se escribe tanto en Android como en iOS.",
+    "Botones de paso integrados en el flujo natural del formulario y eliminación de solapamientos con el teclado virtual.",
+    "Aislamiento de banner PWA para que nunca aparezca durante el registro inicial.",
+    "Soporte completo PWA para iOS (iPhone y iPad) y escáner universal ZXing."
   ]
 }

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type Resolver } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { VERSION_ACTUAL } from '../lib/version/actualizador';
 import {
   guardarPerfil,
@@ -36,6 +36,57 @@ export default function Onboarding() {
   const [guardando, setGuardando] = useState(false);
   const [errorGuardado, setErrorGuardado] = useState('');
   const [errorValidacion, setErrorValidacion] = useState('');
+  const [tecladoActivo, setTecladoActivo] = useState(false);
+
+  // Detectar cuándo el teclado virtual está visible o un campo está en foco
+  // para evitar que el pie de página fijo tape los campos en Android e iOS
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')
+      ) {
+        setTecladoActivo(true);
+      }
+    };
+
+    const handleFocusOut = () => {
+      // Pequeño retardo para verificar si el foco saltó a otro campo
+      setTimeout(() => {
+        const activo = document.activeElement;
+        if (
+          !activo ||
+          (activo.tagName !== 'INPUT' && activo.tagName !== 'TEXTAREA' && activo.tagName !== 'SELECT')
+        ) {
+          setTecladoActivo(false);
+        }
+      }, 150);
+    };
+
+    const visualViewport = window.visualViewport;
+    const handleResize = () => {
+      if (visualViewport) {
+        // En móviles, si la altura del viewport se reduce significativamente, el teclado está arriba
+        const tecladoAbierto = window.innerHeight - visualViewport.height > 150;
+        if (tecladoAbierto) {
+          setTecladoActivo(true);
+        }
+      }
+    };
+
+    window.addEventListener('focusin', handleFocusIn);
+    window.addEventListener('focusout', handleFocusOut);
+    visualViewport?.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('focusin', handleFocusIn);
+      window.removeEventListener('focusout', handleFocusOut);
+      visualViewport?.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const form = useForm<FormPerfil>({
     resolver: zodResolver(esquemaPerfilFormulario) as Resolver<FormPerfil>,
@@ -158,7 +209,7 @@ export default function Onboarding() {
   );
 
   return (
-    <main className="safe-area-superior mx-auto max-w-md px-4 pb-52 pt-6">
+    <main className="safe-area-superior mx-auto max-w-md px-4 pb-28 pt-6">
       <div className="mb-2 text-center">
         <p className="font-marca text-3xl text-marca-magenta">TOTALHIIT</p>
         <p className="mt-1 text-sm text-zinc-500">
@@ -289,11 +340,53 @@ export default function Onboarding() {
         </div>
       )}
 
-      {/* Espaciador generoso para que el último campo nunca quede cubierto por la barra fija inferior */}
-      <div className="h-44 w-full shrink-0" aria-hidden="true" />
+      {/* Botones integrados en el flujo natural del formulario (siempre visibles al hacer scroll) */}
+      <div className="mt-6 mb-4">
+        {errorValidacion && (
+          <div className="mb-3 rounded-xl border border-red-200 bg-red-50 p-2.5 text-center text-xs font-semibold text-red-700">
+            ⚠️ {errorValidacion}
+          </div>
+        )}
+        <div className="flex items-center gap-3">
+          {paso > 0 ? (
+            <BotonSecundario
+              type="button"
+              onClick={() => {
+                setErrorValidacion('');
+                setPaso((p) => p - 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={guardando}
+              className="flex-1"
+            >
+              Atrás
+            </BotonSecundario>
+          ) : (
+            <BotonSecundario type="button" onClick={saltar} className="flex-1">
+              Saltar
+            </BotonSecundario>
+          )}
+          {paso < PASOS.length - 1 ? (
+            <BotonPrimario type="button" onClick={() => void siguiente()} className="flex-1">
+              Siguiente →
+            </BotonPrimario>
+          ) : (
+            <BotonPrimario type="button" onClick={() => void finalizar()} disabled={guardando} className="flex-1">
+              {guardando ? 'Guardando…' : 'Finalizar y empezar'}
+            </BotonPrimario>
+          )}
+        </div>
+      </div>
 
-      {/* Barra de navegación de pasos fija permanentemente en la parte inferior */}
-      <div className="safe-area-inferior fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 px-4 pt-3 pb-3 shadow-2xl backdrop-blur">
+      {/* Espaciador sutil para evitar solapamientos con la barra inferior */}
+      <div className="h-10 w-full shrink-0" aria-hidden="true" />
+
+      {/* Barra de navegación de pasos fija: se oculta automáticamente cuando el teclado virtual está abierto para no tapar los campos */}
+      <div
+        className={`safe-area-inferior fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 px-4 pt-3 pb-3 shadow-2xl backdrop-blur transition-all duration-200 ${
+          tecladoActivo ? 'pointer-events-none translate-y-full opacity-0' : 'translate-y-0 opacity-100'
+        }`}
+      >
         <div className="mx-auto max-w-md">
           {errorValidacion && (
             <div className="mb-2 rounded-xl border border-red-200 bg-red-50 p-2.5 text-center text-xs font-semibold text-red-700">

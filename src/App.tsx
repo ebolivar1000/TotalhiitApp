@@ -70,7 +70,7 @@ export default function App() {
     <div className="min-h-dvh bg-neutro-100">
       <PortadaTransicion />
       <AvisoConexion />
-      <BannerInstalacionIos />
+      {!ocultarNavegacion && <BannerInstalacionIos />}
       <Routes>
         <Route path="/" element={<Inicio />} />
         <Route path="/descargar" element={<DescargarApp />} />
