@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router'
 import Navegacion from './componentes/Navegacion';
 import AvisoConexion from './componentes/AvisoConexion';
 import PortadaTransicion from './componentes/PortadaTransicion';
+import BannerInstalacionIos from './componentes/pwa/BannerInstalacionIos';
 import Admin from './paginas/Admin';
 import CRM from './paginas/CRM';
 import { LLAVE_ONBOARDING_COMPLETADO, LLAVE_ONBOARDING_SALTADO, usePerfil } from './hooks/usePerfil';
@@ -69,6 +70,7 @@ export default function App() {
     <div className="min-h-dvh bg-neutro-100">
       <PortadaTransicion />
       <AvisoConexion />
+      <BannerInstalacionIos />
       <Routes>
         <Route path="/" element={<Inicio />} />
         <Route path="/descargar" element={<DescargarApp />} />

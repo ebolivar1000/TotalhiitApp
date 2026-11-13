@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { activarWakeLock, desactivarWakeLock } from '../lib/pwa/wakeLock';
 
 type Estado = 'cargando' | 'listo' | 'error';
 
@@ -34,6 +35,17 @@ export function ReproductorVideo({
       window.removeEventListener('offline', actualizar);
     };
   }, []);
+
+  useEffect(() => {
+    if (reproduciendo) {
+      void activarWakeLock();
+    } else {
+      void desactivarWakeLock();
+    }
+    return () => {
+      void desactivarWakeLock();
+    };
+  }, [reproduciendo]);
 
   useEffect(() => {
     if (!reproduciendo || estado !== 'cargando') return;

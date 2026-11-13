@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser';
 import { BotonPrimario, BotonSecundario, Tarjeta } from '../ui';
 
 interface VisorCamaraProps {
@@ -82,10 +83,10 @@ export default function VisorCamara({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Bucle de detección con BarcodeDetector nativo
+  // Bucle de detección híbrido: BarcodeDetector nativo (Chrome/Android) o fallback con ZXing (Safari/iOS)
   useEffect(() => {
     let detenido = false;
-    let barcodeDetector: unknown = null;
+    let zxingControls: IScannerControls | null = null;
 
     interface DetectorNativo {
       detect(source: HTMLVideoElement): Promise<Array<{ rawValue: string }>>;
@@ -95,51 +96,89 @@ export default function VisorCamara({
       BarcodeDetector?: new (options?: { formats: string[] }) => DetectorNativo;
     };
 
-    if (windowWithDetector.BarcodeDetector) {
+    const tieneBarcodeDetectorNativo = Boolean(windowWithDetector.BarcodeDetector);
+
+    if (tieneBarcodeDetectorNativo && windowWithDetector.BarcodeDetector) {
+      // Método A: BarcodeDetector nativo por hardware (Android, Chrome Desktop)
+      let detector: DetectorNativo | null = null;
       try {
-        barcodeDetector = new windowWithDetector.BarcodeDetector({
+        detector = new windowWithDetector.BarcodeDetector({
           formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'qr_code'],
         });
       } catch {
-        barcodeDetector = null;
+        detector = null;
       }
-    }
 
-    async function cicloEscaneo() {
-      if (detenido || !escaneando) return;
+      async function cicloEscaneoNativo() {
+        if (detenido || !escaneando) return;
 
-      if (videoRef.current && videoRef.current.readyState >= 2 && barcodeDetector) {
-        try {
-          const codigos = await (barcodeDetector as DetectorNativo).detect(videoRef.current);
-          const primer = codigos?.[0];
-          if (primer && primer.rawValue) {
-            const raw = primer.rawValue.trim();
-            if (/^\d{6,14}$/.test(raw)) {
-              // Vibración háptica de confirmación si está soportada
-              if (typeof navigator !== 'undefined' && navigator.vibrate) {
-                navigator.vibrate(80);
+        if (videoRef.current && videoRef.current.readyState >= 2 && detector) {
+          try {
+            const codigos = await detector.detect(videoRef.current);
+            const primer = codigos?.[0];
+            if (primer && primer.rawValue) {
+              const raw = primer.rawValue.trim();
+              if (/^\d{6,14}$/.test(raw)) {
+                if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                  navigator.vibrate(80);
+                }
+                setEscaneando(false);
+                onCodigoDetectado(raw);
+                return;
               }
-              setEscaneando(false);
-              onCodigoDetectado(raw);
+            }
+          } catch {
+            // Frame no decodificable
+          }
+        }
+
+        requestAnimationFrame(() => {
+          void cicloEscaneoNativo();
+        });
+      }
+
+      if (detector && streamActivo) {
+        void cicloEscaneoNativo();
+      }
+    } else if (videoRef.current && streamActivo && escaneando) {
+      // Método B: ZXing Universal Browser Reader (iOS Safari, Mac Safari, navegadores sin detector nativo)
+      try {
+        const codeReader = new BrowserMultiFormatReader();
+        void codeReader
+          .decodeFromVideoElement(videoRef.current, (result, _err, controls) => {
+            zxingControls = controls;
+            if (detenido || !escaneando) {
+              controls.stop();
               return;
             }
-          }
-        } catch {
-          // Errores temporales de frame
-        }
+            if (result) {
+              const raw = result.getText().trim();
+              if (/^\d{6,14}$/.test(raw)) {
+                if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                  navigator.vibrate(80);
+                }
+                controls.stop();
+                setEscaneando(false);
+                onCodigoDetectado(raw);
+              }
+            }
+          })
+          .then((controls) => {
+            zxingControls = controls;
+          })
+          .catch(() => {
+            // Fallback silencioso
+          });
+      } catch {
+        // Fallback silencioso
       }
-
-      requestAnimationFrame(() => {
-        void cicloEscaneo();
-      });
-    }
-
-    if (barcodeDetector && streamActivo) {
-      void cicloEscaneo();
     }
 
     return () => {
       detenido = true;
+      if (zxingControls) {
+        zxingControls.stop();
+      }
     };
   }, [streamActivo, escaneando, onCodigoDetectado]);
 
@@ -206,6 +245,7 @@ export default function VisorCamara({
       <video
         ref={videoRef}
         playsInline
+        webkit-playsinline="true"
         muted
         autoPlay
         className="h-80 w-full object-cover sm:h-96"

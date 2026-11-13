@@ -1,12 +1,13 @@
 {
-  "version": "1.0.16",
-  "buildNumber": 17,
+  "version": "1.0.17",
+  "buildNumber": 18,
   "releaseDate": "2026-11-13",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Nuevo modo Foto con Inteligencia Artificial (estilo Trash Panda): toma una foto a la lista de ingredientes o tabla nutricional y la IA la traduce a lenguaje cotidiano.",
-    "Política de cuota segura y gratuita: aprovecha hasta 1.500 fotos al día de Google Gemini Free Tier sin riesgo de cobros automáticos imprevistos.",
-    "Ficha de resultado enriquecida con explicación en palabras simples redactada por IA.",
-    "Ajuste y configuración de API Key en Preferencias del Escáner con enlace a Google AI Studio."
+    "Soporte completo PWA para iOS (iPhone y iPad): instalación en pantalla de inicio con estética y experiencia nativa de Apple sin necesidad de App Store.",
+    "Banner inteligente de instalación en Safari con guía ilustrada de 2 toques y centro multiplataforma en /descargar e /instalar.",
+    "Escaneo universal de códigos de barras con motor ZXing para Safari (iOS) + BarcodeDetector nativo en Android + Foto IA.",
+    "Screen Wake Lock: mantiene la pantalla del celular encendida durante los entrenamientos HIIT sin bloqueos involuntarios.",
+    "Guía paso a paso para Android sobre cómo autorizar la instalación de fuentes desconocidas / desbloqueo de APK."
   ]
 }

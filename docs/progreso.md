@@ -1,5 +1,20 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-13 (sesión 34) — Soporte PWA para iOS (iPhone/iPad), Escáner Universal ZXing, Wake Lock y Versión v1.0.17 (Build 18)
+- **Soporte PWA de Alta Calidad para iOS (iPhone y iPad):**
+  - **Detección de Entorno iOS (`detectorIos.ts`):** Identificación precisa de dispositivos iPhone, iPad, Safari, modo standalone y visores in-app (WhatsApp, Instagram, etc.).
+  - **Banner Flotante Inteligente (`BannerInstalacionIos.tsx`):** Barra con estética iOS Glassmorphism que guía a las usuarias con los 2 pasos clave (Tocar Compartir ⎋ y "Añadir a pantalla de inicio" ➕), con descarte persistente en `localStorage`.
+  - **Modal Guiado Ilustrado (`GuiaPasoAPasoIos.tsx`):** Tutorial visual paso a paso para instalar la PWA sin pasar por la App Store de Apple.
+  - **Centro de Instalación Multiplataforma (`DescargarApp.tsx`):** Selector de pestañas para iPhone/iPad (PWA), Android (APK) y Amazon Fire, con guía detallada para Android sobre cómo autorizar "Instalar aplicaciones desconocidas / desactivar bloqueo de fuentes externas".
+- **Escáner Universal Híbrido en `VisorCamara.tsx`:**
+  - Integración de `@zxing/browser` como fallback automático para Safari en iOS (donde `BarcodeDetector` por hardware viene deshabilitado por defecto en WebKit).
+  - Escaneo en tiempo real continuo tanto en iPhone como en Android y navegadores de escritorio.
+- **Screen Wake Lock en Entrenamientos (`wakeLock.ts`):**
+  - Integración con `ReproductorVideo.tsx` para evitar que la pantalla del iPhone o celular se apague a los 30 segundos mientras la usuaria está realizando sus intervalos HIIT.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.17 (Build 18)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 34 suites de pruebas (247/247 tests pasados), compilación web Vite, sincronización Capacitor y despliegue a Cloudflare Workers.
+
 ## 2026-11-13 (sesión 33) — Modo Foto con IA (Trash Panda Style) para Ingredientes y Tablas, Política de Cuota Segura y Versión v1.0.16 (Build 17)
 - **Implementación de Análisis de Foto de Ingredientes con IA Multimodal (`iaVision.ts`):**
   - **Servicio de Visión por IA (Google Gemini Flash):** Permite fotografiar directamente listas de ingredientes o tablas nutricionales y extraer calorías, macronutrientes, sodio, aditivos y alérgenos de forma automática.
