@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { BotonPrimario, ChipsMulti, Tarjeta } from '../componentes/ui';
 import { usePerfil } from '../hooks/usePerfil';
+import { LISTA_PAISES_DISPONIBLES } from '../lib/escaner/paises';
 import { guardarPreferenciasEscaner, obtenerPreferenciasEscaner } from '../lib/escaner/repositorio';
 import type { PreferenciasEscaner } from '../lib/escaner/tipos';
 
@@ -38,6 +39,7 @@ export default function PreferenciasEscaner() {
   const [alergenos, setAlergenos] = useState<string[]>([]);
   const [dietas, setDietas] = useState<string[]>([]);
   const [objetivosSalud, setObjetivosSalud] = useState<string[]>([]);
+  const [paisNormativa, setPaisNormativa] = useState<string>('auto');
   const [guardado, setGuardado] = useState(false);
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function PreferenciasEscaner() {
         setAlergenos(p.alergenos || []);
         setDietas(p.dietas || []);
         setObjetivosSalud(p.objetivosSalud || []);
+        setPaisNormativa(p.paisNormativa || 'auto');
       }
     }
     void cargar();
@@ -59,6 +62,7 @@ export default function PreferenciasEscaner() {
       alergenos,
       dietas,
       objetivosSalud,
+      paisNormativa,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -148,6 +152,32 @@ export default function PreferenciasEscaner() {
               valor={objetivosSalud}
               onChange={setObjetivosSalud}
             />
+          </div>
+        </Tarjeta>
+
+        {/* 4. País de Referencia / Normativa de Sellos */}
+        <Tarjeta>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🌎</span>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900">
+              País y Normativa de Etiquetado
+            </h2>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600 leading-relaxed">
+            Adapta los sellos de advertencia a la legislación de tu país o déjalo en automático para detectarlo por el código de barras:
+          </p>
+          <div className="mt-3">
+            <select
+              value={paisNormativa}
+              onChange={(e) => setPaisNormativa(e.target.value)}
+              className="w-full rounded-xl border border-zinc-300 bg-white p-2.5 text-xs font-semibold text-zinc-800 outline-none focus:border-marca-magenta"
+            >
+              {LISTA_PAISES_DISPONIBLES.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.bandera} {p.etiqueta}
+                </option>
+              ))}
+            </select>
           </div>
         </Tarjeta>
 

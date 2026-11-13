@@ -1,13 +1,13 @@
 {
-  "version": "1.0.12",
-  "buildNumber": 13,
+  "version": "1.0.14",
+  "buildNumber": 15,
   "releaseDate": "2026-11-12",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Catálogo local curado de productos argentinos de alta rotación (Fritolím, Cocinero, Natura, La Serenísima, Bagley, etc.) con resolución instantánea offline.",
-    "Corrección de valores en cero: estimación inteligente de nutrientes típicos para aceites y productos con tablas vacías en Open Food Facts.",
-    "Nueva función de Edición / Corrección de tablas nutricionales en la ficha de producto con recálculo en tiempo real.",
-    "Plantillas rápidas de 1 toque (Aceite, Galletitas, Gaseosa, Lácteos, Avena, Queso) para carga manual sin ceros.",
-    "Soporte ampliado para variantes de códigos de barras (EAN-13, EAN-8 y UPC-A de 12 dígitos) y fallback entre endpoints de Open Food Facts."
+    "Ubicación del Escáner de Etiquetas reorganizada al final de la página con distintivo 'En fase Beta de prueba'.",
+    "Optimización completa para publicación en Amazon Developer Console / Fire OS (Target SDK 34, firma Release PKCS12, soporte Fire Tablets).",
+    "Soporte Multipaís en el Escáner: detección automática de país por código de barras (GS1) para México 🇲🇽, Colombia 🇨🇴, Chile 🇨🇱, Argentina 🇦🇷, Perú 🇵🇪, Uruguay 🇺🇾, España 🇪🇸 e internacional OPS/OMS 🌎.",
+    "Sellos frontales y leyendas adaptados a la normativa oficial de cada país (NOM-051 México, Ley 20.606 Chile, Res. 2492 Colombia, Ley 27.642 Argentina, Nutri-Score España).",
+    "Catálogo local ampliado con productos emblemáticos de México, Colombia, Chile, Perú y España."
   ]
 }

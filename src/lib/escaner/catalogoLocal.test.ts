@@ -52,6 +52,53 @@ describe('Catálogo local de alimentos argentinos', () => {
     expect(conFormato?.nombre).toContain('Fritolím');
   });
 
+  it('resuelve productos de México como Bimbo y Gansito Marinela', () => {
+    const bimbo = buscarEnCatalogoLocal('7501000111202');
+    expect(bimbo).not.toBeNull();
+    expect(bimbo?.nombre).toContain('Pan Blanco');
+    expect(bimbo?.marca).toBe('Bimbo');
+    expect(bimbo?.paisOrigen?.nombre).toBe('México');
+
+    const gansito = buscarEnCatalogoLocal('7501000153103');
+    expect(gansito).not.toBeNull();
+    expect(gansito?.nombre).toContain('Gansito');
+    expect(gansito?.puntaje.octogonos.some((o) => o.titulo === 'EXCESO AZÚCARES')).toBe(true);
+  });
+
+  it('resuelve productos de Colombia como Chocoramo y Galletas Ducales', () => {
+    const chocoramo = buscarEnCatalogoLocal('7702111000107');
+    expect(chocoramo).not.toBeNull();
+    expect(chocoramo?.nombre).toContain('Chocoramo');
+    expect(chocoramo?.marca).toBe('Ramo');
+    expect(chocoramo?.paisOrigen?.nombre).toBe('Colombia');
+
+    const ducales = buscarEnCatalogoLocal('7702007011019');
+    expect(ducales).not.toBeNull();
+    expect(ducales?.nombre).toContain('Ducales');
+  });
+
+  it('resuelve productos de Chile como Galletas Tritón', () => {
+    const triton = buscarEnCatalogoLocal('7802500001018');
+    expect(triton).not.toBeNull();
+    expect(triton?.nombre).toContain('Tritón');
+    expect(triton?.paisOrigen?.nombre).toBe('Chile');
+  });
+
+  it('resuelve productos de Perú como Inca Kola', () => {
+    const inca = buscarEnCatalogoLocal('7750101001012');
+    expect(inca).not.toBeNull();
+    expect(inca?.nombre).toContain('Inca Kola');
+    expect(inca?.paisOrigen?.nombre).toBe('Perú');
+  });
+
+  it('resuelve productos de España como Aceite de Oliva Carbonell', () => {
+    const carbonell = buscarEnCatalogoLocal('8410020001016');
+    expect(carbonell).not.toBeNull();
+    expect(carbonell?.marca).toBe('Carbonell');
+    expect(carbonell?.nombre).toContain('Aceite de Oliva');
+    expect(carbonell?.paisOrigen?.nombre).toBe('España');
+  });
+
   it('retorna null para un código inexistente', () => {
     const noExiste = buscarEnCatalogoLocal('9999999999999');
     expect(noExiste).toBeNull();

@@ -24,11 +24,15 @@ export type TipoOctogono =
 
 export interface OctogonoArgentina {
   tipo: TipoOctogono;
-  titulo: string; // ej: "EXCESO EN AZÚCARES"
-  normativa: string; // "Ley 27.642"
+  titulo: string; // ej: "EXCESO EN AZÚCARES" o "ALTO EN AZÚCARES"
+  normativa: string; // ej: "Ley 27.642", "NOM-051", "Ley 20.606", "Res. 2492"
   activo: boolean;
   umbralSuperado: string; // ej: "18.5% kcal de azúcares libres (límite: 10%)"
+  organismo?: string; // ej: "Secretaría de Salud", "Ministerio de Salud", "MinSalud", "OPS/OMS"
+  paisCodigo?: string; // ej: "MX", "AR", "CO", "CL", "PE", "UY", "ES", "OPS"
 }
+
+export type OctogonoAdvertencia = OctogonoArgentina;
 
 export interface LeyendaPrecautoria {
   tipo: 'edulcorantes' | 'cafeina';
@@ -85,6 +89,13 @@ export interface PuntajeSalud {
   equivalencias: EquivalenciaCotidiana;
   octogonos: OctogonoArgentina[];
   leyendas: LeyendaPrecautoria[];
+  paisNormativa?: {
+    codigo: string;
+    nombre: string;
+    bandera: string;
+    normativa: string;
+    organismo: string;
+  };
 }
 
 export interface AlternativaSaludable {
@@ -123,6 +134,11 @@ export interface ProductoEscaneado {
   perfilInferido?: boolean;
   mensajeInferencia?: string;
   editadoPorUsuario?: boolean;
+  paisOrigen?: {
+    codigo: string;
+    nombre: string;
+    bandera: string;
+  };
 }
 
 export interface PreferenciasEscaner {
@@ -131,6 +147,7 @@ export interface PreferenciasEscaner {
   alergenos: string[]; // ej: ["gluten", "lactosa", "frutos secos", "soja", "huevo"]
   dietas: string[]; // ej: ["vegetariana", "vegana", "sin_gluten"]
   objetivosSalud: string[]; // ej: ["bajar_azucar", "bajar_sodio", "alta_proteina", "evitar_ultraprocesados"]
+  paisNormativa?: string; // 'auto' | 'MX' | 'CO' | 'CL' | 'AR' | 'PE' | 'UY' | 'ES' | 'OPS'
   createdAt: number;
   updatedAt: number;
 }

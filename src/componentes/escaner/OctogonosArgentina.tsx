@@ -4,20 +4,42 @@ import { Tarjeta } from '../ui';
 interface OctogonosArgentinaProps {
   octogonos: OctogonoArgentina[];
   leyendas: LeyendaPrecautoria[];
+  paisInfo?: {
+    codigo: string;
+    nombre: string;
+    bandera: string;
+    normativa: string;
+    organismo: string;
+  };
+  nutriScore?: string;
 }
 
-export default function OctogonosArgentina({ octogonos, leyendas }: OctogonosArgentinaProps) {
+export default function OctogonosArgentina({
+  octogonos,
+  leyendas,
+  paisInfo,
+  nutriScore,
+}: OctogonosArgentinaProps) {
   const tieneSellos = octogonos.length > 0 || leyendas.length > 0;
+  const nombreNormativa = paisInfo?.normativa || 'Modelo Nutricional';
+  const nombreOrganismo = paisInfo?.organismo || 'Ministerio de Salud';
+  const bandera = paisInfo?.bandera || '🌎';
+  const nombrePais = paisInfo?.nombre || 'Hispanoamérica';
 
   if (!tieneSellos) {
     return (
       <Tarjeta className="border border-emerald-200 bg-emerald-50/70 p-3.5 text-xs text-emerald-950">
-        <div className="flex items-center gap-2 font-bold text-emerald-900">
-          <span className="text-base">✅</span>
-          <span>Sin sellos negros de advertencia (Ley 27.642)</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 font-bold text-emerald-900">
+            <span className="text-base">✅</span>
+            <span>Sin sellos de advertencia ({nombreNormativa})</span>
+          </div>
+          <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+            {bandera} {nombrePais}
+          </span>
         </div>
         <p className="mt-1 text-[11px] leading-relaxed text-emerald-800">
-          Este producto no supera los límites críticos de azúcares libres, grasas totales, grasas saturadas, sodio ni calorías según el modelo oficial de etiquetado frontal.
+          Este producto no supera los límites críticos de azúcares libres, grasas saturadas, sodio ni calorías según el modelo oficial de advertencias de {nombrePais}.
         </p>
       </Tarjeta>
     );
@@ -29,13 +51,19 @@ export default function OctogonosArgentina({ octogonos, leyendas }: OctogonosArg
         <div className="flex items-center gap-2">
           <span className="text-base">🛑</span>
           <p className="text-xs font-black uppercase tracking-wider text-white">
-            Sellos de Advertencia (Ley 27.642)
+            Sellos de Advertencia ({nombreNormativa})
           </p>
         </div>
         <span className="rounded bg-zinc-800 px-2 py-0.5 text-[10px] font-bold text-zinc-300">
-          Argentina
+          {bandera} {nombrePais}
         </span>
       </div>
+
+      {paisInfo?.codigo === 'ES' && (
+        <div className="mt-2 rounded-lg bg-zinc-900 border border-zinc-800 p-2 text-[10px] text-zinc-300">
+          ℹ️ En España el sistema frontal oficial es <strong>Nutri-Score ({nutriScore?.toUpperCase() || 'A-E'})</strong>. Estos sellos reflejan los nutrientes críticos evaluados según pautas preventivas de la OMS.
+        </div>
+      )}
 
       {/* Cuadrícula de Octógonos Negros */}
       {octogonos.length > 0 && (
@@ -45,12 +73,12 @@ export default function OctogonosArgentina({ octogonos, leyendas }: OctogonosArg
               key={oct.tipo}
               className="group relative flex flex-col items-center justify-center rounded-xl border-2 border-white bg-black p-2.5 text-center shadow transition hover:scale-105"
             >
-              {/* Formato clásico de octógono */}
+              {/* Formato clásico de octógono negro */}
               <p className="text-[11px] font-black uppercase leading-tight tracking-tight text-white">
                 {oct.titulo}
               </p>
               <span className="mt-1 text-[8px] font-semibold uppercase text-zinc-400">
-                Ministerio de Salud
+                {oct.organismo || nombreOrganismo}
               </span>
 
               {/* Tooltip con el umbral superado */}
@@ -73,7 +101,7 @@ export default function OctogonosArgentina({ octogonos, leyendas }: OctogonosArg
               <p className="text-[10px] font-black uppercase tracking-wide text-white">
                 {ley.texto}
               </p>
-              <span className="text-[8px] text-zinc-400">Ministerio de Salud</span>
+              <span className="text-[8px] text-zinc-400">{nombreOrganismo}</span>
             </div>
           ))}
         </div>
@@ -81,3 +109,5 @@ export default function OctogonosArgentina({ octogonos, leyendas }: OctogonosArg
     </Tarjeta>
   );
 }
+
+export const SellosAdvertenciaFrontal = OctogonosArgentina;

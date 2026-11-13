@@ -1,9 +1,10 @@
+import { detectarPaisPorCodigo, type InfoPaisNormativa } from './paises';
 import type { LeyendaPrecautoria, NutrientesPor100, OctogonoArgentina } from './tipos';
 
 /**
- * Módulo de cálculo de sellos de advertencia negros según la Ley Nacional 27.642
- * (Promoción de la Alimentación Saludable - Etiquetado Frontal en Argentina),
- * basada en el Sistema de Perfil de Nutrientes de la OPS/OMS.
+ * Módulo de cálculo de sellos de advertencia frontales para países hispanoparlantes
+ * (México NOM-051, Argentina Ley 27.642, Chile Ley 20.606, Colombia Res. 2492, Perú Ley 30021, etc.),
+ * basados en el Perfil de Nutrientes de la Organización Panamericana de la Salud (OPS/OMS).
  */
 
 export interface OpcionesOctogono {
@@ -13,6 +14,8 @@ export interface OpcionesOctogono {
   ingredientesTexto?: string;
   aditivosCodigos?: string[];
   esExceptuadoPorLey?: boolean;
+  codigoBarras?: string;
+  paisPreferido?: string;
 }
 
 const EDULCORANTES_CONOCIDOS = [
@@ -60,14 +63,18 @@ export function calcularOctogonosArgentina(
   octogonos: OctogonoArgentina[];
   leyendas: LeyendaPrecautoria[];
   tieneSellos: boolean;
+  paisInfo: InfoPaisNormativa;
 } {
-  // Según el art. 9 de la Ley 27.642 y su Decreto Reglamentario 151/2022,
-  // los aceites vegetales y azúcar común están exceptuados del rotulado frontal.
+  const pais = detectarPaisPorCodigo(opciones.codigoBarras || '', opciones.paisPreferido);
+
+  // Según el art. 9 de la Ley 27.642 / NOM-051 y pautas OPS,
+  // los aceites vegetales puros y azúcar común están exceptuados del rotulado frontal.
   if (opciones.esExceptuadoPorLey) {
     return {
       octogonos: [],
       leyendas: [],
       tieneSellos: false,
+      paisInfo: pais,
     };
   }
 
@@ -76,9 +83,10 @@ export function calcularOctogonosArgentina(
   const octogonos: OctogonoArgentina[] = [];
 
   const energiaTotal = Math.max(0, caloriasKcal);
+  const prefijo = pais.prefijoSello;
 
   // 1. EXCESO EN AZÚCARES
-  // Umbral Ley 27.642: azúcares libres/totales ≥ 10% del total de energía (1g azúcar = 4 kcal)
+  // Umbral OPS/LATAM: azúcares libres/totales ≥ 10% del total de energía (1g azúcar = 4 kcal)
   let excesoAzucares = false;
   let umbralAzucaresStr = '';
   if (energiaTotal > 0 && azucaresG > 0) {
@@ -90,10 +98,19 @@ export function calcularOctogonosArgentina(
     }
   }
 
+  const tituloAzucar =
+    prefijo === 'ALTO EN'
+      ? 'ALTO EN AZÚCARES'
+      : prefijo === 'EXCESO'
+        ? 'EXCESO AZÚCARES'
+        : 'EXCESO EN AZÚCARES';
+
   octogonos.push({
     tipo: 'exceso_azucares',
-    titulo: 'EXCESO EN AZÚCARES',
-    normativa: 'Ley 27.642',
+    titulo: tituloAzucar,
+    normativa: pais.normativa,
+    organismo: pais.organismo,
+    paisCodigo: pais.codigo,
     activo: excesoAzucares,
     umbralSuperado: umbralAzucaresStr || 'Dentro del límite',
   });
@@ -111,10 +128,19 @@ export function calcularOctogonosArgentina(
     }
   }
 
+  const tituloGrasas =
+    prefijo === 'ALTO EN'
+      ? 'ALTO EN GRASAS'
+      : prefijo === 'EXCESO'
+        ? 'EXCESO GRASAS TOTALES'
+        : 'EXCESO EN GRASAS TOTALES';
+
   octogonos.push({
     tipo: 'exceso_grasas_totales',
-    titulo: 'EXCESO EN GRASAS TOTALES',
-    normativa: 'Ley 27.642',
+    titulo: tituloGrasas,
+    normativa: pais.normativa,
+    organismo: pais.organismo,
+    paisCodigo: pais.codigo,
     activo: excesoGrasas,
     umbralSuperado: umbralGrasasStr || 'Dentro del límite',
   });
@@ -132,16 +158,25 @@ export function calcularOctogonosArgentina(
     }
   }
 
+  const tituloGrasasSat =
+    prefijo === 'ALTO EN'
+      ? 'ALTO EN GRASAS SATURADAS'
+      : prefijo === 'EXCESO'
+        ? 'EXCESO GRASAS SATURADAS'
+        : 'EXCESO EN GRASAS SATURADAS';
+
   octogonos.push({
     tipo: 'exceso_grasas_saturadas',
-    titulo: 'EXCESO EN GRASAS SATURADAS',
-    normativa: 'Ley 27.642',
+    titulo: tituloGrasasSat,
+    normativa: pais.normativa,
+    organismo: pais.organismo,
+    paisCodigo: pais.codigo,
     activo: excesoGrasasSat,
     umbralSuperado: umbralGrasasSatStr || 'Dentro del límite',
   });
 
   // 4. EXCESO EN SODIO
-  // Umbral: Sodio ≥ 1 mg por kcal, o en productos sólidos/líquidos ≥ 300 mg / 100g
+  // Umbral: Sodio ≥ 1 mg por kcal, o en sólidos ≥ 300 mg / 100g (líquidos ≥ 50 mg / 100ml)
   let excesoSodio = false;
   let umbralSodioStr = '';
   if (sodioMg > 0) {
@@ -150,23 +185,31 @@ export function calcularOctogonosArgentina(
       excesoSodio = true;
       umbralSodioStr =
         ratioSodioCalorias >= 1
-          ? `${ratioSodioCalorias.toFixed(2)} mg/kcal (límite: 1 mg/kcal)`
-          : `${sodioMg} mg/100g (límite: 300 mg/100g)`;
+          ? `${sodioMg} mg sodio (${ratioSodioCalorias.toFixed(1)} mg/kcal ≥ límite 1 mg/kcal)`
+          : `${sodioMg} mg sodio / 100g (límite: 300 mg)`;
     }
   }
 
+  const tituloSodio =
+    prefijo === 'ALTO EN'
+      ? 'ALTO EN SODIO'
+      : prefijo === 'EXCESO'
+        ? 'EXCESO SODIO'
+        : 'EXCESO EN SODIO';
+
   octogonos.push({
     tipo: 'exceso_sodio',
-    titulo: 'EXCESO EN SODIO',
-    normativa: 'Ley 27.642',
+    titulo: tituloSodio,
+    normativa: pais.normativa,
+    organismo: pais.organismo,
+    paisCodigo: pais.codigo,
     activo: excesoSodio,
     umbralSuperado: umbralSodioStr || 'Dentro del límite',
   });
 
   // 5. EXCESO EN CALORÍAS
-  // Umbral: Solo se aplica si tiene AL MENOS UN sello de azúcares, grasas o sodio:
-  // Sólidos: ≥ 275 kcal / 100g | Líquidos: ≥ 70 kcal / 100ml
-  const tieneSellosCriticos = excesoAzucares || excesoGrasas || excesoGrasasSat || excesoSodio;
+  // Umbral: Sólidos ≥ 275 kcal/100g | Líquidos ≥ 70 kcal/100ml (solo si contiene azúcares o grasas con exceso)
+  const tieneSellosCriticos = excesoAzucares || excesoGrasas || excesoGrasasSat;
   const limiteCalorias = esLiquido ? 70 : 275;
   let excesoCalorias = false;
   let umbralCaloriasStr = '';
@@ -176,10 +219,19 @@ export function calcularOctogonosArgentina(
     umbralCaloriasStr = `${energiaTotal} kcal/100${esLiquido ? 'ml' : 'g'} (límite: ${limiteCalorias} kcal)`;
   }
 
+  const tituloCalorias =
+    prefijo === 'ALTO EN'
+      ? 'ALTO EN CALORÍAS'
+      : prefijo === 'EXCESO'
+        ? 'EXCESO CALORÍAS'
+        : 'EXCESO EN CALORÍAS';
+
   octogonos.push({
     tipo: 'exceso_calorias',
-    titulo: 'EXCESO EN CALORÍAS',
-    normativa: 'Ley 27.642',
+    titulo: tituloCalorias,
+    normativa: pais.normativa,
+    organismo: pais.organismo,
+    paisCodigo: pais.codigo,
     activo: excesoCalorias,
     umbralSuperado: umbralCaloriasStr || 'Dentro del límite',
   });
@@ -202,7 +254,7 @@ export function calcularOctogonosArgentina(
 
   leyendas.push({
     tipo: 'edulcorantes',
-    texto: 'CONTIENE EDULCORANTES: NO RECOMENDABLE EN NIÑOS/AS',
+    texto: pais.leyendaEdulcorante,
     activa: tieneEdulcorante,
   });
 
@@ -214,7 +266,7 @@ export function calcularOctogonosArgentina(
 
   leyendas.push({
     tipo: 'cafeina',
-    texto: 'CONTIENE CAFEÍNA: EVITAR EN NIÑOS/AS',
+    texto: pais.leyendaCafeina,
     activa: tieneCafeina,
   });
 
@@ -224,5 +276,8 @@ export function calcularOctogonosArgentina(
     octogonos: octogonosActivos,
     leyendas: leyendas.filter((l) => l.activa),
     tieneSellos: octogonosActivos.length > 0 || leyendas.some((l) => l.activa),
+    paisInfo: pais,
   };
 }
+
+export const calcularSellosAdvertencia = calcularOctogonosArgentina;

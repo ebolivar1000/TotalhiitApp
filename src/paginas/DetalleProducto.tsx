@@ -45,10 +45,12 @@ export default function DetalleProducto() {
       setError(null);
 
       try {
+        let prefPais: string | undefined = undefined;
         // Cargar preferencias del escáner si el usuario tiene sesión
         if (perfil?.id) {
           const ep = await obtenerPreferenciasEscaner(perfil.id);
           if (!cancelado) setEscanerPrefs(ep);
+          prefPais = ep?.paisNormativa;
         }
 
         // 1. Intentar cargar desde caché local IndexedDB
@@ -56,7 +58,7 @@ export default function DetalleProducto() {
 
         // 2. Si no está en local, consultar Open Food Facts
         if (!prod) {
-          const res = await consultarOpenFoodFacts(barcode);
+          const res = await consultarOpenFoodFacts(barcode, prefPais);
           if (res.exito && res.producto) {
             prod = res.producto;
             await guardarProducto(prod);
@@ -198,9 +200,14 @@ export default function DetalleProducto() {
           ←
         </button>
 
-        <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
-          Resultado de Escáner
-        </p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+            Resultado de Escáner
+          </p>
+          <span className="rounded-full bg-amber-100 border border-amber-300 px-1.5 py-0.5 text-[9px] font-black uppercase text-amber-800">
+            Beta
+          </span>
+        </div>
 
         <div className="flex items-center gap-1.5">
           <button
@@ -245,9 +252,16 @@ export default function DetalleProducto() {
           )}
 
           <div className="min-w-0 flex-1">
-            <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-zinc-600 uppercase">
-              {producto.categoria || 'Alimento'}
-            </span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-zinc-600 uppercase">
+                {producto.categoria || 'Alimento'}
+              </span>
+              {producto.paisOrigen && (
+                <span className="rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-[10px] font-bold text-blue-800">
+                  {producto.paisOrigen.bandera} {producto.paisOrigen.nombre}
+                </span>
+              )}
+            </div>
             <h1 className="mt-1 text-base font-black text-zinc-900 leading-snug line-clamp-2">
               {producto.nombre}
             </h1>
@@ -264,7 +278,7 @@ export default function DetalleProducto() {
           <span className="text-zinc-500 font-medium">
             {producto.editadoPorUsuario
               ? '✏️ Personalizado por ti'
-              : `Fuente: ${producto.fuente === 'catalogo_local' ? 'Catálogo Argentino' : 'Open Food Facts'}`}
+              : `Fuente: ${producto.fuente === 'catalogo_local' ? 'Catálogo Local' : 'Open Food Facts'}`}
           </span>
           <button
             type="button"
@@ -338,10 +352,12 @@ export default function DetalleProducto() {
         ecoScore={producto.ecoScoreGrade}
       />
 
-      {/* 3. OCTÓGONOS NEGROS DE ADVERTENCIA (LEY 27.642 ARGENTINA) */}
+      {/* 3. SELLOS DE ADVERTENCIA FRONTAL SEGÚN PAÍS Y NORMATIVA */}
       <OctogonosArgentina
         octogonos={producto.puntaje.octogonos}
         leyendas={producto.puntaje.leyendas}
+        paisInfo={producto.puntaje.paisNormativa}
+        nutriScore={producto.nutriScoreGrade}
       />
 
       {/* 4. SEMÁFORO DE NUTRIENTES CON EQUIVALENCIAS COTIDIANAS */}

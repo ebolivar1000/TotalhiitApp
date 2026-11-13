@@ -1,5 +1,6 @@
 import { clasificarAditivo } from './aditivos';
 import { buscarEnCatalogoLocal } from './catalogoLocal';
+import { detectarPaisPorCodigo } from './paises';
 import { calcularPuntajeSalud } from './puntaje';
 import type { AlternativaSaludable, NutrientesPor100, ProductoEscaneado } from './tipos';
 
@@ -85,6 +86,7 @@ async function peticionOFF(url: string): Promise<RespuestaOFFProduct | null> {
  */
 export async function consultarOpenFoodFacts(
   codigoBarras: string,
+  paisPreferido?: string,
 ): Promise<{ exito: boolean; producto?: ProductoEscaneado; mensaje?: string }> {
   const codigoLimpio = codigoBarras.trim().replace(/\D/g, '');
   if (!codigoLimpio || codigoLimpio.length < 6 || codigoLimpio.length > 14) {
@@ -92,7 +94,7 @@ export async function consultarOpenFoodFacts(
   }
 
   // ─── 1. RESOLUCIÓN INSTANTÁNEA EN CATÁLOGO LOCAL CURADO ──────
-  const prodLocal = buscarEnCatalogoLocal(codigoLimpio);
+  const prodLocal = buscarEnCatalogoLocal(codigoLimpio, paisPreferido);
   if (prodLocal) {
     return { exito: true, producto: prodLocal };
   }
@@ -293,6 +295,8 @@ export async function consultarOpenFoodFacts(
     ? (ecoScoreRaw as 'a' | 'b' | 'c' | 'd' | 'e')
     : undefined;
 
+  const pais = detectarPaisPorCodigo(codigoEncontrado, paisPreferido);
+
   const puntaje = calcularPuntajeSalud({
     nutrientes,
     novaGroup,
@@ -300,6 +304,8 @@ export async function consultarOpenFoodFacts(
     categoriaTags,
     esLiquido,
     ingredientesTexto: String(prod.ingredients_text_es || prod.ingredients_text || ''),
+    codigoBarras: codigoEncontrado,
+    paisPreferido,
   });
 
   const productoFinal: ProductoEscaneado = {
@@ -329,6 +335,11 @@ export async function consultarOpenFoodFacts(
     datosIncompletos,
     perfilInferido,
     mensajeInferencia,
+    paisOrigen: {
+      codigo: pais.codigo,
+      nombre: pais.nombre,
+      bandera: pais.bandera,
+    },
   };
 
   return { exito: true, producto: productoFinal };

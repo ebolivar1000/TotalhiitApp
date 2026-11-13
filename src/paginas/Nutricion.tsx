@@ -168,28 +168,6 @@ export default function Nutricion() {
         insignia="Coach Valentina"
       />
 
-      {/* Herramienta de Compras: Escáner de Alimentos */}
-      <Link
-        to="/escaner"
-        className="flex items-center justify-between rounded-2xl border border-marca-magenta/30 bg-gradient-to-r from-pink-50 via-white to-pink-50 p-3.5 shadow-2xs transition hover:border-marca-magenta hover:shadow-sm"
-      >
-        <div className="flex items-center gap-3 min-w-0 pr-2">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-marca-magenta text-xl text-white shadow-xs">
-            📸
-          </span>
-          <div className="min-w-0">
-            <p className="text-xs font-bold text-zinc-900 truncate">
-              Escáner de Supermercado
-            </p>
-            <p className="text-[11px] text-zinc-500 truncate">
-              Lee códigos de barras, octógonos y aditivos al hacer tus compras
-            </p>
-          </div>
-        </div>
-        <span className="text-xs font-bold text-marca-magenta shrink-0">
-          Escanear →
-        </span>
-      </Link>
 
       {/* SELECTOR DE VISTA: RECETAS PARA HOY VS CATÁLOGO COMPLETO */}
       <div className="grid grid-cols-2 rounded-2xl bg-zinc-200/80 p-1 text-xs shadow-inner">
@@ -433,6 +411,46 @@ export default function Nutricion() {
           </div>
         </>
       )}
+
+      {/* Escáner de Alimentos y Etiquetas al final de la página */}
+      <div className="rounded-2xl border-2 border-dashed border-marca-magenta/30 bg-gradient-to-br from-pink-50/80 via-white to-purple-50/40 p-3.5 shadow-xs">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-marca-magenta text-xl text-white shadow-xs">
+              📸
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-900 border border-amber-300">
+                  🔬 En fase Beta de prueba
+                </span>
+              </div>
+              <p className="mt-1 text-xs font-bold text-zinc-900 truncate">
+                Escáner de Supermercado
+              </p>
+              <p className="text-[11px] text-zinc-500 line-clamp-2">
+                En fase Beta de prueba: apunta la cámara o introduce el código para ver octógonos y aditivos al hacer tus compras.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="mt-3 flex items-center gap-2">
+          <Link
+            to="/escaner"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-marca-magenta px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-marca-magenta-oscuro active:scale-95 text-center"
+          >
+            <span>Abrir Escáner</span>
+            <span>→</span>
+          </Link>
+          <Link
+            to="/escaner/preferencias"
+            title="Ajustar país y normativas"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-sm shadow-2xs hover:bg-zinc-50"
+          >
+            ⚙️
+          </Link>
+        </div>
+      </div>
 
       <p className="text-center text-xs text-zinc-400">
         Valores nutricionales aproximados (elaborados con tablas de dominio público USDA FoodData Central).

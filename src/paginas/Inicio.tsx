@@ -221,31 +221,6 @@ export default function Inicio() {
         </Tarjeta>
       )}
 
-      {/* Botón de Acción Rápida: Escáner de Alimentos (1 toque desde Home) */}
-      <Link
-        to="/escaner"
-        className="group relative flex items-center justify-between overflow-hidden rounded-2xl border-2 border-marca-magenta/30 bg-gradient-to-r from-marca-magenta via-pink-600 to-marca-magenta p-4 text-white shadow-md transition-all hover:shadow-lg active:scale-98"
-      >
-        <div className="flex items-center gap-3.5 min-w-0 pr-2">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-2xl backdrop-blur-xs shadow-inner">
-            📷
-          </div>
-          <div className="min-w-0">
-            <span className="rounded-full bg-white/25 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
-              Escáner de Etiquetas
-            </span>
-            <p className="mt-0.5 text-base font-black leading-tight text-white truncate">
-              Escanear Producto de Supermercado
-            </p>
-            <p className="text-[11px] font-medium text-pink-100 truncate">
-              Apunta la cámara y obtén su nota de salud en 3 segundos
-            </p>
-          </div>
-        </div>
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-marca-magenta font-black text-sm shadow">
-          →
-        </span>
-      </Link>
 
       {/* 1. Tu Objetivo / Plan */}
       {objetivo && (
@@ -403,6 +378,48 @@ export default function Inicio() {
             className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-white/90 px-3.5 py-2 text-xs font-bold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:scale-95"
           >
             Abrir calendario de ciclo →
+          </Link>
+        </div>
+      </div>
+
+      {/* 7. Escáner de Alimentos y Etiquetas (Última sección de la página - En fase Beta) */}
+      <div className="relative overflow-hidden rounded-2xl border-2 border-dashed border-marca-magenta/30 bg-gradient-to-br from-pink-50/80 via-white to-purple-50/40 p-4 shadow-sm">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-marca-magenta text-2xl text-white shadow-xs">
+              📷
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-900 border border-amber-300">
+                  🔬 En fase Beta de prueba
+                </span>
+              </div>
+              <h3 className="mt-1 text-base font-black text-zinc-900">
+                Escáner de Alimentos y Etiquetas
+              </h3>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-2 text-xs text-zinc-600 leading-relaxed">
+          En fase Beta de prueba: apunta la cámara o ingresa el código para evaluar productos de supermercado con nota de salud, octógonos y aditivos según tu país.
+        </p>
+
+        <div className="mt-3.5 flex items-center gap-2">
+          <Link
+            to="/escaner"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-marca-magenta px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-marca-magenta-oscuro active:scale-95 text-center"
+          >
+            <span>📸 Abrir Escáner de Etiquetas</span>
+            <span>→</span>
+          </Link>
+          <Link
+            to="/escaner/preferencias"
+            title="Ajustar país y normativas"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-base shadow-2xs transition hover:bg-zinc-50 active:scale-95"
+          >
+            ⚙️
           </Link>
         </div>
       </div>

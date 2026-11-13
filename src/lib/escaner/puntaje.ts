@@ -17,6 +17,8 @@ export interface ParametrosPuntaje {
   categoriaTags?: string[];
   esLiquido?: boolean;
   ingredientesTexto?: string;
+  codigoBarras?: string;
+  paisPreferido?: string;
 }
 
 export function calcularPuntajeSalud(params: ParametrosPuntaje): PuntajeSalud {
@@ -46,12 +48,14 @@ export function calcularPuntajeSalud(params: ParametrosPuntaje): PuntajeSalud {
     ) ||
       (params.ingredientesTexto || '').toLowerCase().includes('aceite'));
 
-  // Octógonos argentinos (exceptúa legalmente aceites puros según Decreto 151/2022)
-  const { octogonos, leyendas } = calcularOctogonosArgentina(nutrientes, {
+  // Octógonos y sellos de advertencia según la normativa del país o modelo OPS/OMS
+  const { octogonos, leyendas, paisInfo } = calcularOctogonosArgentina(nutrientes, {
     esLiquido,
     aditivosCodigos: params.aditivosCodigos,
     ingredientesTexto: params.ingredientesTexto,
     esExceptuadoPorLey: esAceitePuro,
+    codigoBarras: params.codigoBarras,
+    paisPreferido: params.paisPreferido,
   });
 
   // ─── 1. COMPONENTE NUTRICIONAL (0 a 60 pts) ────────────────
@@ -362,5 +366,12 @@ export function calcularPuntajeSalud(params: ParametrosPuntaje): PuntajeSalud {
     equivalencias,
     octogonos,
     leyendas,
+    paisNormativa: {
+      codigo: paisInfo.codigo,
+      nombre: paisInfo.nombre,
+      bandera: paisInfo.bandera,
+      normativa: paisInfo.normativa,
+      organismo: paisInfo.organismo,
+    },
   };
 }

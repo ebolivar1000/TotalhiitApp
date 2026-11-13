@@ -1,5 +1,52 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-12 (sesión 31) — Reorganización de UI del Escáner (Fase Beta al final), Optimización y Preparación Completa para Amazon Developer Console y Versión v1.0.14 (Build 15)
+- **Reorganización de la Interfaz del Escáner:**
+  - En `Inicio.tsx`: Se trasladó el acceso del Escáner de Alimentos a la parte inferior de la pantalla (después de Ciclo Menstrual), con el distintivo oficial `🔬 En fase Beta de prueba` y descripción orientativa: "En fase Beta de prueba: apunta la cámara o ingresa el código para evaluar productos de supermercado con nota de salud, octógonos y aditivos según tu país".
+  - En `Nutricion.tsx`: Se movió la tarjeta del Escáner de Alimentos al final de la página con el distintivo de fase beta.
+  - En `Escaner.tsx` y `DetalleProducto.tsx`: Se incorporó el badge visible `En fase Beta de prueba` para transparencia total con las usuarias.
+- **Preparación Integral para Amazon Developer Console (Amazon Appstore):**
+  - **Firma Release de Producción:**
+    - Generada Keystore de producción `totalhiit-release.keystore` (PKCS12, RSA 2048, 10.000 días de validez, alias `totalhiit`).
+    - Configurado `android/app/build.gradle` para firmar automáticamente en tareas `assembleRelease` con esquemas de firma v2 y v3 (`apksigner`).
+    - Verificación exitosa de firma contra rechazos de Amazon (*"The APK is signed with a debug key"*).
+  - **Alineación de SDK y Manifiesto Android:**
+    - `targetSdkVersion` configurado en 34 (Android 14, exigencia oficial de Amazon Appstore).
+    - `compileSdkVersion` en 36.
+    - Manifiesto actualizado con `<supports-screens>` para compatibilidad nativa con tablets Amazon Fire (Fire 7, Fire HD 8, Fire HD 10, Fire Max 11) y teléfonos Android.
+    - Declaración de características hardware no restrictivas (`camera`, `autofocus`, `flash`, `touchscreen` con `required="false"`).
+  - **Artefactos Gráficos y Carpeta `amazon-developer/`:**
+    - `app-release.apk` (24.5 MB, Release firmado con esquemas v2 y v3).
+    - `icon-512.png` (512 × 512 px PNG, obligatorio por Amazon).
+    - `icon-114.png` (114 × 114 px PNG, obligatorio por Amazon).
+    - `promo-banner-1024x500.png` (1024 × 500 px PNG, requerido/recomendado por Amazon).
+    - `METADATA_AMAZON_APPSTORE.md`: Guía paso a paso con todos los campos de Amazon Developer Console listos para copiar y pegar (Título, Subtítulo, Descripciones corta y larga, Feature Bullets, Palabras clave, Clasificación de contenido, Políticas).
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.14 (Build 15)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 236/236 pruebas unitarias exitosas (`npm test`), compilación web Vite y sincronización con Capacitor.
+- **Internacionalización y Soporte de Países Hispanoparlantes:**
+  - **Detección Automática de País por Código de Barras GS1 (`paises.ts`):** Mapeo de prefijos GS1 oficiales:
+    - `750` -> México 🇲🇽 (NOM-051 / Secretaría de Salud).
+    - `770` / `771` -> Colombia 🇨🇴 (Res. 2492 / Ley 2120 / MinSalud).
+    - `780` -> Chile 🇨🇱 (Ley 20.606 / Minsal).
+    - `779` -> Argentina 🇦🇷 (Ley 27.642 / MinSal).
+    - `775` -> Perú 🇵🇪 (Ley 30021 / Minsa).
+    - `773` -> Uruguay 🇺🇾 (Decreto 272/018 / MSP).
+    - `84` -> España 🇪🇸 (Nutri-Score / AESAN).
+    - Otros prefijos de América Latina (Venezuela `759`, Ecuador `786`, Centroamérica `740-745`, Bolivia `777`, Paraguay `784`) -> Modelo OPS/OMS 🌎.
+  - **Sellos Frontales y Leyendas Adaptados por País (`octogonos.ts` y `OctogonosArgentina.tsx`):**
+    - Títulos y formatos adaptados: "EXCESO AZÚCARES" (NOM-051 México), "ALTO EN AZÚCARES" (Chile y Perú), "EXCESO EN AZÚCARES" (Argentina, Colombia y OPS/OMS).
+    - Organismo emisor oficial mostrado en cada sello: Secretaría de Salud (MX), Ministerio de Salud (AR, CL, PE), MinSalud (CO), OPS/OMS.
+    - Soporte contextual para España y la Unión Europea (destacando el Nutri-Score oficial y los nutrientes críticos preventivos).
+  - **Catálogo Local Curado Multipaís (`catalogoLocal.ts`):**
+    - Incorporados productos de alta rotación de góndola: Bimbo Pan Blanco/Integral, Gansito Marinela, Galletas Marías, Sabritas, Lala, Aceite 1-2-3 (México); Galletas Ducales, Saltín Noel, Chocoramo, Leche Alquería, Aceite Premier (Colombia); Galletas Tritón, Leche Colún, Aceite Miraflores (Chile); Galletas Soda Field, Leche Gloria, Aceite Primor, Inca Kola (Perú); Galletas María Gullón, Aceite Carbonell, Leche Pascual (España).
+  - **Preferencia de Legislación en Configuración (`PreferenciasEscaner.tsx`):**
+    - Nuevo selector para permitir a la usuaria forzar una legislación específica o dejarlo en detección automática según el producto escaneado.
+  - **Identificación Visual de País:** Añadido badge de bandera y país de origen en la ficha del producto escaneado.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.13 (Build 14)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 236/236 pruebas unitarias exitosas (`npm test`), compilación web y sincronización de Capacitor con Android.
+
 ## 2026-11-12 (sesión 29) — Catálogo Local Argentino Offline, Resolución de Valores en Cero, Edición de Tablas y Versión v1.0.12 (Build 13)
 - **Diagnóstico y Corrección de Problemas en Escáner de Etiquetas:**
   - **Problema 1 (Códigos no encontrados o incompletos en Open Food Facts):**

@@ -91,6 +91,7 @@ export default function ModalEditarNutrientes({
       categoriaTags: tags,
       esLiquido,
       ingredientesTexto: producto.ingredientesTexto,
+      codigoBarras: producto.codigoBarras,
     });
 
     const productoActualizado: ProductoEscaneado = {

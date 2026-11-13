@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import VisorCamara from '../componentes/escaner/VisorCamara';
 import { BotonPrimario, BotonSecundario, EntradaTexto, Tarjeta } from '../componentes/ui';
+import { usePerfil } from '../hooks/usePerfil';
 import { buscarEnCatalogoLocal } from '../lib/escaner/catalogoLocal';
 import { consultarOpenFoodFacts } from '../lib/escaner/openfoodfacts';
-import { guardarProducto, obtenerProducto } from '../lib/escaner/repositorio';
+import { guardarProducto, obtenerPreferenciasEscaner, obtenerProducto } from '../lib/escaner/repositorio';
 import { crearProductoDesdeOcr, extraerNutrientesDeTexto } from '../lib/escaner/ocr';
 
 export default function Escaner() {
   const navigate = useNavigate();
+  const { perfil } = usePerfil();
   const [modalManual, setModalManual] = useState(false);
   const [codigoManual, setCodigoManual] = useState('');
   const [modalOcr, setModalOcr] = useState(false);
@@ -48,8 +50,14 @@ export default function Escaner() {
         return;
       }
 
-      // 2. Revisar si está en el catálogo curado argentino (offline inmediato)
-      const enCatalogo = buscarEnCatalogoLocal(cod);
+      let prefPais: string | undefined = undefined;
+      if (perfil?.id) {
+        const ep = await obtenerPreferenciasEscaner(perfil.id);
+        prefPais = ep?.paisNormativa;
+      }
+
+      // 2. Revisar si está en el catálogo curado multipaís (offline inmediato)
+      const enCatalogo = buscarEnCatalogoLocal(cod, prefPais);
       if (enCatalogo) {
         await guardarProducto(enCatalogo);
         setCargando(false);
@@ -58,7 +66,7 @@ export default function Escaner() {
       }
 
       // 3. Consultar Open Food Facts
-      const res = await consultarOpenFoodFacts(cod);
+      const res = await consultarOpenFoodFacts(cod, prefPais);
       if (res.exito && res.producto) {
         await guardarProducto(res.producto);
         setCargando(false);
@@ -177,9 +185,11 @@ export default function Escaner() {
           <h1 className="text-base font-black uppercase tracking-wide text-zinc-900">
             Escáner de Alimentos
           </h1>
-          <p className="text-[11px] font-semibold text-zinc-500">
-            Enfoca el código de barras
-          </p>
+          <div className="mt-0.5 flex items-center justify-center gap-1">
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900 border border-amber-300">
+              En fase Beta de prueba
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-1.5">
           <Link
