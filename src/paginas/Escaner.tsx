@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import VisorCamara from '../componentes/escaner/VisorCamara';
 import { BotonPrimario, BotonSecundario, EntradaTexto, Tarjeta } from '../componentes/ui';
@@ -7,15 +7,30 @@ import { buscarEnCatalogoLocal } from '../lib/escaner/catalogoLocal';
 import { consultarOpenFoodFacts } from '../lib/escaner/openfoodfacts';
 import { guardarProducto, obtenerPreferenciasEscaner, obtenerProducto } from '../lib/escaner/repositorio';
 import { crearProductoDesdeOcr, extraerNutrientesDeTexto } from '../lib/escaner/ocr';
+import {
+  analizarFotoConIa,
+  comprimirImagen,
+  guardarApiKeyGemini,
+  obtenerApiKeyGemini,
+} from '../lib/escaner/iaVision';
 
 export default function Escaner() {
   const navigate = useNavigate();
   const { perfil } = usePerfil();
+  const inputFotoIaRef = useRef<HTMLInputElement>(null);
+
   const [modalManual, setModalManual] = useState(false);
   const [codigoManual, setCodigoManual] = useState('');
   const [modalOcr, setModalOcr] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [mensajeError, setMensajeError] = useState<string | null>(null);
+
+  // Estados de IA Vision
+  const [procesandoIa, setProcesandoIa] = useState(false);
+  const [mensajeProgresoIa, setMensajeProgresoIa] = useState('');
+  const [modalConfigurarIa, setModalConfigurarIa] = useState(false);
+  const [inputApiKeyTemporal, setInputApiKeyTemporal] = useState('');
+  const [archivoFotoPendiente, setArchivoFotoPendiente] = useState<File | null>(null);
 
   // Formulario para OCR / Carga Manual de Tabla Nutricional
   const [formOcr, setFormOcr] = useState({
@@ -120,14 +135,65 @@ export default function Escaner() {
     }));
   };
 
+  // Procesar foto de ingredientes o tabla con IA (Estilo Trash Panda)
+  const procesarFotoConIa = async (file: File, keyExplicit?: string) => {
+    const key = keyExplicit || obtenerApiKeyGemini();
+    if (!key) {
+      setArchivoFotoPendiente(file);
+      setInputApiKeyTemporal('');
+      setModalConfigurarIa(true);
+      return;
+    }
+
+    setProcesandoIa(true);
+    setMensajeProgresoIa('Comprimiendo imagen en tu dispositivo…');
+    setMensajeError(null);
+
+    try {
+      const { base64, mimeType } = await comprimirImagen(file);
+
+      let prefPais: string | undefined = undefined;
+      if (perfil?.id) {
+        const ep = await obtenerPreferenciasEscaner(perfil.id);
+        prefPais = ep?.paisNormativa;
+      }
+
+      setMensajeProgresoIa('✨ Analizando tabla e ingredientes con IA (Google Gemini)…');
+      const res = await analizarFotoConIa({
+        imagenBase64: base64,
+        mimeType,
+        apiKey: key,
+        paisNormativa: prefPais,
+      });
+
+      setProcesandoIa(false);
+
+      if (res.ok && res.producto) {
+        await guardarProducto(res.producto);
+        navigate(`/escaner/producto/${res.producto.codigoBarras}`);
+      } else {
+        setMensajeError(res.mensaje || 'No se pudo analizar la foto.');
+        // Fallback al modal manual / OCR
+        setFormOcr((prev) => ({
+          ...prev,
+          nombre: prev.nombre || file.name.replace(/\.[^/.]+$/, ''),
+        }));
+        setModalOcr(true);
+      }
+    } catch {
+      setProcesandoIa(false);
+      setMensajeError('Error al procesar la imagen con IA. Abriendo registro manual…');
+      setFormOcr((prev) => ({
+        ...prev,
+        nombre: prev.nombre || file.name.replace(/\.[^/.]+$/, ''),
+      }));
+      setModalOcr(true);
+    }
+  };
+
   // Manejar subida de foto de etiqueta / tabla nutricional
   const manejarFotoSubida = (file: File) => {
-    // Si sube foto, se abre el modal guiado y se lee el nombre del archivo
-    setModalOcr(true);
-    setFormOcr((prev) => ({
-      ...prev,
-      nombre: prev.nombre || file.name.replace(/\.[^/.]+$/, ''),
-    }));
+    void procesarFotoConIa(file);
   };
 
   // Guardar producto manual / OCR
@@ -230,6 +296,48 @@ export default function Escaner() {
         onIngresoManual={() => setModalManual(true)}
         onFotoSubida={manejarFotoSubida}
       />
+
+      {/* Botón de Acción Especial: Foto a los Ingredientes (Estilo Trash Panda con IA) */}
+      <div className="rounded-2xl border-2 border-purple-300 bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 p-3.5 shadow-xs">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-600 text-xl text-white shadow-xs">
+              ✨
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-black text-zinc-900 truncate">
+                  ¿Sin código o no lo encuentra?
+                </p>
+                <span className="rounded-full bg-purple-100 border border-purple-200 px-1.5 py-0.2 text-[9px] font-bold text-purple-800">
+                  Modo IA
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-600 truncate">
+                Foto a los ingredientes o tabla nutricional
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => inputFotoIaRef.current?.click()}
+            className="shrink-0 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-95 px-3 py-2 text-xs font-bold text-white shadow-xs transition"
+          >
+            📸 Foto IA
+          </button>
+          <input
+            ref={inputFotoIaRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void procesarFotoConIa(file);
+              e.target.value = '';
+            }}
+          />
+        </div>
+      </div>
 
       {/* Guía Rápida de Uso en Supermercado */}
       <Tarjeta className="p-4 text-xs">
@@ -591,6 +699,114 @@ export default function Escaner() {
                 </BotonPrimario>
               </div>
             </form>
+          </Tarjeta>
+        </div>
+      )}
+
+      {/* MODAL: Procesando Imagen con IA */}
+      {procesandoIa && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <Tarjeta className="max-w-sm w-full p-6 text-center space-y-3.5">
+            <div className="flex items-center justify-center">
+              <span className="text-4xl animate-bounce">✨</span>
+            </div>
+            <h3 className="text-base font-bold text-zinc-900">
+              Analizando Etiqueta con IA
+            </h3>
+            <p className="text-xs text-zinc-600 leading-relaxed font-medium">
+              {mensajeProgresoIa}
+            </p>
+            <div className="rounded-xl bg-purple-50 p-2.5 text-[11px] text-purple-900">
+              Extrayendo calorías, azúcares, grasas y traduciendo ingredientes a palabras cotidianas…
+            </div>
+          </Tarjeta>
+        </div>
+      )}
+
+      {/* MODAL: Configurar API Key para Foto con IA */}
+      {modalConfigurarIa && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <Tarjeta className="max-w-sm w-full p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🤖</span>
+                <h3 className="font-bold text-sm text-zinc-900">
+                  Foto con IA (Google Gemini)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalConfigurarIa(false)}
+                className="text-zinc-400 hover:text-zinc-600 text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-zinc-600 leading-relaxed">
+              Google ofrece <strong>1.500 fotos al día completamente gratis</strong>. Si se agota el cupo diario, el servicio se detiene de forma segura: <strong>jamás se realizarán cobros imprevistos</strong>.
+            </p>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-zinc-700">
+                Pega tu API Key de Google Gemini:
+              </label>
+              <input
+                type="password"
+                placeholder="AIzaSy..."
+                value={inputApiKeyTemporal}
+                onChange={(e) => setInputApiKeyTemporal(e.target.value)}
+                className="w-full rounded-xl border border-zinc-300 p-2 text-xs outline-none focus:border-purple-600"
+              />
+              <p className="text-[10px] text-zinc-500">
+                Obtén tu clave gratis en 1 minuto en{' '}
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-bold text-marca-magenta underline"
+                >
+                  Google AI Studio →
+                </a>
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 pt-2">
+              <BotonPrimario
+                type="button"
+                onClick={() => {
+                  if (inputApiKeyTemporal.trim()) {
+                    guardarApiKeyGemini(inputApiKeyTemporal);
+                    setModalConfigurarIa(false);
+                    if (archivoFotoPendiente) {
+                      void procesarFotoConIa(archivoFotoPendiente, inputApiKeyTemporal.trim());
+                    }
+                  } else {
+                    alert('Por favor ingresa una clave válida de Google AI Studio.');
+                  }
+                }}
+                className="w-full text-xs bg-purple-600 hover:bg-purple-700"
+              >
+                Guardar y Analizar con IA →
+              </BotonPrimario>
+
+              <BotonSecundario
+                type="button"
+                onClick={() => {
+                  setModalConfigurarIa(false);
+                  if (archivoFotoPendiente) {
+                    setFormOcr((prev) => ({
+                      ...prev,
+                      nombre: prev.nombre || archivoFotoPendiente.name.replace(/\.[^/.]+$/, ''),
+                    }));
+                  }
+                  setModalOcr(true);
+                }}
+                className="w-full text-xs"
+              >
+                Continuar con Carga Manual / Plantillas
+              </BotonSecundario>
+            </div>
           </Tarjeta>
         </div>
       )}

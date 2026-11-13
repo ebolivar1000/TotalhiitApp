@@ -114,6 +114,16 @@ export const LISTA_PAISES_DISPONIBLES: { id: string; etiqueta: string; bandera: 
 ];
 
 /**
+ * Resuelve la información normativa de un país a partir de su código ('MX', 'AR', etc.).
+ */
+export function resolverInfoPais(paisCodigo?: string): InfoPaisNormativa {
+  if (paisCodigo && paisCodigo !== 'auto' && PAISES_NORMATIVAS[paisCodigo]) {
+    return PAISES_NORMATIVAS[paisCodigo] ?? PAIS_OPS_BASE;
+  }
+  return PAIS_OPS_BASE;
+}
+
+/**
  * Detecta el país y normativa correspondiente a partir del prefijo numérico GS1 del código de barras.
  */
 export function detectarPaisPorCodigo(codigoBarras: string, paisPreferido?: string): InfoPaisNormativa {

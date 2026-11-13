@@ -127,13 +127,19 @@ export interface ProductoEscaneado {
   esLiquido?: boolean;
   puntaje: PuntajeSalud;
   alternativas?: AlternativaSaludable[];
-  fuente: 'openfoodfacts' | 'ocr_manual' | 'local_cache' | 'catalogo_local';
+  fuente: 'openfoodfacts' | 'ocr_manual' | 'local_cache' | 'catalogo_local' | 'ia_vision';
   fechaEscaneo: number; // timestamp ms
   favorito?: boolean;
   datosIncompletos?: boolean;
   perfilInferido?: boolean;
   mensajeInferencia?: string;
   editadoPorUsuario?: boolean;
+  explicacionIa?: string;
+  iaVisionMetadata?: {
+    modelo: string;
+    fecha: number;
+    tokensAproximados?: number;
+  };
   paisOrigen?: {
     codigo: string;
     nombre: string;
@@ -148,6 +154,7 @@ export interface PreferenciasEscaner {
   dietas: string[]; // ej: ["vegetariana", "vegana", "sin_gluten"]
   objetivosSalud: string[]; // ej: ["bajar_azucar", "bajar_sodio", "alta_proteina", "evitar_ultraprocesados"]
   paisNormativa?: string; // 'auto' | 'MX' | 'CO' | 'CL' | 'AR' | 'PE' | 'UY' | 'ES' | 'OPS'
+  geminiApiKey?: string; // Clave de Google AI Studio (Free Tier: 1.500 consultas/día gratis)
   createdAt: number;
   updatedAt: number;
 }

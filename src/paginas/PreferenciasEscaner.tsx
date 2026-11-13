@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { BotonPrimario, ChipsMulti, Tarjeta } from '../componentes/ui';
+import { BotonPrimario, ChipsMulti, EntradaTexto, Tarjeta } from '../componentes/ui';
 import { usePerfil } from '../hooks/usePerfil';
+import { guardarApiKeyGemini, obtenerApiKeyGemini } from '../lib/escaner/iaVision';
 import { LISTA_PAISES_DISPONIBLES } from '../lib/escaner/paises';
 import { guardarPreferenciasEscaner, obtenerPreferenciasEscaner } from '../lib/escaner/repositorio';
 import type { PreferenciasEscaner } from '../lib/escaner/tipos';
@@ -40,6 +41,7 @@ export default function PreferenciasEscaner() {
   const [dietas, setDietas] = useState<string[]>([]);
   const [objetivosSalud, setObjetivosSalud] = useState<string[]>([]);
   const [paisNormativa, setPaisNormativa] = useState<string>('auto');
+  const [apiKeyGemini, setApiKeyGemini] = useState<string>('');
   const [guardado, setGuardado] = useState(false);
 
   useEffect(() => {
@@ -51,18 +53,21 @@ export default function PreferenciasEscaner() {
         setObjetivosSalud(p.objetivosSalud || []);
         setPaisNormativa(p.paisNormativa || 'auto');
       }
+      setApiKeyGemini(obtenerApiKeyGemini());
     }
     void cargar();
   }, [userId]);
 
   const manejarGuardar = async (e: React.FormEvent) => {
     e.preventDefault();
+    guardarApiKeyGemini(apiKeyGemini);
     const prefs: PreferenciasEscaner = {
       userId,
       alergenos,
       dietas,
       objetivosSalud,
       paisNormativa,
+      geminiApiKey: apiKeyGemini.trim() || undefined,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -178,6 +183,50 @@ export default function PreferenciasEscaner() {
                 </option>
               ))}
             </select>
+          </div>
+        </Tarjeta>
+
+        {/* 5. Inteligencia Artificial (Google Gemini Free Tier) */}
+        <Tarjeta>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🤖</span>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900">
+              Inteligencia Artificial para Fotos (Gemini)
+            </h2>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600 leading-relaxed">
+            Permite tomar fotos de ingredientes o tablas nutricionales y traducirlas a lenguaje cotidiano.
+          </p>
+          <div className="mt-2.5 rounded-xl border border-purple-200 bg-purple-50/70 p-3 text-[11px] text-purple-950 space-y-1.5">
+            <p className="font-bold">🛡️ Política de Cuota Segura y Gratuita:</p>
+            <p>
+              • El plan gratuito de Google ofrece hasta <strong>1.500 fotos al día sin costo</strong>.
+            </p>
+            <p>
+              • Si se alcanza el cupo diario, el servicio se detiene de forma segura: <strong>jamás se realizarán cobros automáticos imprevistos</strong>.
+            </p>
+          </div>
+          <div className="mt-3 space-y-1.5">
+            <label className="text-xs font-semibold text-zinc-700">
+              API Key de Google Gemini (Opcional para fotos con IA):
+            </label>
+            <EntradaTexto
+              type="password"
+              placeholder="AIzaSy..."
+              value={apiKeyGemini}
+              onChange={(e) => setApiKeyGemini(e.target.value)}
+            />
+            <p className="text-[10px] text-zinc-500">
+              ¿No tienes una clave? Puedes generar una gratis en 1 minuto en{' '}
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noreferrer"
+                className="font-bold text-marca-magenta underline"
+              >
+                Google AI Studio →
+              </a>
+            </p>
           </div>
         </Tarjeta>
 

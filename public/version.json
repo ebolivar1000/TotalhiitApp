@@ -1,12 +1,12 @@
 {
-  "version": "1.0.15",
-  "buildNumber": 16,
+  "version": "1.0.16",
+  "buildNumber": 17,
   "releaseDate": "2026-11-13",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Corrección de compatibilidad en la instalación del APK: restauración de firma compatible con versiones previas (permite actualizar sin errores de conflicto ni necesidad de desinstalar).",
-    "Ubicación del Escáner de Etiquetas al final de la página con distintivo 'En fase Beta de prueba'.",
-    "Compatibilidad con tablets Amazon Fire y paquete oficial de entrega en carpeta amazon-developer/.",
-    "Soporte Multipaís en el Escáner con detección automática GS1 y sellos adaptados por país."
+    "Nuevo modo Foto con Inteligencia Artificial (estilo Trash Panda): toma una foto a la lista de ingredientes o tabla nutricional y la IA la traduce a lenguaje cotidiano.",
+    "Política de cuota segura y gratuita: aprovecha hasta 1.500 fotos al día de Google Gemini Free Tier sin riesgo de cobros automáticos imprevistos.",
+    "Ficha de resultado enriquecida con explicación en palabras simples redactada por IA.",
+    "Ajuste y configuración de API Key en Preferencias del Escáner con enlace a Google AI Studio."
   ]
 }

@@ -1,5 +1,21 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-13 (sesión 33) — Modo Foto con IA (Trash Panda Style) para Ingredientes y Tablas, Política de Cuota Segura y Versión v1.0.16 (Build 17)
+- **Implementación de Análisis de Foto de Ingredientes con IA Multimodal (`iaVision.ts`):**
+  - **Servicio de Visión por IA (Google Gemini Flash):** Permite fotografiar directamente listas de ingredientes o tablas nutricionales y extraer calorías, macronutrientes, sodio, aditivos y alérgenos de forma automática.
+  - **Traducción a Lenguaje Cotidiano (Estilo Trash Panda):** Genera una explicación en español coloquial sin tecnicismos ("En palabras simples") adaptada al público de TOTAL+40 (usando metáforas de cucharaditas de azúcar/sal y consejos prácticos para desinflamar).
+  - **Política de Cuota Segura (Sin Cobros Ocultos):** Diseñado con verificación de cuota gratuita (hasta 1.500 consultas diarias de Google Gemini Free Tier). Si se alcanza el límite (HTTP 429), la aplicación detiene las consultas de forma transparente, notificando a la usuaria sin realizar ningún cobro automático imprevisto.
+  - **Compresión en el Dispositivo:** Algoritmo en cliente que comprime fotos de alta resolución a ~100 KB en milisegundos antes del envío.
+  - **Integración UI:**
+    - Botón de acción destacada `📸 Foto con IA` en el escáner.
+    - Modal de progreso animado durante el análisis.
+    - Modal amigable para configurar la clave de Google Gemini o continuar con plantillas manuales.
+    - Tarjeta destacada `✨ En palabras simples` en la pantalla de detalle del producto (`DetalleProducto.tsx`).
+    - Sección de configuración de API Key en `PreferenciasEscaner.tsx`.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.16 (Build 17)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** 32 suites de pruebas (241/241 tests pasados), compilación web Vite y sincronización Capacitor.
+
 ## 2026-11-13 (sesión 32) — Resolución de Error de Instalación de APK, Compatibilidad de Firma y Versión v1.0.15 (Build 16)
 - **Diagnóstico y Corrección de Error de Instalación:**
   - **Causa Raíz Identificada:**

@@ -1,5 +1,5 @@
 # Guía de Publicación y Metadatos para Amazon Developer Console
-## App: TOTALHIIT (v1.0.14 - Build 15)
+## App: TOTALHIIT (v1.0.16 - Build 17)
 
 Esta carpeta contiene **todos los artefactos y metadatos oficiales listos para subir** a la consola de [Amazon Developer](https://developer.amazon.com/apps-and-games/console).
 
@@ -56,8 +56,9 @@ Guiada por la Coach Valentina, TOTALHIIT combina la ciencia del ejercicio funcio
 - Planificador semanal de comidas con generación automática de lista de compras organizada por pasillos.
 - Descarga e impresión de planes y recetas en formato PDF.
 
-🔬 3. ESCÁNER DE ETIQUETAS DE SUPERMERCADO (Fase Beta)
-- Apunta la cámara al código de barras de cualquier producto en el supermercado y obtén su nota de salud (0-100) en 3 segundos.
+🔬 3. ESCÁNER DE ETIQUETAS Y FOTO IA DE INGREDIENTES (Fase Beta)
+- Escaneo instantáneo de código de barras (EAN/UPC) con nota de salud (0-100) en 3 segundos.
+- Modo Foto IA (estilo Trash Panda): fotografía directamente la tabla nutricional o ingredientes y la inteligencia artificial te explica en español cotidiano y sencillo qué vas a comer.
 - Adaptado a la normativa oficial de tu país:
   * México: Sellos NOM-051 y leyendas precautorias.
   * Colombia: Sellos de advertencia Resolución 2492 / Ley 2120.

@@ -344,7 +344,25 @@ export default function DetalleProducto() {
         }}
       />
 
-      {/* 2. TARJETA PRINCIPAL DE PUNTAJE 0-100 CON FRASES Y BADGES */}
+      {/* 2. EXPLICACIÓN EN PALABRAS SIMPLES DE LA IA (Trash Panda Style) */}
+      {producto.explicacionIa && (
+        <div className="relative overflow-hidden rounded-2xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">✨</span>
+              <h3 className="font-bold text-sm text-zinc-900">En palabras simples</h3>
+            </div>
+            <span className="rounded-full bg-purple-100 border border-purple-300 px-2.5 py-0.5 text-[10px] font-black uppercase text-marca-magenta">
+              IA Vision
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-zinc-700 leading-relaxed font-medium">
+            {producto.explicacionIa}
+          </p>
+        </div>
+      )}
+
+      {/* 3. TARJETA PRINCIPAL DE PUNTAJE 0-100 CON FRASES Y BADGES */}
       <TarjetaPuntaje
         puntaje={producto.puntaje}
         nutriScore={producto.nutriScoreGrade}
