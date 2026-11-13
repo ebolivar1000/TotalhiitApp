@@ -1,12 +1,12 @@
 {
-  "version": "1.0.18",
-  "buildNumber": 19,
+  "version": "1.0.19",
+  "buildNumber": 20,
   "releaseDate": "2026-11-13",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Corrección de layout de teclado en Onboarding: la barra inferior se oculta automáticamente al enfocar campos de texto para no tapar lo que se escribe tanto en Android como en iOS.",
-    "Botones de paso integrados en el flujo natural del formulario y eliminación de solapamientos con el teclado virtual.",
-    "Aislamiento de banner PWA para que nunca aparezca durante el registro inicial.",
+    "Detección de app nativa en Onboarding: se oculta el cartel de 'Descargar APK' cuando ya se está dentro de la app instalada.",
+    "Corrección de layout de teclado en Onboarding: la barra inferior se oculta automáticamente al enfocar campos de texto para no tapar lo que se escribe.",
+    "Separación clara entre instalación de APK y acceso web.",
     "Soporte completo PWA para iOS (iPhone y iPad) y escáner universal ZXing."
   ]
 }

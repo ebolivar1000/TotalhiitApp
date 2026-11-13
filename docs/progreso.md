@@ -1,5 +1,12 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-13 (sesión 36) — Aislamiento de Banner en App Nativa y Versión v1.0.19 (Build 20)
+- **Aislamiento de Cartel 'Descargar APK' en Onboarding (`Onboarding.tsx`):**
+  - Se verificó que cuando la app corre dentro del APK nativo de Android (Capacitor), no se muestre el cartel de bienvenida que invita a descargar el APK, evitando la falsa percepción de que el usuario sigue en la web.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.19 (Build 20)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** Pruebas unitarias (248/248 tests pasados), compilación web Vite, sincronización Capacitor y despliegue a Cloudflare Workers.
+
 ## 2026-11-13 (sesión 35) — Corrección de Layout de Teclado Virtual en Onboarding y Versión v1.0.18 (Build 19)
 - **Corrección de Solapamiento de Teclado en Onboarding (`Onboarding.tsx`):**
   - **Detección Dinámica de Teclado y Foco:** Integración de listeners reactivos para `focusin`, `focusout` y `visualViewport.resize` para identificar cuándo el teclado virtual de Android o iOS está activo.
