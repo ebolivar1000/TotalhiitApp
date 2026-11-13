@@ -1,13 +1,12 @@
 {
-  "version": "1.0.14",
-  "buildNumber": 15,
-  "releaseDate": "2026-11-12",
+  "version": "1.0.15",
+  "buildNumber": 16,
+  "releaseDate": "2026-11-13",
   "apkUrl": "https://totalhiit-app.caribialabs.workers.dev/totalhiit.apk",
   "novedades": [
-    "Ubicación del Escáner de Etiquetas reorganizada al final de la página con distintivo 'En fase Beta de prueba'.",
-    "Optimización completa para publicación en Amazon Developer Console / Fire OS (Target SDK 34, firma Release PKCS12, soporte Fire Tablets).",
-    "Soporte Multipaís en el Escáner: detección automática de país por código de barras (GS1) para México 🇲🇽, Colombia 🇨🇴, Chile 🇨🇱, Argentina 🇦🇷, Perú 🇵🇪, Uruguay 🇺🇾, España 🇪🇸 e internacional OPS/OMS 🌎.",
-    "Sellos frontales y leyendas adaptados a la normativa oficial de cada país (NOM-051 México, Ley 20.606 Chile, Res. 2492 Colombia, Ley 27.642 Argentina, Nutri-Score España).",
-    "Catálogo local ampliado con productos emblemáticos de México, Colombia, Chile, Perú y España."
+    "Corrección de compatibilidad en la instalación del APK: restauración de firma compatible con versiones previas (permite actualizar sin errores de conflicto ni necesidad de desinstalar).",
+    "Ubicación del Escáner de Etiquetas al final de la página con distintivo 'En fase Beta de prueba'.",
+    "Compatibilidad con tablets Amazon Fire y paquete oficial de entrega en carpeta amazon-developer/.",
+    "Soporte Multipaís en el Escáner con detección automática GS1 y sellos adaptados por país."
   ]
 }

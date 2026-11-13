@@ -1,5 +1,17 @@
 # Progreso — TOTALHIIT App
 
+## 2026-11-13 (sesión 32) — Resolución de Error de Instalación de APK, Compatibilidad de Firma y Versión v1.0.15 (Build 16)
+- **Diagnóstico y Corrección de Error de Instalación:**
+  - **Causa Raíz Identificada:**
+    1. **Conflicto de Firma Criptográfica (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`):** Las versiones previas (v1.0.1 a v1.0.13) distribuidas en la web estaban firmadas con la clave estándar Debug (`CN=Android Debug`, huella SHA256 `EB:C0:38:13...`). Al generar en v1.0.14 la clave de Release para Amazon Developers (`CN=TotalHIIT Production`, huella SHA256 `57:DB:09:74...`) y sobrescribir el archivo `totalhiit.apk` de descarga web, el sistema operativo Android bloqueaba de inmediato la actualización de cualquier usuario con la app instalada debido a la discrepancia de firmas digitales exigida por el kernel de seguridad de Android.
+    2. **Inconsistencia de Manifiesto JAR por Firma Manual Doble:** La ejecución manual de `apksigner` en PowerShell con forzado de esquema v1 sobre un archivo empaquetado generó entradas desordenadas en el ZIP (`Manifest is missing when reading via JarInputStream`), lo que provocaba fallos de análisis de paquete en diversos dispositivos.
+  - **Solución Implementada:**
+    - Se compila limpiamente desde Gradle el APK de distribución directa (`totalhiit.apk`) manteniendo la clave compatible con todas las instalaciones existentes de las usuarias (actualización sin pérdida de datos en 1 clic).
+    - Se conserva el archivo `app-release.apk` en `amazon-developer/` firmado limpiamente para su carga exclusiva en el portal de Amazon Developer Console.
+- **Sincronización Global de Versión:**
+  - Incremento a **v1.0.15 (Build 16)** en `build.gradle`, `version.json`, `package.json`, `actualizador.ts` y código fuente.
+- **Verificación:** Pruebas unitarias (236/236 pasadas), compilación web Vite, sincronización Capacitor y despliegue a Cloudflare Workers.
+
 ## 2026-11-12 (sesión 31) — Reorganización de UI del Escáner (Fase Beta al final), Optimización y Preparación Completa para Amazon Developer Console y Versión v1.0.14 (Build 15)
 - **Reorganización de la Interfaz del Escáner:**
   - En `Inicio.tsx`: Se trasladó el acceso del Escáner de Alimentos a la parte inferior de la pantalla (después de Ciclo Menstrual), con el distintivo oficial `🔬 En fase Beta de prueba` y descripción orientativa: "En fase Beta de prueba: apunta la cámara o ingresa el código para evaluar productos de supermercado con nota de salud, octógonos y aditivos según tu país".
